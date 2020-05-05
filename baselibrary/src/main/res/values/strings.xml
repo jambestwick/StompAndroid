@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">BaseLibrary</string>
+
+    <string name="title_name">标题</string>
+    <string name="title_save">保存</string>
+
+    <string name="connect_error">网络连接失败,请检查网络</string>
+    <string name="connect_timeout">连接超时,请稍后再试</string>
+    <string name="bad_network">服务器异常</string>
+    <string name="parse_error">解析服务器响应数据失败</string>
+    <string name="unknown_error">未知错误</string>
+    <string name="response_return_error">服务器返回数据失败</string>
+
+    <string name="loading">正在加载…</string>
+    <string name="load_failed">加载失败，点击重新加载</string>
+    <string name="empty_data">没有数据</string>
+    <string name="error_data">数据异常</string>
+    <string name="content_description">加载图标</string>
+
+    <string name="dialog_default_title">Here\'s a message!</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="LOADING">Loading...</string>
+</resources>

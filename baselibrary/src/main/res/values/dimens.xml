@@ -1,0 +1,62 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="title_height">50dp</dimen>
+    <dimen name="title_textsize">18sp</dimen>
+    <dimen name="def_height">50dp</dimen>
+    <dimen name="toast_textsize">14sp</dimen>
+
+
+    <dimen name="dp_0.5">0.5dp</dimen>
+    <dimen name="dp_1">1dp</dimen>
+    <dimen name="dp_2">2dp</dimen>
+    <dimen name="dp_4">4dp</dimen>
+    <dimen name="dp_6">6dp</dimen>
+    <dimen name="dp_8">8dp</dimen>
+    <dimen name="dp_10">10dp</dimen>
+    <dimen name="dp_12">12dp</dimen>
+    <dimen name="dp_14">14dp</dimen>
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="dp_20">20dp</dimen>
+    <dimen name="dp_24">24dp</dimen>
+    <dimen name="dp_32">32dp</dimen>
+    <dimen name="dp_40">40dp</dimen>
+    <dimen name="dp_56">56dp</dimen>
+    <dimen name="dp_64">64dp</dimen>
+    <dimen name="dp_72">72dp</dimen>
+    <dimen name="dp_80">80dp</dimen>
+    <dimen name="dp_92">92dp</dimen>
+    <dimen name="dp_96">96dp</dimen>
+    <dimen name="dp_108">108dp</dimen>
+    <dimen name="dp_128">128dp</dimen>
+    <dimen name="dp_144">144dp</dimen>
+    <dimen name="dp_160">160dp</dimen>
+    <dimen name="dp_176">176dp</dimen>
+    <dimen name="dp_192">192dp</dimen>
+    <dimen name="dp_216">216dp</dimen>
+    <dimen name="dp_224">224dp</dimen>
+    <dimen name="dp_256">256dp</dimen>
+    <dimen name="dp_264">264dp</dimen>
+    <dimen name="dp_272">272dp</dimen>
+    <dimen name="dp_296">296dp</dimen>
+
+    <dimen name="view_distance_small_px">1px</dimen>
+    <dimen name="sp_2">2sp</dimen>
+    <dimen name="sp_4">4sp</dimen>
+    <dimen name="sp_6">6sp</dimen>
+    <dimen name="sp_8">8sp</dimen>
+    <dimen name="sp_10">10sp</dimen>
+    <dimen name="sp_12">12sp</dimen>
+    <dimen name="sp_14">14sp</dimen>
+    <dimen name="sp_16">16sp</dimen>
+    <dimen name="sp_18">18sp</dimen>
+    <dimen name="sp_20">20sp</dimen>
+    <dimen name="sp_24">24sp</dimen>
+    <dimen name="sp_30">30sp</dimen>
+    <dimen name="sp_36">36sp</dimen>
+    <dimen name="sp_48">48sp</dimen>
+    <dimen name="sp_64">64sp</dimen>
+
+    <dimen name="alert_width">290dp</dimen>
+    <dimen name="common_circle_width">3dp</dimen>
+    <dimen name="progress_circle_radius">34dp</dimen>
+</resources>

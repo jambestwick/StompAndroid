@@ -1,0 +1,133 @@
+<resources>
+
+    <style name="ProgressDialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:windowSoftInputMode">stateUnspecified|adjustPan</item>
+    </style>
+    <!--Progress 主题-->
+    <style name="ProgressDialogStyle" parent="@style/ProgressDialog">
+        <item name="android:windowBackground">@color/transparent_light</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!--自定义dialog背景全透明无边框theme -->
+    <style name="SrcbDialog" parent="android:style/Theme.Dialog">
+        <!--背景颜色及和透明程度-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--是否去除标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!--是否去除边框-->
+        <item name="android:windowFrame">@null</item>
+        <!--是否浮现在activity之上-->
+        <item name="android:windowIsFloating">true</item>
+        <!--是否模糊-->
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="custom_dialog2" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <!-- Dialog的windowFrame框为无 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 是否漂现在activity上 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 是否半透明 -->
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 去除黑色边框的关键设置项 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 屏幕背景是否变暗 -->
+        <item name="android:backgroundDimAmount">0.3</item>
+    </style>
+
+    <!--dialog 底部进入，底部出去的动画-->
+    <style name="dialogAnim_bottom_into" mce_bogus="1" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/dialog_in_bottom</item>
+        <item name="android:windowExitAnimation">@anim/dialog_out_bottom</item>
+    </style>
+    <!--dialog 左进右出动画-->
+    <style name="Right_into_the_left_out" mce_bogus="1" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/dialog_in_left</item>
+        <item name="android:windowExitAnimation">@anim/dialog_out_right</item>
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom">  
+        <item name="android:windowEnterAnimation">@anim/fade_in</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom0">  
+        <item name="android:windowEnterAnimation">@anim/fade_in0</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out0</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom1">  
+        <item name="android:windowEnterAnimation">@anim/fade_in1</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out1</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom2">  
+        <item name="android:windowEnterAnimation">@anim/fade_in2</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out2</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom3">  
+        <item name="android:windowEnterAnimation">@anim/fade_in3</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out3</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom4">  
+        <item name="android:windowEnterAnimation">@anim/fade_in4</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out4</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom5">  
+        <item name="android:windowEnterAnimation">@anim/fade_in5</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out5</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom6">  
+        <item name="android:windowEnterAnimation">@anim/fade_in6</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out6</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom7">  
+        <item name="android:windowEnterAnimation">@anim/fade_in7</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out7</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom8">  
+        <item name="android:windowEnterAnimation">@anim/fade_in8</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out8</item> 
+    </style>
+    <!-- 放大缩小的动画 -->
+    <style name="AnimationZoom9">  
+        <item name="android:windowEnterAnimation">@anim/fade_in9</item>  
+        <item name="android:windowExitAnimation">@anim/fade_out9</item> 
+    </style>
+    <style name="alert_dialog" parent="android:Theme.Dialog">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowBackground">@color/float_transparent</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.4</item>
+    </style>
+
+    <style name="dialog_blue_button" parent="android:Widget.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">31dp</item>
+        <item name="android:background">@drawable/blue_button_background</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">21dp</item>
+        <item name="android:paddingRight">21dp</item>
+        <item name="android:textColor">@color/button_text_color</item>
+    </style>
+
+</resources>
