@@ -15,7 +15,6 @@ import java.util.*;
 
 public class MainActivity extends BaseActivity {
     private ActivityMainBinding binding;
-    private Timer timerTask;
 
 
     @Override
