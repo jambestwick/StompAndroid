@@ -21,4 +21,8 @@
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="LOADING">Loading...</string>
+    <string name="base_ok">确定</string>
+    <string name="base_cancel">取消</string>
+    <string name="base_prompt_message">提示信息</string>
+    <string name="base_permission_lack">当前应用缺少必要权限，该功能暂时无法使用。如若需要，请点击【确定】按钮前往设置中心进行权限授权。</string>
 </resources>

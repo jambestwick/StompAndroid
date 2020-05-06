@@ -4,7 +4,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -91,6 +90,7 @@ public class MainActivity extends BaseActivity {
             advise.setModifyUser("mdmdmd"+i);
             advise.setModifyTime(new Date());
             advise.save();
+
             //arrList.add(advise);
         }
         //SQLite.insert(Advise.class).values(arrList).executeInsert();

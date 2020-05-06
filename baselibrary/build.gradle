@@ -8,7 +8,6 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -25,6 +24,10 @@ android {
     compileOptions {
         targetCompatibility 1.8
         sourceCompatibility 1.8
+    }
+    lintOptions {
+        // true--错误发生后停止gradle构建
+        abortOnError false
     }
 }
 
