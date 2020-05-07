@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
@@ -74,7 +75,7 @@ public class MainActivity extends BaseActivity {
 //    }
 
     public void buildAds() {
-        List<Advise> arrList= new ArrayList<>();
+        List<Advise> arrList = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             Advise advise = new Advise();
             advise.setUuid(UUID.randomUUID());
@@ -85,8 +86,8 @@ public class MainActivity extends BaseActivity {
             advise.setCreateUser("张三" + i);
             advise.setValid(i % 2 == 0);
             advise.setFilePath("mnt/sdcard/aaa" + i + ".zip");
-            advise.setFileName("mdmdmd"+i);
-            advise.setModifyUser("mdmdmd"+i);
+            advise.setFileName("mdmdmd" + i);
+            advise.setModifyUser("mdmdmd" + i);
             advise.setModifyTime(new Date());
             advise.save();
 
