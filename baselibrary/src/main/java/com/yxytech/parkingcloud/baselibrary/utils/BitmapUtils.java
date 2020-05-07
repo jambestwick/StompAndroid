@@ -282,7 +282,7 @@ public class BitmapUtils {
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
-            LogUtil.e(BitmapUtils.class, e.toString());
+            LogUtil.e(BitmapUtils.class.getName(), e.toString());
             return null;
         } finally {
             try {
