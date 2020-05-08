@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -7,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
@@ -26,6 +28,7 @@ import java.util.*;
 public class MainActivity extends BaseActivity {
     private ActivityMainBinding binding;
     private LockAdapter lockAdapter;
+    private boolean swIsCheck;
 
 
     @Override
@@ -40,7 +43,7 @@ public class MainActivity extends BaseActivity {
             public void onSucceed() {
                 buildAds();
                 List<Advise> array = SQLite.select().from(Advise.class).where(Advise_Table.create_time.lessThan(new Date())).queryList();
-                Log.d("aaa", "onSucceed:"+array);
+                Log.d("aaa", "onSucceed:" + array);
             }
 
             @Override
@@ -108,24 +111,24 @@ public class MainActivity extends BaseActivity {
 
     void initViews() {
         List<String> boxDataList = new ArrayList<>();
+        boxDataList.add("Z01");
+        boxDataList.add("Z02");
+        boxDataList.add("Z03");
+        boxDataList.add("Z04");
+        boxDataList.add("Z05");
+        boxDataList.add("Z06");
+        boxDataList.add("Z07");
+        boxDataList.add("Z08");
+        boxDataList.add("Z09");
         boxDataList.add("A01");
-        boxDataList.add("A02");
-        boxDataList.add("A03");
-        boxDataList.add("A04");
-        boxDataList.add("A05");
-        boxDataList.add("A06");
-        boxDataList.add("A07");
-        boxDataList.add("A08");
-        boxDataList.add("A09");
-        boxDataList.add("CH5");
-        boxDataList.add("CH6");
-        boxDataList.add("CH7");
-        boxDataList.add("CH8");
-        boxDataList.add("CH9");
-        boxDataList.add("CH10");
-        boxDataList.add("CH11");
-        boxDataList.add("CH12");
-        boxDataList.add("CH25");
+        boxDataList.add("B01");
+        boxDataList.add("C01");
+        boxDataList.add("D01");
+        boxDataList.add("E01");
+        boxDataList.add("F01");
+        boxDataList.add("G01");
+        boxDataList.add("H01");
+        boxDataList.add("I01");
         lockAdapter = new LockAdapter();
         binding.mainLockListRcv.setLayoutManager(new LinearLayoutManager(this));
         binding.mainLockListRcv.setAdapter(lockAdapter);
@@ -134,10 +137,41 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onItemClick(@NonNull View view, int adapterPosition) {
                 LogUtil.d(TAG, "点击第:" + adapterPosition + "个");
-                KeyCabinetReceiver.openBox(MainActivity.this, boxDataList.get(adapterPosition));
+                if (swIsCheck) {
+                    KeyCabinetReceiver.openBox(MainActivity.this, boxDataList.get(adapterPosition));
+                }
+                KeyCabinetReceiver.queryBoxState(MainActivity.this, boxDataList.get(adapterPosition), new KeyCabinetReceiver.DataBack() {
+                    @Override
+                    public void onReceive(Intent intent) {
+                        if (intent.getAction().equals("android.intent.action.hal.iocontroller.querydata")) {
+                            String boxId = intent.getExtras().getString("boxid");
+                            LogUtil.d(TAG, "箱门:" + boxId + ",返回查询操作完成");
+                            boolean isOpened = intent.getExtras().getBoolean("isopened");
+                            boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
+                            LogUtil.d(TAG, "箱门:box" + boxId + "box状态" + isOpened + ",isStoraged:" + isStoraged);
+                            // TODO ...
+                        }
+                    }
+                });
+
             }
         });
         lockAdapter.setData(boxDataList);
+
+        binding.mainLockControlSw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    //开
+                    swIsCheck = true;
+                } else {
+                    //关
+                    swIsCheck = false;
+                }
+            }
+        });
+        swIsCheck = true;
+        binding.mainLockControlSw.setChecked(swIsCheck);
     }
 
 

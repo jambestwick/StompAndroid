@@ -11,10 +11,25 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="@dimen/dp_72"
+                      android:orientation="horizontal">
+
+            <Switch
+                    android:text="是否开启锁控"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/main_lock_control_sw"
+                    android:switchMinWidth="20dp"
+                    android:thumb="@drawable/thumb"
+                    android:track="@drawable/track"/>
+        </LinearLayout>
         <TextView
                 android:id="@+id/latLng_tv"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/dp_72"
                 android:text="Hello World!"
                 android:scrollbars="vertical"/>
         <android.support.v7.widget.RecyclerView
