@@ -50,4 +50,21 @@ public class AppDataBase {
 //            addColumn(SQLiteType.INTEGER,"mom_id");
 //        }
 //    }
+    //    public void startTimeTask() {
+//        timerTask = new Timer();
+//        buildAds();
+//        //List<Advise> array = SQLite.select().from(Advise.class).where(Advise_Table.create_time.lessThan(new Date())).queryList();
+//        timerTask.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        tvLatLng.append(TimeUtil.date2Str(new Date(), TimeUtil.DEFAULT_TIME_FORMAT) + ",Lat:" + LocationUtils.latitude + ",Lng:" + LocationUtils.longitude + "\n");
+//                    }
+//                });
+//            }
+//        }, 0, 500);
+//    }
 }

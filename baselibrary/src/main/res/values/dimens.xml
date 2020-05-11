@@ -38,6 +38,10 @@
     <dimen name="dp_264">264dp</dimen>
     <dimen name="dp_272">272dp</dimen>
     <dimen name="dp_296">296dp</dimen>
+    <dimen name="dp_312">312dp</dimen>
+    <dimen name="dp_358">358dp</dimen>
+    <dimen name="dp_394">394dp</dimen>
+    <dimen name="dp_512">512dp</dimen>
 
     <dimen name="view_distance_small_px">1px</dimen>
     <dimen name="sp_2">2sp</dimen>

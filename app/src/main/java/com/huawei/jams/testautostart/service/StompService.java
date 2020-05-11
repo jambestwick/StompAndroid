@@ -15,6 +15,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import okhttp3.WebSocket;
+import rx.Observable;
 import rx.functions.Action1;
 import ua.naiksoftware.stomp.ConnectionProvider;
 import ua.naiksoftware.stomp.LifecycleEvent;
@@ -129,8 +130,14 @@ public class StompService extends Service {
         });
     }
 
-    interface Callback<T> {
+    public interface Callback<T> {
         void onDataReceive(T t);
+    }
+
+    public <T> void sendData(T data,Callback<T> callback) {
+        Observable observable = mStompClient.send("ddd", "bbbb");
+
+        //callback.onDataReceive(observable.observeOn());
     }
 
 }

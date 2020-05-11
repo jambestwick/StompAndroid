@@ -37,7 +37,6 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
-        LogUtil.d(TAG, "箱门:" + boxId + ",查询操作完成");
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + boxId + ",查询操作完成");
         callBack = dataBack;

@@ -49,4 +49,7 @@
     <color name="material_blue_grey_95">#ff21272b</color>
     <color name="material_deep_teal_20">#ff80cbc4</color>
     <color name="material_deep_teal_50">#ff009688</color>
+    <color name="numeric_bg_gray_80">#808080</color>
+    <color name="font_bg_gray_2b">#2b2b2b</color>
+    <color name="bg_gray_light_20">#eaeaea</color>
 </resources>
