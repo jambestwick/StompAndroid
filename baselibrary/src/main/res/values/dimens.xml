@@ -32,6 +32,7 @@
     <dimen name="dp_160">160dp</dimen>
     <dimen name="dp_176">176dp</dimen>
     <dimen name="dp_192">192dp</dimen>
+    <dimen name="dp_200">200dp</dimen>
     <dimen name="dp_216">216dp</dimen>
     <dimen name="dp_224">224dp</dimen>
     <dimen name="dp_256">256dp</dimen>
