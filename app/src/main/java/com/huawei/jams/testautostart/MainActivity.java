@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart;
 
+import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
@@ -88,22 +89,22 @@ public class MainActivity extends BaseActivity {
         for (int i = 0; i < inputCode.length(); i++) {
             switch (i) {
                 case 0:
-                    binding.mainSixCode1Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode1Tv.setText(""+inputCode.charAt(i));
                     break;
                 case 1:
-                    binding.mainSixCode2Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode2Tv.setText(""+inputCode.charAt(i));
                     break;
                 case 2:
-                    binding.mainSixCode3Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode3Tv.setText(""+inputCode.charAt(i));
                     break;
                 case 3:
-                    binding.mainSixCode4Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode4Tv.setText(""+inputCode.charAt(i));
                     break;
                 case 4:
-                    binding.mainSixCode5Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode5Tv.setText(""+inputCode.charAt(i));
                     break;
                 case 5:
-                    binding.mainSixCode6Tv.setText(inputCode.charAt(i));
+                    binding.mainSixCode6Tv.setText(""+inputCode.charAt(i));
                     break;
                 default:
                     break;
@@ -114,8 +115,9 @@ public class MainActivity extends BaseActivity {
     private void addInputCode(String addCode) {
         if (inputCode.length() < 6) {
             inputCode = inputCode + addCode;
+            refreshCode2View();
         }
-        refreshCode2View();
+
     }
 
     private void decreaseInputCode() {
@@ -123,6 +125,18 @@ public class MainActivity extends BaseActivity {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
             refreshCode2View();
         }
+    }
+
+    // 按照下面代码示例修改Activity的onResume方法
+    @Override
+    protected void onResume() {
+        /**
+         * 设置为横屏
+         */
+        if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        super.onResume();
     }
 
 }
