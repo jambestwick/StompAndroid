@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.service;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -7,14 +8,15 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
+import com.huawei.jams.testautostart.utils.StompManager;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import okhttp3.WebSocket;
 import rx.Observable;
 import rx.functions.Action1;
 import ua.naiksoftware.stomp.ConnectionProvider;
@@ -58,17 +60,27 @@ public class StompService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        LogUtil.d(TAG, "onBind(),Intent:" + intent);
         return null;
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        LogUtil.d(TAG, "onUnbind(),Intent:" + intent);
+        return super.onUnbind(intent);
+
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
+        LogUtil.d(TAG, "onCreate()");
+        createStompClient();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        LogUtil.d(TAG, "onStartCommand(),Intent:" + intent + ",flags:" + flags + ",startId:" + startId);
         LogUtil.d(TAG, "Stomp 线程名称：" + Thread.currentThread().getName());
         return START_STICKY;
     }
@@ -76,6 +88,8 @@ public class StompService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        LogUtil.d(TAG, "onDestroy()");
+        disconnect();
     }
 
     private void connect() {
@@ -102,6 +116,12 @@ public class StompService extends Service {
             }
         });
         registerStompTopic();
+    }
+
+    private void disconnect() {
+        if (mStompClient != null) {
+            mStompClient.disconnect();
+        }
     }
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
@@ -134,10 +154,14 @@ public class StompService extends Service {
         void onDataReceive(T t);
     }
 
-    public <T> void sendData(T data,Callback<T> callback) {
-        Observable observable = mStompClient.send("ddd", "bbbb");
-
-        //callback.onDataReceive(observable.observeOn());
-    }
+//    public void sendData(String data, Activity activity,LifecycleProvider lifecycleProvider,DefaultObserver defaultObserver) {
+//        if (mStompClient != null) {
+//            Observable observable = mStompClient.send(data);
+//            StompManager stompManager =new StompManager(activity,lifecycleProvider);
+//            stompManager.doStompDeal(observable,defaultObserver);
+//
+//        }
+//        //callback.onDataReceive(observable.observeOn());
+//    }
 
 }

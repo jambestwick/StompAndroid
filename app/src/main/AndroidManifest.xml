@@ -1,53 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-          package="com.huawei.jams.testautostart">
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <application
-            android:name=".BaseApp"
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
-            android:installLocation="internalOnly"
-            android:label="@string/app_name"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:supportsRtl="true"
-            tools:replace="android:icon"
-            android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
-                  android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.huawei.jams.testautostart">
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+    <application
+        android:name=".BaseApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:installLocation="internalOnly"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon">
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <receiver
-                android:name=".MyReceiver"
-                android:enabled="true"
-                android:exported="true">
+            android:name=".receiver.SystemAutoStartReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter android:priority="1000">
+                <!-- 系统启动完成后会调用 priority 必须是整数，默认是0 , 范围是[-1000, 1000]-->
                 <action android:name="android.intent.action.BOOT_COMPLETED"></action>
             </intent-filter>
         </receiver>
         <receiver android:name=".utils.KeyCabinetReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.hal.iocontroller.querydata"/>
-                <action android:name="android.intent.action.hal.iocontroller.batchopen.result"/>
-                <action android:name="android.intent.action.hal.iocontroller.queryAllData"/>
-                <action android:name="android.intent.action.hal.printer.supportsize.result"/>
-                <action android:name="android.intent.action.hal.printer.result.haspaper"/>
-                <action android:name="android.intent.action.hal.printer.result.needmore"/>
-                <action android:name="android.intent.action.hal.printer.result.status"/>
-                <action android:name="android.intent.action.hal.printer.error"/>
-                <action android:name="android.intent.action.hal.barcodescanner.scandata"/>
-                <action android:name="android.intent.action.hal.barcodescanner.error"/>
+                <action android:name="android.intent.action.hal.iocontroller.querydata" />
+                <action android:name="android.intent.action.hal.iocontroller.batchopen.result" />
+                <action android:name="android.intent.action.hal.iocontroller.queryAllData" />
+                <action android:name="android.intent.action.hal.printer.supportsize.result" />
+                <action android:name="android.intent.action.hal.printer.result.haspaper" />
+                <action android:name="android.intent.action.hal.printer.result.needmore" />
+                <action android:name="android.intent.action.hal.printer.result.status" />
+                <action android:name="android.intent.action.hal.printer.error" />
+                <action android:name="android.intent.action.hal.barcodescanner.scandata" />
+                <action android:name="android.intent.action.hal.barcodescanner.error" />
             </intent-filter>
         </receiver>
-        <service android:name=".service.StompService"/>
+
+        <service android:name=".service.StompService" />
     </application>
 
 </manifest>

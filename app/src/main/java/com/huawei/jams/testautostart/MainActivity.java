@@ -1,13 +1,16 @@
 package com.huawei.jams.testautostart;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.service.StompService;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 
 public class MainActivity extends BaseActivity {
+    private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
 
     /***输入6位开箱码**/
@@ -16,8 +19,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, StompService.class));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         initViews();
     }
@@ -62,12 +65,12 @@ public class MainActivity extends BaseActivity {
                 case R.id.main_code_ok_tv:
                     //校验长度，发送请求开箱
                     if (inputCode.length() == 6) {
-                        StompService.getInstance().sendData(inputCode, new StompService.Callback<String>() {
-                            @Override
-                            public void onDataReceive(String s) {
-                                //成功开箱
-                            }
-                        });
+//                        StompService.getInstance().sendData(inputCode, new StompService.Callback<String>() {
+//                            @Override
+//                            public void onDataReceive(String s) {
+//                                //成功开箱
+//                            }
+//                        });
                     } else {
                         //提示码位数不够
                     }
@@ -89,22 +92,22 @@ public class MainActivity extends BaseActivity {
         for (int i = 0; i < inputCode.length(); i++) {
             switch (i) {
                 case 0:
-                    binding.mainSixCode1Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode1Tv.setText("" + inputCode.charAt(i));
                     break;
                 case 1:
-                    binding.mainSixCode2Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode2Tv.setText("" + inputCode.charAt(i));
                     break;
                 case 2:
-                    binding.mainSixCode3Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode3Tv.setText("" + inputCode.charAt(i));
                     break;
                 case 3:
-                    binding.mainSixCode4Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode4Tv.setText("" + inputCode.charAt(i));
                     break;
                 case 4:
-                    binding.mainSixCode5Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode5Tv.setText("" + inputCode.charAt(i));
                     break;
                 case 5:
-                    binding.mainSixCode6Tv.setText(""+inputCode.charAt(i));
+                    binding.mainSixCode6Tv.setText("" + inputCode.charAt(i));
                     break;
                 default:
                     break;
@@ -130,13 +133,16 @@ public class MainActivity extends BaseActivity {
     // 按照下面代码示例修改Activity的onResume方法
     @Override
     protected void onResume() {
-        /**
-         * 设置为横屏
-         */
+        /** * 设置横屏幕*/
         if (getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
         super.onResume();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, StompService.class));
+    }
 }
