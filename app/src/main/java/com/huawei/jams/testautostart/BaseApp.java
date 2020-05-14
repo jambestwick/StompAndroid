@@ -7,6 +7,9 @@ import com.huawei.jams.testautostart.service.StompService;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import io.reactivex.functions.Consumer;
+import io.reactivex.plugins.RxJavaPlugins;
 
 /**
  * <p>文件描述：<p>
@@ -22,6 +25,7 @@ public class BaseApp extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         FlowManager.init(this);
+
     }
 
     @Override

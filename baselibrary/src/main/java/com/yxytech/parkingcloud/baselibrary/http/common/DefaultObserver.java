@@ -94,7 +94,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
         LogUtil.d("---------", "---------------" + cause);
         if (errorCode == ErrorCode.TOKEN_PAST) {
             try {
-                Intent intent = new Intent(context, Class.forName("com.yxytech.parkingcloud.efsspda.view.activity.LoginActivity"));
+                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.MainActivity"));
                 //intent.putExtra("isRefresh", true);
                 context.startActivity(intent);
             } catch (ClassNotFoundException e) {

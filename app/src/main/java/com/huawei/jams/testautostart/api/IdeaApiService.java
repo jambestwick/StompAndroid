@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.api;
 
 
+import io.reactivex.Completable;
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.*;
@@ -14,7 +15,10 @@ public interface IdeaApiService {
 
     public static final String SERVER_HOST = "http://39.104.57.202:8102";
 
-    public static final String WS_URI ="ws://10.0.2.2:8080/example-endpoint/websocket";
+    public static final String WS_URI = "ws://10.0.2.2:8080/example-endpoint/websocket";
+
+
+    public static final String QUERY_APP_VERSION="/app/queryVersion";
 
     /**
      * 获取验证码
@@ -42,17 +46,24 @@ public interface IdeaApiService {
 
     /**
      * 查询应用信息
-     * */
+     */
     @POST("/queryAppInfo")
     Observable<ApiResponse> queryAppInfo();
 
 
     /**
      * 下载文件
-     * **/
+     **/
     @Streaming
     @GET
     Observable<ResponseBody> download(@Url String url);
+
+
+    @POST("/app/queryVersion")
+    Completable queryAppVersion(@Query("msg") String message);
+
+    @POST("hello-convert-and-send")
+    Completable sendRestEcho(@Query("msg") String message);
 
 
 //    /***

@@ -1,22 +1,22 @@
 package com.huawei.jams.testautostart.service;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.utils.StompManager;
-import com.trello.rxlifecycle2.LifecycleProvider;
-import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
+import com.huawei.jams.testautostart.api.stomp.RestClient;
+import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
+import io.reactivex.Completable;
+import io.reactivex.CompletableTransformer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subscribers.DisposableSubscriber;
 import rx.Observable;
 import rx.functions.Action1;
 import ua.naiksoftware.stomp.ConnectionProvider;
@@ -24,6 +24,10 @@ import ua.naiksoftware.stomp.LifecycleEvent;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.client.StompClient;
 import ua.naiksoftware.stomp.client.StompMessage;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * <p>文件描述：<p>
@@ -40,7 +44,7 @@ public class StompService extends Service {
     private Timer mTimer = new Timer();
     private static final long RECONNECT_TIME_INTERVAL = 1000;
 
-    public static StompService instance;
+    private static StompService instance;
     private static final Object lock = new Object();
 
     public static StompService getInstance() {
@@ -92,30 +96,30 @@ public class StompService extends Service {
         disconnect();
     }
 
+    @SuppressLint("CheckResult")
     private void connect() {
-        mStompClient = Stomp.over(ConnectionProvider.class, IdeaApiService.WS_URI);
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI);
         mStompClient.connect();
-        mStompClient.lifecycle().subscribe(new Action1<LifecycleEvent>() {
-            @Override
-            public void call(LifecycleEvent lifecycleEvent) {
-                //关注lifecycleEvent的回调来决定是否重连
-                switch (lifecycleEvent.getType()) {
-                    case OPENED:
-                        mNeedConnect = false;
-                        LogUtil.d(TAG, "Stomp connection opened");
-                        break;
-                    case ERROR:
-                        mNeedConnect = true;
-                        LogUtil.d(TAG, "Stomp connection error :" + lifecycleEvent.getException());
-                        break;
-                    case CLOSED:
-                        mNeedConnect = true;
-                        LogUtil.d(TAG, "Stomp connection closed");
-                        break;
-                }
-            }
-        });
-        registerStompTopic();
+        mStompClient.lifecycle()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(lifecycleEvent -> {
+                    //关注lifecycleEvent的回调来决定是否重连
+                    switch (lifecycleEvent.getType()) {
+                        case OPENED:
+                            mNeedConnect = false;
+                            LogUtil.d(TAG, "Stomp connection opened");
+                            break;
+                        case ERROR:
+                            mNeedConnect = true;
+                            LogUtil.d(TAG, "Stomp connection error :" + lifecycleEvent.getException());
+                            break;
+                        case CLOSED:
+                            mNeedConnect = true;
+                            LogUtil.d(TAG, "Stomp connection closed");
+                            break;
+                    }
+                });
     }
 
     private void disconnect() {
@@ -141,27 +145,44 @@ public class StompService extends Service {
     }
 
     //点对点订阅，根据用户名来推送消息
-    private void registerStompTopic() {
-        mStompClient.topic("/user/" + "xxx" + "/msg").subscribe(new Action1<StompMessage>() {
-            @Override
-            public void call(StompMessage stompMessage) {
-                Log.d(TAG, "debug msg is " + stompMessage.getPayload());
-            }
-        });
-    }
-
-    public interface Callback<T> {
-        void onDataReceive(T t);
-    }
-
-//    public void sendData(String data, Activity activity,LifecycleProvider lifecycleProvider,DefaultObserver defaultObserver) {
-//        if (mStompClient != null) {
-//            Observable observable = mStompClient.send(data);
-//            StompManager stompManager =new StompManager(activity,lifecycleProvider);
-//            stompManager.doStompDeal(observable,defaultObserver);
-//
-//        }
-//        //callback.onDataReceive(observable.observeOn());
+//    private void registerStompTopic() {
+//        mStompClient.topic("/user/" + "xxx" + "/msg").subscribe((Action1<StompMessage>) stompMessage -> Log.d(TAG, "debug msg is " + stompMessage.getPayload()));
 //    }
+
+    /**
+     * 发送信息
+     ***/
+    @SuppressLint("CheckResult")
+    public void sendStomp(String destPath, String jsonMsg) {
+        mStompClient.send("", jsonMsg)
+                .compose(applySchedulers())
+                .subscribe(() -> {
+                    Log.d(TAG, "STOMP send successfully");
+                }, throwable -> {
+                    Log.e(TAG, "Error send STOMP ", throwable);
+                });
+
+    }
+
+    public void receiveStomp(String destPath, DisposableSubscriber<StompMessage> disposableSubscriber) {
+        mStompClient.topic(destPath)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(disposableSubscriber);
+
+//                .subscribe(topicMessage -> {
+//                    Log.d(TAG, "Received " + topicMessage.getPayload());
+//                }, throwable -> {
+//                    Log.e(TAG, "Error on subscribe topic", throwable);
+//                });
+    }
+
+    protected CompletableTransformer applySchedulers() {
+        return upstream -> upstream
+                .unsubscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
 
 }
