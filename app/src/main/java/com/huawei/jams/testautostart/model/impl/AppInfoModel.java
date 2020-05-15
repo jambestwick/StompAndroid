@@ -43,7 +43,7 @@ public class AppInfoModel implements IAppInfoModel {
                     }
 
                 }
-                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse);
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
             }
 
             @Override

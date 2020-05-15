@@ -5,17 +5,37 @@ import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 
+import android.widget.Toast;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
+import com.huawei.jams.testautostart.entity.DeviceInfo;
+import com.huawei.jams.testautostart.model.inter.IAdviseModel;
+import com.huawei.jams.testautostart.presenter.impl.AdvisePresenter;
+import com.huawei.jams.testautostart.presenter.impl.AppInfoPresenter;
+import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
+import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
+import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
+import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.service.StompService;
+import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
-public class MainActivity extends BaseActivity {
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class MainActivity extends BaseActivity implements IMainView {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
 
     /***输入6位开箱码**/
     private String inputCode = "";
 
+    private IDeviceInfoPresenter deviceInfoPresenter;
+
+    private IAppInfoPresenter appInfoPresenter;
+
+    private IAdvisePresenter advisePresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +43,21 @@ public class MainActivity extends BaseActivity {
         startService(new Intent(this, StompService.class));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         initViews();
+        initNetData();
+    }
+
+    private void initNetData() {
+        deviceInfoPresenter.bindDevice();
+        deviceInfoPresenter.queryAlarmProp();
+        appInfoPresenter.queryAppInfo();
+        advisePresenter.queryAdviseInfo();
     }
 
 
     private void initViews() {
+        deviceInfoPresenter = new DeviceInfoPresenter(this);
+        appInfoPresenter = new AppInfoPresenter(this);
+        advisePresenter = new AdvisePresenter(this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.main_code_0_tv:
@@ -65,14 +96,10 @@ public class MainActivity extends BaseActivity {
                 case R.id.main_code_ok_tv:
                     //校验长度，发送请求开箱
                     if (inputCode.length() == 6) {
-//                        StompService.getInstance().sendData(inputCode, new StompService.Callback<String>() {
-//                            @Override
-//                            public void onDataReceive(String s) {
-//                                //成功开箱
-//                            }
-//                        });
+                        deviceInfoPresenter.openBox(inputCode);
                     } else {
                         //提示码位数不够
+                        ToastUtil.showToast(this, "输入的为数不足");
                     }
                     break;
                 default:
@@ -144,5 +171,66 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopService(new Intent(this, StompService.class));
+    }
+
+    @Override
+    public void onQueryAppInfoSuccess(String url) {
+        //下载app
+
+    }
+
+    @Override
+    public void onQueryAppInfoFail(String reason) {
+    }
+
+    @Override
+    public void onQueryAdviseSuccess(String url) {
+        //下载广告
+    }
+
+    @Override
+    public void onQueryAdviseFail(String reason) {
+
+    }
+
+    @Override
+    public void onOpenBoxSuccess(String boxId) {
+        KeyCabinetReceiver.openBox(this, boxId);
+        deviceInfoPresenter.patrolBoxState(boxId, DeviceInfo.EnumBoxState.OPEN.getKey());
+
+    }
+
+    @Override
+    public void onOpenBoxFail(String reason) {
+
+    }
+
+    @Override
+    public void onQueryAlarmPropSuccess() {
+    }
+
+    @Override
+    public void onQueryAlarmPropFail(String reason) {
+
+    }
+
+    @Override
+    public void onUploadBoxStateSuccess() {
+
+    }
+
+    @Override
+    public void onUploadBoxStateFail(String reason) {
+
+    }
+
+    @Override
+    public void onBindDeviceSuccess() {
+
+    }
+
+    @Override
+    public void onBindDeviceFail(String reason) {
+
     }
 }

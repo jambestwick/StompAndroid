@@ -38,7 +38,7 @@ public class AdviseModel implements IAdviseModel {
                 if (!currentAdv.getAdvVersion().equals(apiResponse.getData().getAdvVersion())) {
                     //下载广告
                 }
-                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse);
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
             }
 
             @Override

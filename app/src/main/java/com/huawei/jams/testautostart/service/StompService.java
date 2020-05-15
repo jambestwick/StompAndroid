@@ -9,6 +9,7 @@ import android.util.Log;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.api.stomp.RestClient;
 import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
+import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import io.reactivex.Completable;

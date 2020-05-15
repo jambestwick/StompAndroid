@@ -11,6 +11,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
 
     private static DataBack callBack;
+    private static QueryBoxStateListener queryBoxStateListener;
 
     /***
      * 参数说明:
@@ -33,13 +34,13 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         return false;
     }
 
-    public static void queryBoxState(Context context, String boxId, DataBack dataBack) {
+    public static void queryBoxState(Context context, String boxId, QueryBoxStateListener listener) {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + boxId + ",查询操作完成");
-        callBack = dataBack;
+        queryBoxStateListener = listener;
 
     }
 
@@ -56,11 +57,18 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
             boolean isOpened = intent.getExtras().getBoolean("isopened");
             boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
             LogUtil.d(TAG, "箱门:box" + boxId + "box状态" + isOpened + ",isStoraged:" + isStoraged);
+            if (queryBoxStateListener != null) {
+                queryBoxStateListener.onBoxStateBack(boxId, isOpened, isStoraged);
+            }
             // TODO ...
         }
     }
 
     public interface DataBack {
         void onReceive(Intent intent);
+    }
+
+    public interface QueryBoxStateListener {
+        void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage);
     }
 }

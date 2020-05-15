@@ -30,7 +30,7 @@ public interface IDeviceInfoModel<T> {
      * @param deviceUuid 设备编号
      * @param token      令牌
      ***/
-    void openBox(String deviceUuid, String token, StompCallBack<T> callBack);
+    void openBox(String deviceUuid, String sixCode, String token, StompCallBack<T> callBack);
 
     /**
      * 查询柜门长时间未锁
@@ -39,6 +39,6 @@ public interface IDeviceInfoModel<T> {
      * @param deviceUuid   设备UUid
      * @param operatorTime 操作时间
      */
-    void queryAlarmProperties(String deviceUuid, Date operatorTime);
+    void queryAlarmProperties(String deviceUuid, Date operatorTime, StompCallBack<T> callBack);
 
 }
