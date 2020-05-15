@@ -18,7 +18,12 @@ public interface IdeaApiService {
     public static final String WS_URI = "ws://10.0.2.2:8080/example-endpoint/websocket";
 
 
-    public static final String QUERY_APP_VERSION="/app/queryVersion";
+    public static final String APP_QUERY_VERSION = "/app/queryVersion";
+    public static final String ADV_QUERY_VERSION = "/advise/queryVersion";
+    public static final String DEVICE_BIND = "/device/bind";
+    public static final String DEVICE_UPDATE_BOX_STATE = "/device/update/boxState";
+    public static final String DEVICE_OPEN_BOX = "/device/openBox";
+    public static final String DEVICE_QUERY_ALARM_PROP = "/device/query/alarmProp";
 
     /**
      * 获取验证码
