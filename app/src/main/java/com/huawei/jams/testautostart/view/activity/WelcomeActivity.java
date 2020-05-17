@@ -30,6 +30,7 @@ public class WelcomeActivity extends BaseActivity {
     /***输入6位开箱码**/
     private String inputCode = "";
     private String deviceNo = null;
+    private String[] boxIdList = new String[]{"Z01", "Z02", "Z03", "Z04", "Z05", "Z06", "Z07", "Z08"};
 
 
     @Override
@@ -38,17 +39,18 @@ public class WelcomeActivity extends BaseActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initData();
-        initDevice(step);
+        initDevice();
     }
 
     private void initViews() {
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
-                    initDevice(step);
+                    initDevice();
                     break;
                 case R.id.wel_cancel_btn:
-                    initDevice(4);
+                    step = 3;
+                    initDevice();
                     break;
                 default:
                     break;
@@ -62,20 +64,22 @@ public class WelcomeActivity extends BaseActivity {
         binding.setCancel(cancelMessage);
     }
 
-    private void initDevice(int step) {
+    private void initDevice() {
         //检查网络
         if (step == 1) {
             if (!isConnectInternet()) {
                 return;
             }
-            initDevice(2);
+            step = 2;
+            initDevice();
             return;
         }
         if (step == 2) {
             if (!isConnectServer()) {
                 return;
             }
-            initDevice(3);
+            step = 3;
+            initDevice();
             return;
         }
 
@@ -86,7 +90,6 @@ public class WelcomeActivity extends BaseActivity {
                 stompBindDevice(deviceCode);
                 return;
             }
-            initDevice(4);
         }
         if (step == 4) {
             readBoxAllClose();
@@ -178,7 +181,6 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     private void readBoxAllClose() {
-        String[] boxIdList = new String[]{"Z01", "Z02", "Z03", "Z04", "Z05", "Z06", "Z07", "Z08"};
         KeyCabinetReceiver.queryBatchBoxState(this, boxIdList, (boxIds, isBatchOpen) -> {
             boolean allClose = true;
             for (int i = 0; i < isBatchOpen.length; i++) {
@@ -202,13 +204,12 @@ public class WelcomeActivity extends BaseActivity {
                         if (allOpen) {
                             hintMessage = "设备自检通过,请关闭所有柜门";
                             btnMessage = "下一步";
-                            //initDevice(5);
                             step = 5;
-
                         } else {
                             hintMessage = "设备柜门故障（卡住，设备无法使用）";
                             binding.welConfirmBtn.setVisibility(View.GONE);
                             binding.welCancelBtn.setVisibility(View.GONE);
+                            return;
                         }
                     }
                 });
@@ -225,14 +226,12 @@ public class WelcomeActivity extends BaseActivity {
                 cancelMessage = "否";
                 step = 4;
                 queryBoxStateTimes++;
-                return;
             }
 
         });
     }
 
     private void judgeBoxAllClose() {
-        String[] boxIdList = new String[]{"Z01", "Z02", "Z03", "Z04", "Z05", "Z06", "Z07", "Z08"};
         KeyCabinetReceiver.queryBatchBoxState(this, boxIdList, new KeyCabinetReceiver.QueryBatchBoxStateListener() {
             @Override
             public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
@@ -245,6 +244,7 @@ public class WelcomeActivity extends BaseActivity {
                 }
                 if (allClose) {
                     step = 6;
+                    hintMessage = "请输入6位设备码进行绑定";
                     return;
                 } else {
                     new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
@@ -331,7 +331,6 @@ public class WelcomeActivity extends BaseActivity {
                         .showCancelButton(false)
                         .setConfirmClickListener(sDialog -> {
                             sDialog.cancel();
-                            inputCode = "";
                             refreshCode2View();
                         }).show();
             }
@@ -339,6 +338,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     private void refreshCode2View() {
+        inputCode = "";
         binding.welSixCode1Tv.setText("");
         binding.welSixCode2Tv.setText("");
         binding.welSixCode3Tv.setText("");
