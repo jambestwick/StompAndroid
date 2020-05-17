@@ -8,7 +8,7 @@ public interface IDeviceInfoPresenter {
 
     void queryAlarmProp();
 
-    void openBox(String password);
+    void openBox(String password,int times);
 
 
     void patrolBoxState(String boxId, String boxState);

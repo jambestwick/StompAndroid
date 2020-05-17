@@ -37,7 +37,6 @@ public class MainActivity extends BaseActivity implements IMainView {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, StompService.class));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-
         initViews();
         initNetData();
     }
@@ -88,14 +87,7 @@ public class MainActivity extends BaseActivity implements IMainView {
                     addInputCode(binding.mainCode9Tv.getText().toString());
                     break;
                 case R.id.main_code_delete_tv://删除前一位
-                    //KeyCabinetReceiver.openBox(this, "Z01");
-                    KeyCabinetReceiver.queryBoxState(this, "Z01", new KeyCabinetReceiver.QueryBoxStateListener() {
-                        @Override
-                        public void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage) {
-                            LogUtil.d(TAG, "当前的boxId" + boxId + ",的状态" + isOpen + ",是否存储:" + isStorage);
-                        }
-                    });
-                    //decreaseInputCode();
+                    decreaseInputCode();
                     break;
                 case R.id.main_code_ok_tv:
 
@@ -112,7 +104,7 @@ public class MainActivity extends BaseActivity implements IMainView {
 
                     //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.openBox(inputCode);
+                        deviceInfoPresenter.openBox(inputCode, 1);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, "输入的为数不足");

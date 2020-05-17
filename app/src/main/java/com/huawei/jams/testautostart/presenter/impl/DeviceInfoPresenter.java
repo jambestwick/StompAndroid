@@ -88,7 +88,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void openBox(String password) {
+    public void openBox(String password, final int times) {
+        if (times > 3) {
+            mainView.onOpenBoxFail("网络异常");
+            return;
+        }
         String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
         String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
         mDeviceInfoModel.openBox(deviceUuid, password, token, new StompCallBack() {
@@ -100,10 +104,12 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         break;
                     default:
                         mainView.onOpenBoxFail(msg);
+                        openBox(password, times+1);
                         break;
                 }
             }
         });
+
 
     }
 
