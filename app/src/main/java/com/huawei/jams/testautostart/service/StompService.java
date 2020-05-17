@@ -132,17 +132,17 @@ public class StompService extends Service {
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
     private void createStompClient() {
         connect();
-        mTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(TAG, "forlan debug in timer ======================");
-                if (mNeedConnect && NetworkUtils.isConnected()) {
-                    mStompClient = null;
-                    connect();
-                    Log.d(TAG, "forlan debug start connect WS_URI");
-                }
-            }
-        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
+//        mTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG, "forlan debug in timer ======================");
+//                if (mNeedConnect && NetworkUtils.isConnected()) {
+//                    mStompClient = null;
+//                    connect();
+//                    Log.d(TAG, "forlan debug start connect WS_URI");
+//                }
+//            }
+//        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
     }
 
     //点对点订阅，根据用户名来推送消息

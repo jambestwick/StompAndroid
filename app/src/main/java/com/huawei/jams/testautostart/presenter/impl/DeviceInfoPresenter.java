@@ -30,10 +30,9 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void bindDevice() {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_UUID);
+    public void bindDevice(String sixCode) {
         String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
-        mDeviceInfoModel.bindDevice(deviceUuid, "deviceType", new StompCallBack() {
+        mDeviceInfoModel.bindDevice(sixCode, "deviceType", new StompCallBack() {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
@@ -51,7 +50,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void uploadBoxState(String boxId, String boxState) {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_UUID);
+        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
         String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
         mDeviceInfoModel.uploadBoxState(deviceUuid, "deviceType", boxId, boxState, new StompCallBack() {
             @Override
@@ -71,7 +70,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void queryAlarmProp() {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_UUID);
+        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
         mDeviceInfoModel.queryAlarmProperties(deviceUuid, new Date(), new StompCallBack() {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
@@ -90,7 +89,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void openBox(String password) {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_UUID);
+        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
         String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
         mDeviceInfoModel.openBox(deviceUuid, password, token, new StompCallBack() {
             @Override

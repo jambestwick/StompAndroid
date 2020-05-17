@@ -2,7 +2,7 @@ package com.huawei.jams.testautostart.presenter.inter;
 
 public interface IDeviceInfoPresenter {
 
-    void bindDevice();
+    void bindDevice(String sixCode);
 
     void uploadBoxState(String boxId, String boxState);
 

@@ -12,6 +12,9 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
 
     private static DataBack callBack;
     private static QueryBoxStateListener queryBoxStateListener;
+    private static QueryBatchBoxStateListener queryBatchBoxStateListener;
+    private static OpenBoxListListener openBoxListListener;
+
 
     /***
      * 参数说明:
@@ -34,6 +37,13 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         return false;
     }
 
+    public static void openBatchBox(Context context, String[] boxIdList, OpenBoxListListener listListener) {
+        Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
+        intent.putExtra("batchboxid", boxIdList);
+        context.sendBroadcast(intent);
+        openBoxListListener = listListener;
+    }
+
     public static void queryBoxState(Context context, String boxId, QueryBoxStateListener listener) {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
@@ -42,6 +52,14 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         LogUtil.d(TAG, "箱门:" + boxId + ",查询操作完成");
         queryBoxStateListener = listener;
 
+    }
+
+    public static void queryBatchBoxState(Context context, String[] boxIds, QueryBatchBoxStateListener listener) {
+        Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
+        //String[] batchBoxId = {"A01","A02","A03","A04","A05"};
+        intent.putExtra("batchboxid", boxIds);
+        context.sendBroadcast(intent);
+        queryBatchBoxStateListener = listener;
     }
 
 
@@ -62,6 +80,17 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
             }
             // TODO ...
         }
+        if (intent.getAction().equals("android.intent.action.hal.iocontroller.batchopen.result")) {
+            String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
+            boolean[] opened = intent.getExtras().getBooleanArray("opened ");
+            if (queryBatchBoxStateListener != null) {
+                queryBatchBoxStateListener.onBoxStateBack(batchboxid, opened);
+            }
+            if (openBoxListListener != null) {
+                openBoxListListener.onBoxStateBack(batchboxid, opened);
+            }
+
+        }
     }
 
     public interface DataBack {
@@ -71,4 +100,14 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     public interface QueryBoxStateListener {
         void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage);
     }
+
+    public interface QueryBatchBoxStateListener {
+        void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen);
+    }
+
+    public interface OpenBoxListListener {
+        void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen);
+    }
+
+
 }
