@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart;
 
+import android.Manifest;
 import android.content.Intent;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -8,6 +9,8 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.RxPermissionsUtil;
+
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
 

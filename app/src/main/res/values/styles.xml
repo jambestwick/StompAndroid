@@ -214,4 +214,14 @@
         <item name="android:weightSum">3</item>
         <item name="android:gravity">center</item>
     </style>
+    <style name="style_layout_match_vertical_linear">
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <style name="style_layout_match_horizon_linear">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
 </resources>

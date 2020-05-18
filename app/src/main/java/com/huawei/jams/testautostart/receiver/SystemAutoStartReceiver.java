@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.huawei.jams.testautostart.MainActivity;
+import com.huawei.jams.testautostart.view.activity.MainActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 /**

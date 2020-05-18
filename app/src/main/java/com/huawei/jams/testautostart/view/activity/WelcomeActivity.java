@@ -1,14 +1,17 @@
 package com.huawei.jams.testautostart.view.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+
 import com.huawei.jams.testautostart.BaseApp;
-import com.huawei.jams.testautostart.MainActivity;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
+import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IMainView;
@@ -16,10 +19,13 @@ import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.RxPermissionsUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
-public class WelcomeActivity extends BaseActivity {
+import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
+
+public class WelcomeActivity extends BaseActivity implements IMainView {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";
@@ -30,12 +36,14 @@ public class WelcomeActivity extends BaseActivity {
     /***输入6位开箱码**/
     private String inputCode = "";
     private String deviceNo = null;
-    private String[] boxIdList = new String[]{"Z01", "Z02", "Z03", "Z04", "Z05", "Z06", "Z07", "Z08"};
+    private IDeviceInfoPresenter deviceInfoPresenter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String[] netPer = new String[]{Manifest.permission.INTERNET};
+        RxPermissionsUtil.request(this, netPer);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initData();
@@ -43,6 +51,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     private void initViews() {
+        deviceInfoPresenter = new DeviceInfoPresenter(this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -52,7 +61,12 @@ public class WelcomeActivity extends BaseActivity {
                     step = 3;
                     initDevice();
                     break;
+                case R.id.wel_code_delete_tv://删除前一位
+                    decreaseInputCode();
+                    break;
+                case R.id.wel_code_ok_tv:
                 default:
+                    addInputCode(((TextView) v).getText().toString());
                     break;
             }
         });
@@ -87,7 +101,7 @@ public class WelcomeActivity extends BaseActivity {
             deviceNo = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
             String deviceCode = hasDeviceCode(deviceNo);
             if (!StrUtil.isEmpty(deviceCode)) {//SP有设备号
-                stompBindDevice(deviceCode);
+                deviceInfoPresenter.bindDevice(deviceCode);
                 return;
             }
         }
@@ -101,7 +115,7 @@ public class WelcomeActivity extends BaseActivity {
             if (deviceNo == null) {
                 deviceNo = inputCode;
             }
-            stompBindDevice(deviceNo);
+            deviceInfoPresenter.bindDevice(deviceNo);
 
         }
 
@@ -136,16 +150,84 @@ public class WelcomeActivity extends BaseActivity {
 
     }
 
-    public enum EnumStep {
-        STEP_1, STEP_2;
+    @Override
+    public void onQueryAppInfoSuccess(String url) {
 
     }
+
+    @Override
+    public void onQueryAppInfoFail(String reason) {
+
+    }
+
+    @Override
+    public void onQueryAdviseSuccess(String url) {
+
+    }
+
+    @Override
+    public void onQueryAdviseFail(String reason) {
+
+    }
+
+    @Override
+    public void onOpenBoxSuccess(String boxId) {
+
+    }
+
+    @Override
+    public void onOpenBoxFail(String reason) {
+
+    }
+
+    @Override
+    public void onQueryAlarmPropSuccess() {
+
+    }
+
+    @Override
+    public void onQueryAlarmPropFail(String reason) {
+
+    }
+
+    @Override
+    public void onUploadBoxStateSuccess() {
+
+    }
+
+    @Override
+    public void onUploadBoxStateFail(String reason) {
+
+    }
+
+    @Override
+    public void onBindDeviceSuccess() {
+        //绑定成功
+        startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+        finish();
+    }
+
+    @Override
+    public void onBindDeviceFail(String reason) {
+        //绑定失败,重新输入六位码进行绑定
+        new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText("设备绑定")
+                .setContentText("设备绑定失败,联系后台人员")
+                .setConfirmText("确定")
+                .showCancelButton(false)
+                .setConfirmClickListener(sDialog -> {
+                    inputCode = "";
+                    deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+                    sDialog.cancel();
+                }).show();
+    }
+
 
     /**
      * 判断网络是否连通
      **/
     private boolean isConnectInternet() {
-        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 1 -w 1 www.baidu.com", false);
+        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 1 " + Constants.ALI_PUBLIC_IP, false);
         if (NetworkUtils.isConnected() && result.result == 0) {
             return true;
         }
@@ -167,6 +249,7 @@ public class WelcomeActivity extends BaseActivity {
         hintMessage = "后台通信失败，请联系后台人员处理";
         btnMessage = "重试";
         step = 2;
+        //initData();
         return false;
     }
 
@@ -181,7 +264,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     private void readBoxAllClose() {
-        KeyCabinetReceiver.queryBatchBoxState(this, boxIdList, (boxIds, isBatchOpen) -> {
+        KeyCabinetReceiver.queryBatchBoxState(this, BOX_ID_ARRAY, (boxIds, isBatchOpen) -> {
             boolean allClose = true;
             for (int i = 0; i < isBatchOpen.length; i++) {
                 if (isBatchOpen[i]) {
@@ -191,7 +274,7 @@ public class WelcomeActivity extends BaseActivity {
             }
             if (allClose) {
                 //弹开所有柜门
-                KeyCabinetReceiver.openBatchBox(this, boxIdList, new KeyCabinetReceiver.OpenBoxListListener() {
+                KeyCabinetReceiver.openBatchBox(this, BOX_ID_ARRAY, new KeyCabinetReceiver.OpenBoxListListener() {
                     @Override
                     public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
                         boolean allOpen = true;
@@ -232,7 +315,7 @@ public class WelcomeActivity extends BaseActivity {
     }
 
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.queryBatchBoxState(this, boxIdList, new KeyCabinetReceiver.QueryBatchBoxStateListener() {
+        KeyCabinetReceiver.queryBatchBoxState(this, BOX_ID_ARRAY, new KeyCabinetReceiver.QueryBatchBoxStateListener() {
             @Override
             public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
                 boolean allClose = true;
@@ -261,113 +344,30 @@ public class WelcomeActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 输入6位密码
+     **/
+    private void addInputCode(String addCode) {
+        if (inputCode.length() < 6) {
+            inputCode = inputCode + addCode;
+            deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+        }
 
-    private void stompBindDevice(String sixCode) {
-        new DeviceInfoPresenter(new IMainView() {
-            @Override
-            public void onQueryAppInfoSuccess(String url) {
-
-            }
-
-            @Override
-            public void onQueryAppInfoFail(String reason) {
-
-            }
-
-            @Override
-            public void onQueryAdviseSuccess(String url) {
-
-            }
-
-            @Override
-            public void onQueryAdviseFail(String reason) {
-
-            }
-
-            @Override
-            public void onOpenBoxSuccess(String boxId) {
-
-            }
-
-            @Override
-            public void onOpenBoxFail(String reason) {
-
-            }
-
-            @Override
-            public void onQueryAlarmPropSuccess() {
-
-            }
-
-            @Override
-            public void onQueryAlarmPropFail(String reason) {
-
-            }
-
-            @Override
-            public void onUploadBoxStateSuccess() {
-
-            }
-
-            @Override
-            public void onUploadBoxStateFail(String reason) {
-
-            }
-
-            @Override
-            public void onBindDeviceSuccess() {
-                //绑定成功
-                startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-                finish();
-            }
-
-            @Override
-            public void onBindDeviceFail(String reason) {
-                //绑定失败,重新输入六位码进行绑定
-                new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
-                        .setTitleText("设备绑定")
-                        .setContentText("设备绑定失败,联系后台人员")
-                        .setConfirmText("确定")
-                        .showCancelButton(false)
-                        .setConfirmClickListener(sDialog -> {
-                            sDialog.cancel();
-                            refreshCode2View();
-                        }).show();
-            }
-        }).bindDevice(sixCode);
     }
 
-    private void refreshCode2View() {
-        inputCode = "";
-        binding.welSixCode1Tv.setText("");
-        binding.welSixCode2Tv.setText("");
-        binding.welSixCode3Tv.setText("");
-        binding.welSixCode4Tv.setText("");
-        binding.welSixCode5Tv.setText("");
-        binding.welSixCode6Tv.setText("");
-        for (int i = 0; i < inputCode.length(); i++) {
-            switch (i) {
-                case 0:
-                    binding.welSixCode1Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 1:
-                    binding.welSixCode2Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 2:
-                    binding.welSixCode3Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 3:
-                    binding.welSixCode4Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 4:
-                    binding.welSixCode5Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 5:
-                    binding.welSixCode6Tv.setText("" + inputCode.charAt(i));
-                    break;
-                default:
-                    break;
-            }
+    /**
+     * 删除6位密码一位
+     **/
+    private void decreaseInputCode() {
+        if (inputCode.length() > 0) {
+            inputCode = inputCode.substring(0, inputCode.length() - 1);
+            deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
         }
     }
+
+    public enum EnumStep {
+        STEP_1, STEP_2;
+
+    }
+
 }

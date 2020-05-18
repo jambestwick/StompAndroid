@@ -1,8 +1,11 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
 import android.content.Intent;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
+import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
+import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
@@ -104,7 +107,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         break;
                     default:
                         mainView.onOpenBoxFail(msg);
-                        openBox(password, times+1);
+                        openBox(password, times + 1);
                         break;
                 }
             }
@@ -119,6 +122,74 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         int patrolNum = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PATROL_NUM, Integer.class);
         Timer timer = new Timer();
         timer.schedule(new TimeCountTask(boxId, timer, patrolNum), 0, patrolTime);
+    }
+
+    @Override
+    public void refreshMainCode2View(ActivityMainBinding binding, String inputCode) {
+        binding.mainSixCode1Tv.setText("");
+        binding.mainSixCode2Tv.setText("");
+        binding.mainSixCode3Tv.setText("");
+        binding.mainSixCode4Tv.setText("");
+        binding.mainSixCode5Tv.setText("");
+        binding.mainSixCode6Tv.setText("");
+        for (int i = 0; i < inputCode.length(); i++) {
+            switch (i) {
+                case 0:
+                    binding.mainSixCode1Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 1:
+                    binding.mainSixCode2Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 2:
+                    binding.mainSixCode3Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 3:
+                    binding.mainSixCode4Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 4:
+                    binding.mainSixCode5Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 5:
+                    binding.mainSixCode6Tv.setText("" + inputCode.charAt(i));
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void refreshWelcomeCode2View(ActivityWelcomeBinding binding, String inputCode) {
+        binding.welSixCode1Tv.setText("");
+        binding.welSixCode2Tv.setText("");
+        binding.welSixCode3Tv.setText("");
+        binding.welSixCode4Tv.setText("");
+        binding.welSixCode5Tv.setText("");
+        binding.welSixCode6Tv.setText("");
+        for (int i = 0; i < inputCode.length(); i++) {
+            switch (i) {
+                case 0:
+                    binding.welSixCode1Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 1:
+                    binding.welSixCode2Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 2:
+                    binding.welSixCode3Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 3:
+                    binding.welSixCode4Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 4:
+                    binding.welSixCode5Tv.setText("" + inputCode.charAt(i));
+                    break;
+                case 5:
+                    binding.welSixCode6Tv.setText("" + inputCode.charAt(i));
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     class TimeCountTask extends TimerTask {
