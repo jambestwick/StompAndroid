@@ -9,6 +9,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.Window;
 import android.view.WindowManager;
 
 import com.trello.rxlifecycle2.LifecycleProvider;
@@ -33,6 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
      * 全局的LayoutInflater对象，已经完成初始化.
      */
     protected LayoutInflater mInflater;
+
     @Override
     @CallSuper
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
         // 不显示标题
         getSupportActionBar().hide();
         // 设置竖屏显示
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         TAG = this.getClass().getSimpleName();
         mInflater = LayoutInflater.from(this);
@@ -55,6 +57,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
+
     }
 
     /**
