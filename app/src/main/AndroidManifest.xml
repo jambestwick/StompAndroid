@@ -23,8 +23,7 @@
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
         <activity
-            android:name=".view.activity.WelcomeActivity"
-            android:screenOrientation="landscape">
+            android:name=".view.activity.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,8 +32,7 @@
         </activity>
         <activity
             android:name=".view.activity.MainActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="landscape" />
+            android:launchMode="singleTask"/>
 
         <receiver
             android:name=".receiver.SystemAutoStartReceiver"

@@ -3,6 +3,9 @@ package com.huawei.jams.testautostart.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.MediaController;
 import android.widget.TextView;
 
 import com.huawei.jams.testautostart.R;
@@ -40,6 +43,7 @@ public class MainActivity extends BaseActivity implements IMainView {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         initViews();
         initNetData();
+        initData();
     }
 
 
@@ -78,7 +82,7 @@ public class MainActivity extends BaseActivity implements IMainView {
                         deviceInfoPresenter.openBox(inputCode, 1);
                     } else {
                         //提示码位数不够
-                        ToastUtil.showToast(this, "输入的为数不足");
+                        ToastUtil.showToast(this, "输入的位数不足");
                     }
                     break;
                 default:
@@ -87,6 +91,14 @@ public class MainActivity extends BaseActivity implements IMainView {
             }
 
         });
+    }
+
+    private void initData(){
+        String path ="";
+        binding.mainAdviseVideo.setVideoPath(path);
+        MediaController mediaController = new MediaController(this);
+        binding.mainAdviseVideo.setMediaController(mediaController);
+
     }
 
     /**
@@ -144,7 +156,27 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onOpenBoxSuccess(String boxId) {
-        KeyCabinetReceiver.openBox(this, boxId);
+        KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, new KeyCabinetReceiver.OpenBoxListListener() {
+            @Override
+            public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
+                boolean hasNotOpen = false;
+                for (int i = 0; i < isBatchOpen.length; i++) {
+                    if (!isBatchOpen[i]) {
+                        hasNotOpen = true;
+                        break;
+                    }
+                }
+                Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_scal);
+                if (hasNotOpen) {
+                    binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_device_error);
+                    binding.mainDialogAnimIv.startAnimation(animation);
+                } else {
+                    binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_open_success);
+                    binding.mainDialogAnimIv.startAnimation(animation);
+                }
+
+            }
+        });
         deviceInfoPresenter.patrolBoxState(boxId, DeviceInfo.EnumBoxState.OPEN.getKey());
 
     }
@@ -165,6 +197,8 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onUploadBoxStateSuccess() {
+        binding.mainDialogAnimIv.setVisibility(TextView.GONE);
+        //继续播放广告
 
     }
 

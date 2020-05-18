@@ -15,7 +15,7 @@ public interface IdeaApiService {
 
     public static final String SERVER_HOST = "http://39.104.57.202:8102";
 
-    public static final String WS_URI = "ws://10.0.2.2:8080/example-endpoint/websocket";
+    public static final String WS_URI = "wss://mtk.sring.top/ws/endpoint";
 
 
     public static final String APP_QUERY_VERSION = "/app/queryVersion";

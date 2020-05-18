@@ -2,6 +2,7 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
@@ -16,12 +17,9 @@ import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
+import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
-import com.yxytech.parkingcloud.baselibrary.utils.RxPermissionsUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.*;
 
 import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
 
@@ -42,11 +40,11 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);// 横屏
         String[] netPer = new String[]{Manifest.permission.INTERNET};
         RxPermissionsUtil.request(this, netPer);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
-        initData();
         initDevice();
     }
 
@@ -65,6 +63,13 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                     decreaseInputCode();
                     break;
                 case R.id.wel_code_ok_tv:
+                    if (inputCode.length() == 6) {
+                        deviceInfoPresenter.bindDevice(inputCode);
+                    } else {
+                        //提示码位数不够
+                        ToastUtil.showToast(this, "输入的位数不足");
+                    }
+                    break;
                 default:
                     addInputCode(((TextView) v).getText().toString());
                     break;
@@ -72,10 +77,28 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         });
     }
 
-    private void initData() {
-        binding.setHint(hintMessage);
-        binding.setButton(btnMessage);
-        binding.setCancel(cancelMessage);
+
+    private void setData() {
+        if (!StrUtil.isEmpty(hintMessage)) {
+            binding.welHintTv.setVisibility(View.VISIBLE);
+            binding.setHint(hintMessage);
+        } else {
+            binding.welHintTv.setVisibility(View.GONE);
+        }
+
+        if (!StrUtil.isEmpty(btnMessage)) {
+            binding.welConfirmBtn.setVisibility(View.VISIBLE);
+            binding.setButton(btnMessage);
+        } else {
+            binding.welConfirmBtn.setVisibility(View.GONE);
+        }
+        if (!StrUtil.isEmpty(cancelMessage)) {
+            binding.welCancelBtn.setVisibility(View.VISIBLE);
+            binding.setCancel(cancelMessage);
+        } else {
+            binding.welCancelBtn.setVisibility(View.GONE);
+        }
+
     }
 
     private void initDevice() {
@@ -102,8 +125,8 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             String deviceCode = hasDeviceCode(deviceNo);
             if (!StrUtil.isEmpty(deviceCode)) {//SP有设备号
                 deviceInfoPresenter.bindDevice(deviceCode);
-                return;
             }
+            return;
         }
         if (step == 4) {
             readBoxAllClose();
@@ -111,13 +134,13 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         if (step == 5) {
             judgeBoxAllClose();
         }
-        if (step == 6) {
-            if (deviceNo == null) {
-                deviceNo = inputCode;
-            }
-            deviceInfoPresenter.bindDevice(deviceNo);
-
-        }
+//        if (step == 6) {
+//            if (deviceNo == null) {
+//                deviceNo = inputCode;
+//            }
+//            deviceInfoPresenter.bindDevice(deviceNo);
+//
+//        }
 
 
 //        if (commandResult.result == -1) {//ping后台失败
@@ -218,6 +241,8 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                 .setConfirmClickListener(sDialog -> {
                     inputCode = "";
                     deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
                     sDialog.cancel();
                 }).show();
     }
@@ -227,13 +252,15 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
      * 判断网络是否连通
      **/
     private boolean isConnectInternet() {
-        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 1 " + Constants.ALI_PUBLIC_IP, false);
+        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 3 " + Constants.ALI_PUBLIC_IP, false);
         if (NetworkUtils.isConnected() && result.result == 0) {
             return true;
         }
         hintMessage = "未连接网络,请检查后重试";
         btnMessage = "重试";
+        cancelMessage = "";
         step = 1;
+        setData();
         return false;
     }
 
@@ -241,29 +268,37 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
      * 判断后台服务是否联通
      **/
     private boolean isConnectServer() {
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping metalcar.cn", false);
+        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 mtk.sring.top", false);
         if (commandResult.result == 0) {//ping后台失败
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;
         }
         hintMessage = "后台通信失败，请联系后台人员处理";
         btnMessage = "重试";
+        cancelMessage = "";
         step = 2;
-        //initData();
+        setData();
         return false;
     }
 
     private String hasDeviceCode(String deviceNo) {
+        cancelMessage = "";
         if (!StrUtil.isEmpty(deviceNo)) {
+            hintMessage = "";
+            btnMessage = "";
+            step = 6;
+            setData();
             return deviceNo;
         }
         hintMessage = "自检柜门,请手动关闭所有柜门";
         btnMessage = "确定";
         step = 4;
+        setData();
         return null;
     }
 
     private void readBoxAllClose() {
+
         KeyCabinetReceiver.queryBatchBoxState(this, BOX_ID_ARRAY, (boxIds, isBatchOpen) -> {
             boolean allClose = true;
             for (int i = 0; i < isBatchOpen.length; i++) {
@@ -287,11 +322,14 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                         if (allOpen) {
                             hintMessage = "设备自检通过,请关闭所有柜门";
                             btnMessage = "下一步";
+                            cancelMessage = "";
                             step = 5;
+                            setData();
                         } else {
                             hintMessage = "设备柜门故障（卡住，设备无法使用）";
-                            binding.welConfirmBtn.setVisibility(View.GONE);
-                            binding.welCancelBtn.setVisibility(View.GONE);
+                            btnMessage = "";
+                            cancelMessage = "";
+                            setData();
                             return;
                         }
                     }
@@ -299,8 +337,9 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             } else {
                 if (queryBoxStateTimes >= 2) {
                     hintMessage = "设备柜门故障（卡住，设备无法使用）";
-                    binding.welConfirmBtn.setVisibility(View.GONE);
-                    binding.welCancelBtn.setVisibility(View.GONE);
+                    btnMessage = "";
+                    cancelMessage = "";
+                    setData();
                     return;
 
                 }
@@ -308,6 +347,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                 btnMessage = "是";
                 cancelMessage = "否";
                 step = 4;
+                setData();
                 queryBoxStateTimes++;
             }
 
@@ -328,6 +368,11 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                 if (allClose) {
                     step = 6;
                     hintMessage = "请输入6位设备码进行绑定";
+                    btnMessage = "";
+                    cancelMessage = "";
+                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
+                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                    setData();
                     return;
                 } else {
                     new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
@@ -363,11 +408,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
             deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
         }
-    }
-
-    public enum EnumStep {
-        STEP_1, STEP_2;
-
     }
 
 }

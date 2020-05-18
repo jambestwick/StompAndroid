@@ -4,16 +4,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import com.huawei.jams.testautostart.BaseApp;
+import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
+import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
-
-    private static DataBack callBack;
     private static QueryBoxStateListener queryBoxStateListener;
     private static QueryBatchBoxStateListener queryBatchBoxStateListener;
     private static OpenBoxListListener openBoxListListener;
+    private static DialogUtils dialogUtils;
 
 
     /***
@@ -22,22 +24,26 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * boxId 指盒子的编号主柜 Z开头Z01，Z02......
      *                  副柜 A01，B01... ...
      * ****/
-    public static boolean openBox(Context context, String boxId) {
-        try {
-            Intent intent = new Intent("android.intent.action.hal.iocontroller.open");
-            //String boxId = "A01";
-            intent.putExtra("boxid", boxId);
-            context.sendBroadcast(intent);
-            LogUtil.d(TAG, "箱门:" + boxId + ",打开操作完成");
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.d(TAG, "箱门:" + boxId + ",打开操作异常:" + Log.getStackTraceString(e));
-        }
-        return false;
-    }
+//    public static boolean openBox(Context context, String boxId) {
+//        try {
+//            Intent intent = new Intent("android.intent.action.hal.iocontroller.open");
+//            //String boxId = "A01";
+//            intent.putExtra("boxid", boxId);
+//            context.sendBroadcast(intent);
+//            LogUtil.d(TAG, "箱门:" + boxId + ",打开操作完成");
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            LogUtil.d(TAG, "箱门:" + boxId + ",打开操作异常:" + Log.getStackTraceString(e));
+//        }
+//        return false;
+//    }
 
     public static void openBatchBox(Context context, String[] boxIdList, OpenBoxListListener listListener) {
+        if(dialogUtils==null){
+            dialogUtils =new DialogUtils();
+        }
+        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
         intent.putExtra("batchboxid", boxIdList);
         context.sendBroadcast(intent);
@@ -45,6 +51,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBoxState(Context context, String boxId, QueryBoxStateListener listener) {
+        if(dialogUtils==null){
+            dialogUtils =new DialogUtils();
+        }
+        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
@@ -55,6 +65,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBatchBoxState(Context context, String[] boxIds, QueryBatchBoxStateListener listener) {
+        if(dialogUtils==null){
+            dialogUtils =new DialogUtils();
+        }
+        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         //String[] batchBoxId = {"A01","A02","A03","A04","A05"};
         intent.putExtra("batchboxid", boxIds);
@@ -65,10 +79,9 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (callBack != null) {
-            callBack.onReceive(intent);
+        if(dialogUtils!=null){
+            dialogUtils.dismissProgress();
         }
-        ToastUtil.showInCenter(context, intent.toString());
         if (intent.getAction().equals("android.intent.action.hal.iocontroller.querydata")) {
             String boxId = intent.getExtras().getString("boxid");
             LogUtil.d(TAG, "箱门:" + boxId + ",返回查询操作完成");
@@ -93,9 +106,6 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         }
     }
 
-    public interface DataBack {
-        void onReceive(Intent intent);
-    }
 
     public interface QueryBoxStateListener {
         void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage);
