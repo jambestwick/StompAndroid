@@ -543,20 +543,6 @@ public class StrUtil {
 //    }
 
     /**
-     * Created by jambestwick@126.com
-     * on 2018/3/22
-     * 将日期转换成字符串
-     *
-     * @param date    转换日期
-     * @param formart 转换格式
-     * @return
-     */
-    public static String getDate2String(Date date, String formart) {
-        SimpleDateFormat sdf = new SimpleDateFormat(formart);
-        return sdf.format(date);
-    }
-
-    /**
      * 把时间戳变yyyy-MM-dd
      * HH:mm:ss格式时间
      *

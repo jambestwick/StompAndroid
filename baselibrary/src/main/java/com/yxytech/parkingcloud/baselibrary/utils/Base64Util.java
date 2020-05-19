@@ -1,5 +1,11 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import android.util.Base64;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 /**
  * <p>文件描述：<p>
  * <p>作者：jambestwick<p>
@@ -262,5 +268,21 @@ public class Base64Util {
             }
         }
         return newSize;
+    }
+
+
+    /**
+     * stomp base64编码账号密码
+     * **/
+    public static String encodeBasicAuth(String username, String password) {
+        String charset = "utf-8";
+        String credentialsString = username + ":" + password;
+        byte[] encodedBytes = Base64.encode(credentialsString.getBytes(Charset.forName("utf-8")), 0);
+        try {
+            return new String(encodedBytes, charset);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 }
