@@ -52,8 +52,6 @@ dependencies {
     api "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
     api 'com.github.NaikSoftware:StompProtocolAndroid:1.5.4'
     api 'org.java-websocket:Java-WebSocket:1.3.0'
-// https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
-    api group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.65'
 
 
 }

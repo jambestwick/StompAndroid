@@ -9,11 +9,14 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
+import com.yxytech.parkingcloud.baselibrary.http.WebSocketHandler;
+import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +90,37 @@ public class StompService extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtil.d(TAG, "onCreate()");
-        createStompClient();
+
+        //createStompClient();
+        WebSocketHandler webSocketHandler = WebSocketHandler
+                .getInstance(this
+                        , "certificates/lets-encrypt-x3-cross-signed.pem.txt"
+                        , null
+                        , null
+                        , IdeaApiService.WS_URI);
+        webSocketHandler.setSocketIOCallBack(new WebSocketHandler.WebSocketCallBack() {
+            @Override
+            public void onConnectError(Throwable t) {
+
+            }
+
+            @Override
+            public void onClose() {
+
+            }
+
+            @Override
+            public void onMessage(String text) {
+
+            }
+
+            @Override
+            public void onOpen() {
+
+            }
+        });
+        webSocketHandler.connect();
+
     }
 
     @Override
@@ -105,10 +138,13 @@ public class StompService extends Service {
     }
 
     @SuppressLint("CheckResult")
-    private void connect() {
+    private void connect() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", Base64Util.encodeBasicAuth("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1"));
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI, headers, RetrofitService.getOkHttpClientBuilder().sslSocketFactory(RetrofitService.getSSLContextByName(this, "le").getSocketFactory()).build());
+        OkHttpClient okHttpClient = RetrofitService.
+                setSSL(this, "certificates/lets-encrypt-x3-cross-signed.pem.txt", null, null)
+                .build();
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI, headers, okHttpClient);
         mStompClient.connect();
         mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -139,7 +175,7 @@ public class StompService extends Service {
     }
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
-    private void createStompClient() {
+    private void createStompClient() throws IOException {
         connect();
 //        mTimer.schedule(new TimerTask() {
 //            @Override

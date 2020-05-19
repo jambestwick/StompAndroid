@@ -55,4 +55,6 @@ dependencies {
     api 'org.greenrobot:eventbus:3.0.0'
     api 'com.pnikosis:materialish-progress:1.0'
     api 'com.ycjiang:ImagePreview:2.2.2'
+//    // https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on
+//    api group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.65'
 }

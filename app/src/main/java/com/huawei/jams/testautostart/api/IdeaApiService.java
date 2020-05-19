@@ -13,7 +13,7 @@ import retrofit2.http.*;
 public interface IdeaApiService {
 
 
-    public static final String SERVER_HOST = "http://39.104.57.202:8102";
+    public static final String SERVER_HOST = "https://letsencrypt.org";
 
     public static final String WS_URI = "wss://mtk.sring.top/ws/endpoint";
 
@@ -69,6 +69,8 @@ public interface IdeaApiService {
 
     @POST("hello-convert-and-send")
     Completable sendRestEcho(@Query("msg") String message);
+
+
 
 
 //    /***

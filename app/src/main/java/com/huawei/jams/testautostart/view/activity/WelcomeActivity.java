@@ -2,23 +2,21 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
-
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
-import com.huawei.jams.testautostart.service.StompService;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
-import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
 
@@ -36,14 +34,23 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
     private String inputCode = "";
     private String deviceNo = null;
     private IDeviceInfoPresenter deviceInfoPresenter;
+    private String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
+            , Manifest.permission.ACCESS_FINE_LOCATION
+            , Manifest.permission.WRITE_EXTERNAL_STORAGE
+            , Manifest.permission.READ_EXTERNAL_STORAGE
+            , Manifest.permission.CAMERA
+            , Manifest.permission.INTERNET
+    };
 
 
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String[] netPer = new String[]{Manifest.permission.INTERNET};
-        RxPermissionsUtil.request(this, netPer);
+        requestPermissions(permissions,0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
+
         initViews();
         initDevice();
     }

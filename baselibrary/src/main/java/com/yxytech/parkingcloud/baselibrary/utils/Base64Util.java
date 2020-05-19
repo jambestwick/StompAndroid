@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * <p>文件描述：<p>
  * <p>作者：jambestwick<p>
@@ -273,16 +275,13 @@ public class Base64Util {
 
     /**
      * stomp base64编码账号密码
-     * **/
+     **/
     public static String encodeBasicAuth(String username, String password) {
-        String charset = "utf-8";
+        Charset charset = UTF_8;
         String credentialsString = username + ":" + password;
-        byte[] encodedBytes = Base64.encode(credentialsString.getBytes(Charset.forName("utf-8")), 0);
-        try {
-            return new String(encodedBytes, charset);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return "";
+        byte[] encodedBytes = Base64.encode(credentialsString.getBytes(charset), 0);
+        String s = new String(encodedBytes, charset);
+        String newStr = s.replaceAll("\r|\n", "");
+        return newStr;
     }
 }

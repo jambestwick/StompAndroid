@@ -16,6 +16,7 @@ import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -32,6 +33,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -47,27 +49,6 @@ public class RetrofitService {
     private static final String TAG = RetrofitService.class.getName();
 
     public static OkHttpClient.Builder getOkHttpClientBuilder() {
-
-//        Interceptor interceptor = new Interceptor() {
-//            @Override
-//            public Response intercept(Chain chain) throws IOException {
-//                Response response = chain.proceed(chain.request());
-//
-//                Request request = chain.request();
-//                String url = request.url().toString();
-//                LogUtil.d("RetrofitService", "url: " + url);
-//                //存入Session
-//                if (response.header("Set-Cookie") != null) {
-//                    // JSESSIONID=EEF29A1F6D276E60751850ACCCD25D88; Path=/police-check-service; HttpOnly
-//                    String SetCookie = response.header("Set-Cookie");
-//                    String Cookie = SetCookie.substring(0, SetCookie.indexOf(";"));
-//                    PreferencesManager.getInstance(Utils.getContext()).put("cookie", Cookie);
-//                }
-//                return response;
-//            }
-//
-//        };
-
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor((String message) -> {
             try {
                 if (TextUtils.isEmpty(message)) return;
@@ -96,6 +77,20 @@ public class RetrofitService {
                 .hostnameVerifier((s, sslSession) -> true)
                 .cache(cache);
 
+    }
+
+    public static OkHttpClient.Builder setSSL(Context context, String certPath, String priKeyPath, String password) throws IOException {
+        InputStream[] certIs = null;
+        if (!StrUtil.isEmpty(certPath)) {
+            certIs = new InputStream[1];
+            certIs[0] = context.getAssets().open(certPath);
+        }
+        InputStream prikeyIs = null;
+        if (!StrUtil.isEmpty(priKeyPath)) {
+            prikeyIs = context.getAssets().open(priKeyPath);
+        }
+        SSLHelper.SSLParams sslParams = SSLHelper.getSslSocketFactory(certIs, prikeyIs, password);
+       return getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
     }
 
     public static Retrofit.Builder getRetrofitBuilder(String baseUrl) {
@@ -166,7 +161,7 @@ public class RetrofitService {
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             kmf.init(clientStore, passArray);
             KeyManager[] kms = kmf.getKeyManagers();
-            SSLContext sslContext = SSLContext.getInstance("TLSv1");
+            SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(kms, null, new SecureRandom());
             return sslContext;
         } catch (Exception e) {
