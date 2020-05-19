@@ -13,6 +13,7 @@ import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
+import com.huawei.jams.testautostart.service.StompService;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IMainView;
@@ -40,7 +41,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);// 横屏
         String[] netPer = new String[]{Manifest.permission.INTERNET};
         RxPermissionsUtil.request(this, netPer);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);

@@ -1,6 +1,9 @@
 package com.huawei.jams.testautostart;
 
+import android.content.Intent;
+
 import com.huawei.jams.testautostart.api.IdeaApiService;
+import com.huawei.jams.testautostart.service.StompService;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
@@ -19,6 +22,7 @@ public class BaseApp extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         FlowManager.init(this);
+        startService(new Intent(this, StompService.class));
 
     }
 

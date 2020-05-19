@@ -39,7 +39,6 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, StompService.class));
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         initViews();
         initNetData();

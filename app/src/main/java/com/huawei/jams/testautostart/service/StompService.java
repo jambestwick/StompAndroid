@@ -3,32 +3,39 @@ package com.huawei.jams.testautostart.service;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.api.stomp.RestClient;
-import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
-import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
+import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
+import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
-import io.reactivex.Completable;
+
+import java.io.File;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Timer;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import io.reactivex.CompletableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
-import rx.Observable;
-import rx.functions.Action1;
-import ua.naiksoftware.stomp.ConnectionProvider;
-import ua.naiksoftware.stomp.LifecycleEvent;
+import okhttp3.OkHttpClient;
+import okhttp3.internal.tls.OkHostnameVerifier;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.client.StompClient;
 import ua.naiksoftware.stomp.client.StompMessage;
-
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * <p>文件描述：<p>
@@ -99,7 +106,9 @@ public class StompService extends Service {
 
     @SuppressLint("CheckResult")
     private void connect() {
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", Base64Util.encodeBasicAuth("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1"));
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI, headers, RetrofitService.getOkHttpClientBuilder().sslSocketFactory(RetrofitService.getSSLContextByName(this, "le").getSocketFactory()).build());
         mStompClient.connect();
         mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -184,6 +193,30 @@ public class StompService extends Service {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
+
+//    private OkHttpClient buildOKHttpClient() {
+//        OkHttpClient okHttpClient = new OkHttpClient();
+//        StandardWebSocketClient wsClient = new StandardWebSocketClient();
+//        File ksFile = new File(System.getProperty("user.dir"), "keystore/le.jks");
+//        Properties systemProperties = System.getProperties();
+////		systemProperties.put("javax.net.debug", "all");
+//        InputStream inputStream = context.getAssets().open("cacert.pem");
+//        systemProperties.put(SSLContextConfigurator.TRUST_STORE_FILE, ksFile.getAbsolutePath());
+//        systemProperties.put(SSLContextConfigurator.TRUST_STORE_PASSWORD, "LE");
+//        systemProperties.put(SSLContextConfigurator.TRUST_STORE_TYPE, "jks");
+//        SSLContextConfigurator sslContextConfigurator = new SSLContextConfigurator();
+//        sslContextConfigurator.retrieve(systemProperties);
+//        SSLEngineFactory sslEngineConfigurator = new SSLEngineConfigurator(sslContextConfigurator, true, false, false);
+//        wsClient.getUserProperties().put(ClientProperties.SSL_ENGINE_CONFIGURATOR, sslEngineConfigurator);
+//
+//        stompClient = new WebSocketStompClient(wsClient);
+//        stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+//        taskScheduler = new ThreadPoolTaskScheduler();
+//        taskScheduler.setPoolSize(1);
+//        taskScheduler.initialize();
+//        stompClient.setTaskScheduler(taskScheduler);
+//        return okHttpClient;
+//    }
 
 
 }
