@@ -25,7 +25,7 @@ public class SystemAutoStartReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //监听系统启动的广播接收者
         if (intent.getAction().equals("android.intent.action.BOOT_COMPLETED")) {
-            LogUtil.d(TAG, "接收到系统启动的广播...");
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",接收到系统启动的广播...");
             Intent i = new Intent(context, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);

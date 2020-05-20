@@ -15,7 +15,7 @@ public interface IdeaApiService {
 
     public static final String SERVER_HOST = "https://letsencrypt.org";
 
-    public static final String WS_URI = "wss://mtk.sring.top/ws/endpoint";
+    public static final String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
 
 
     public static final String APP_QUERY_VERSION = "/app/queryVersion";
@@ -69,8 +69,6 @@ public interface IdeaApiService {
 
     @POST("hello-convert-and-send")
     Completable sendRestEcho(@Query("msg") String message);
-
-
 
 
 //    /***

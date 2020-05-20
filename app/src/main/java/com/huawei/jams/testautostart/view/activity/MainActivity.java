@@ -1,6 +1,5 @@
 package com.huawei.jams.testautostart.view.activity;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.animation.Animation;
@@ -8,6 +7,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.MediaController;
 import android.widget.TextView;
 
+import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
@@ -17,8 +17,8 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
-import com.huawei.jams.testautostart.service.StompService;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
@@ -43,6 +43,7 @@ public class MainActivity extends BaseActivity implements IMainView {
         initViews();
         initNetData();
         initData();
+
     }
 
 
@@ -130,7 +131,6 @@ public class MainActivity extends BaseActivity implements IMainView {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(new Intent(this, StompService.class));
     }
 
     @Override

@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
@@ -15,6 +17,7 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
@@ -50,7 +53,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         super.onCreate(savedInstanceState);
         requestPermissions(permissions,0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
-
+        StompUtil.getInstance().sendStomp("/ws/cabinet/get-settings",new JsonObject().toString());
         initViews();
         initDevice();
     }

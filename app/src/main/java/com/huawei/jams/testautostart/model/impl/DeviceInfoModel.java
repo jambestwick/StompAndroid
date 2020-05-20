@@ -1,26 +1,28 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
+
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.entity.AppInfo;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
-import com.huawei.jams.testautostart.service.StompService;
 import com.huawei.jams.testautostart.utils.Constants;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
-import io.reactivex.subscribers.DisposableSubscriber;
-import ua.naiksoftware.stomp.client.StompMessage;
 
 import java.util.Date;
+
+import io.reactivex.subscribers.DisposableSubscriber;
+import ua.naiksoftware.stomp.dto.StompMessage;
+
 
 public class DeviceInfoModel implements IDeviceInfoModel {
     private static final String TAG = DeviceInfoModel.class.getName();
@@ -30,11 +32,11 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceUuid", deviceUuid);
         jsonObject.addProperty("deviceType", deviceType);
-        StompService.getInstance().sendStomp(IdeaApiService.DEVICE_BIND, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.DEVICE_BIND, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_BIND, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_BIND, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, "bindDevice onNext:" + stompMessage);
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onNext:" + stompMessage);
                 ApiResponse<DeviceInfo> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
                 if (apiResponse == null) {
                     callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
@@ -51,12 +53,12 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "bindDevice onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onError" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "bindDevice onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onComplete");
             }
         });
 
@@ -72,11 +74,11 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         jsonObject.addProperty("deviceType", deviceType);
         jsonObject.addProperty("boxId", boxId);
         jsonObject.addProperty("boxState", boxState);
-        StompService.getInstance().sendStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, "uploadBoxState onNext:" + stompMessage);
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",uploadBoxState onNext:" + stompMessage);
                 ApiResponse<Boolean> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
                 if (apiResponse == null) {
                     callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
@@ -93,12 +95,12 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "uploadBoxState onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",uploadBoxState onError" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "uploadBoxState onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",uploadBoxState onComplete");
             }
         });
 
@@ -110,11 +112,11 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         jsonObject.addProperty("deviceUuid", deviceUuid);
         jsonObject.addProperty("token", token);
         jsonObject.addProperty("password", sixCode);
-        StompService.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, "openBox onNext:" + stompMessage);
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",openBox onNext:" + stompMessage);
                 //返回开箱编号
                 ApiResponse<String> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
                 if (apiResponse == null) {
@@ -132,12 +134,12 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "openBox onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",openBox onError" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "openBox onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",openBox onComplete");
             }
         });
 
@@ -148,11 +150,11 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("deviceUuid", deviceUuid);
         jsonObject.addProperty("operatorTime", TimeUtil.date2Str(operatorTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
-        StompService.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, "queryAlarmProperties onNext:" + stompMessage);
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onNext:" + stompMessage);
                 //返回开箱编号，根据编号开指定柜门
                 ApiResponse<AlarmPropVO> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
                 if (apiResponse == null) {
@@ -172,14 +174,15 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "queryAlarmProperties onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onError" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "queryAlarmProperties onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onComplete");
             }
         });
 
     }
+
 }

@@ -1,7 +1,6 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
-import android.widget.Adapter;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -10,15 +9,15 @@ import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
 import com.huawei.jams.testautostart.entity.Advise_Table;
-import com.huawei.jams.testautostart.entity.AppInfo;
 import com.huawei.jams.testautostart.model.inter.IAdviseModel;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
-import com.huawei.jams.testautostart.service.StompService;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 import io.reactivex.subscribers.DisposableSubscriber;
-import ua.naiksoftware.stomp.client.StompMessage;
+import ua.naiksoftware.stomp.dto.StompMessage;
+
 
 public class AdviseModel implements IAdviseModel {
     private static final String TAG = AdviseModel.class.getName();
@@ -28,8 +27,8 @@ public class AdviseModel implements IAdviseModel {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("token", token);
         jsonObject.addProperty("adviseVersion", currentVer);
-        StompService.getInstance().sendStomp(IdeaApiService.ADV_QUERY_VERSION, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.ADV_QUERY_VERSION, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 stompMessage.getPayload();
@@ -43,12 +42,12 @@ public class AdviseModel implements IAdviseModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",onError" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",onComplete");
             }
         });
     }

@@ -2,7 +2,6 @@ package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
@@ -12,13 +11,14 @@ import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.AppInfo;
 import com.huawei.jams.testautostart.model.inter.IAppInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
-import com.huawei.jams.testautostart.service.StompService;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 
 import io.reactivex.subscribers.DisposableSubscriber;
-import ua.naiksoftware.stomp.client.StompMessage;
+import ua.naiksoftware.stomp.dto.StompMessage;
+
 
 public class AppInfoModel implements IAppInfoModel {
     private static final String TAG = AppInfoModel.class.getName();
@@ -28,8 +28,8 @@ public class AppInfoModel implements IAppInfoModel {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("token", token);
         jsonObject.addProperty("appVersion", currentVer);
-        StompService.getInstance().sendStomp(IdeaApiService.APP_QUERY_VERSION, jsonObject.toString());
-        StompService.getInstance().receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().sendStomp(IdeaApiService.APP_QUERY_VERSION, jsonObject.toString());
+        StompUtil.getInstance().receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 //返回数据
@@ -48,14 +48,14 @@ public class AppInfoModel implements IAppInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, "onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",onError" + Log.getStackTraceString(t));
                 //错误异常
                 callBack.onCallBack(ErrorCode.PARSE_JSON_ERROR, t.toString(), null);
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, "onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",onComplete");
 
             }
         });
