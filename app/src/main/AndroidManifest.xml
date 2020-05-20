@@ -57,10 +57,6 @@
                 <action android:name="android.intent.action.hal.barcodescanner.error" />
             </intent-filter>
         </receiver>
-
-        <service
-            android:name=".service.StompService"
-            android:exported="true" />
     </application>
 
 </manifest>

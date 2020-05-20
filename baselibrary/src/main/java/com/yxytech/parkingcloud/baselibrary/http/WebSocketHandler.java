@@ -1,14 +1,21 @@
 package com.yxytech.parkingcloud.baselibrary.http;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.Nullable;
+
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
+import com.yxytech.parkingcloud.baselibrary.http.common.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+
 import okhttp3.*;
+import okio.BufferedSink;
 import okio.ByteString;
+import retrofit2.http.POST;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class WebSocketHandler extends WebSocketListener {
 
@@ -27,8 +34,9 @@ public class WebSocketHandler extends WebSocketListener {
         this.wsUrl = wsUrl;
     }
 
-    private WebSocketHandler(Context context, String certPath, String priKeyPath, String password, String wsUrl) throws IOException {
-        client = RetrofitService.setSSL(context, certPath, priKeyPath, password).build();
+    private WebSocketHandler(Context context, String wsUrl) throws IOException {
+
+        client = RetrofitService.setSSL(context,null,SSLHelper.CLIENT_PRI_KEY,SSLHelper.CLIENT_BKS_PASSWORD).build();
         this.wsUrl = wsUrl;
     }
 
@@ -44,11 +52,11 @@ public class WebSocketHandler extends WebSocketListener {
         return INST;
     }
 
-    public static WebSocketHandler getInstance(Context context, String certPath, String priKeyPath, String password, String url) {
+    public static WebSocketHandler getInstance(Context context, String url) {
         if (INST == null) {
             synchronized (WebSocketHandler.class) {
                 try {
-                    INST = new WebSocketHandler(context, certPath, priKeyPath, password, url);
+                    INST = new WebSocketHandler(context, url);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -66,7 +74,7 @@ public class WebSocketHandler extends WebSocketListener {
         //构造request对象
         Request request = new Request.Builder()
                 .url(wsUrl)
-                .addHeader("Authorization", Base64Util.encodeBasicAuth("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1"))
+                .header("Authorization", Base64Util.encodeBasicAuth("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1"))
                 .build();
         webSocket = client.newWebSocket(request, this);
         status = ConnectStatus.Connecting;
@@ -103,7 +111,7 @@ public class WebSocketHandler extends WebSocketListener {
         LogUtil.d(TAG, "onOpen");
         this.status = ConnectStatus.Open;
         if (mSocketIOCallBack != null) {
-            mSocketIOCallBack.onOpen();
+            mSocketIOCallBack.onOpen(response);
         }
     }
 
@@ -134,7 +142,7 @@ public class WebSocketHandler extends WebSocketListener {
         LogUtil.d(TAG, "onClosed");
         this.status = ConnectStatus.Closed;
         if (mSocketIOCallBack != null) {
-            mSocketIOCallBack.onClose();
+            mSocketIOCallBack.onClose(code, reason);
         }
     }
 
@@ -145,7 +153,7 @@ public class WebSocketHandler extends WebSocketListener {
         t.printStackTrace();
         this.status = ConnectStatus.Canceled;
         if (mSocketIOCallBack != null) {
-            mSocketIOCallBack.onConnectError(t);
+            mSocketIOCallBack.onConnectError(t, response);
         }
     }
 
@@ -157,13 +165,13 @@ public class WebSocketHandler extends WebSocketListener {
     }
 
     public interface WebSocketCallBack {
-        void onConnectError(Throwable t);
+        void onConnectError(Throwable t, Response response);
 
-        void onClose();
+        void onClose(int code, String reason);
 
         void onMessage(String text);
 
-        void onOpen();
+        void onOpen(Response response);
     }
 
     public void removeSocketIOCallBack() {

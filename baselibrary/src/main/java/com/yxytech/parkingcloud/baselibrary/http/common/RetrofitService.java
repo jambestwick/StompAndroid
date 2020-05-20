@@ -1,19 +1,16 @@
 package com.yxytech.parkingcloud.baselibrary.http.common;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.bumptech.glide.load.engine.Resource;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-
 import com.yxytech.parkingcloud.baselibrary.http.interceptor.HttpCacheInterceptor;
 import com.yxytech.parkingcloud.baselibrary.http.interceptor.HttpHeaderInterceptor;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,14 +23,15 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -69,12 +67,13 @@ public class RetrofitService {
         return new OkHttpClient.Builder()
                 .readTimeout(RxRetrofitApp.getDefaultTimeout(), TimeUnit.MILLISECONDS)
                 .connectTimeout(RxRetrofitApp.getDefaultTimeout(), TimeUnit.MILLISECONDS)
+                .pingInterval(3, TimeUnit.SECONDS)
 //                .addInterceptor(interceptor)
                 .addInterceptor(loggingInterceptor)
-                .addInterceptor(new HttpHeaderInterceptor())
-                .addNetworkInterceptor(new HttpCacheInterceptor())
-                .sslSocketFactory(createSSLSocketFactory())  // https认证 如果要使用https且为自定义证书 可以去掉这两行注释，并自行配制证书。
-                .hostnameVerifier((s, sslSession) -> true)
+                //.addInterceptor(new HttpHeaderInterceptor())
+                //.addNetworkInterceptor(new HttpCacheInterceptor())
+                //.sslSocketFactory(createSSLSocketFactory())  // https认证 如果要使用https且为自定义证书 可以去掉这两行注释，并自行配制证书。
+                .hostnameVerifier((hostname, session) -> true)
                 .cache(cache);
 
     }
@@ -90,7 +89,13 @@ public class RetrofitService {
             prikeyIs = context.getAssets().open(priKeyPath);
         }
         SSLHelper.SSLParams sslParams = SSLHelper.getSslSocketFactory(certIs, prikeyIs, password);
-       return getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
+        return getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
+    }
+
+    public static SSLHelper.SSLParams setSSLParams(Context context) throws IOException {
+        InputStream certIs = context.getAssets().open(SSLHelper.TRUSTSTORE_PUB_KEY);
+        InputStream priKeyIs = context.getAssets().open(SSLHelper.CLIENT_PRI_KEY);
+        return SSLHelper.getSslSocketFactory(null, priKeyIs, SSLHelper.CLIENT_BKS_PASSWORD);
     }
 
     public static Retrofit.Builder getRetrofitBuilder(String baseUrl) {
