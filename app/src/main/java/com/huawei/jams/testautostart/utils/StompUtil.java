@@ -14,10 +14,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import org.reactivestreams.Subscription;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import io.reactivex.CompletableTransformer;
 import io.reactivex.FlowableSubscriber;
@@ -32,7 +29,10 @@ import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.LifecycleEvent;
+import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
+
+import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 
 /**
  * <p>文件描述：<p>
@@ -48,6 +48,7 @@ public class StompUtil {
     private StompClient mStompClient;
     private boolean mNeedConnect;
     private static final long RECONNECT_TIME_INTERVAL = 5 * 1000;
+    private static final int HEART_BEAT = 1000;
 
     private static StompUtil instance;
     private static final Object lock = new Object();
@@ -101,8 +102,8 @@ public class StompUtil {
         headers.put("Authorization", Base64Util.encodeBasicAuth(userName, password));
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI, headers, okHttpClient);
-        //mStompClient.withClientHeartbeat(1000).withServerHeartbeat(1000);
+        mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, headers, okHttpClient);
+        mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
         resetSubscriptions();
         Disposable dispLifecycle = mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
@@ -132,7 +133,9 @@ public class StompUtil {
                         }, throwable -> LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connect Throwable:" + Log.getStackTraceString(throwable))
                 );
         compositeDisposable.add(dispLifecycle);
-        mStompClient.connect();
+        List<StompHeader> _headers =new ArrayList<>();
+        _headers.add(new StompHeader("Authorization",Base64Util.encodeBasicAuth(userName, password)));
+        mStompClient.connect(_headers);
     }
 
     private void resetSubscriptions() {
@@ -215,4 +218,6 @@ public class StompUtil {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
+
+
 }
