@@ -11,6 +11,8 @@ import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 
+import org.reactivestreams.Subscription;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,12 +20,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.reactivex.CompletableTransformer;
+import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
 import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
 /**
@@ -44,6 +52,9 @@ public class StompUtil {
     private static StompUtil instance;
     private static final Object lock = new Object();
 
+    CompositeDisposable compositeDisposable;
+
+
     public static StompUtil getInstance() {
         if (instance == null) {
             synchronized (lock) {
@@ -62,21 +73,21 @@ public class StompUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(TAG, "forlan debug in timer ======================");
-                if (mNeedConnect && NetworkUtils.isConnected()) {
-                    mStompClient = null;
-                    try {
-                        connect(userName, password);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, "forlan debug start connect WS_URI");
-                }
-            }
-        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug in timer ======================");
+//                if (mNeedConnect && NetworkUtils.isConnected()) {
+//                    mStompClient = null;
+//                    try {
+//                        connect(userName, password);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI");
+//                }
+//            }
+//        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
     }
 
     //点对点订阅，根据用户名来推送消息
@@ -91,40 +102,49 @@ public class StompUtil {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, IdeaApiService.WS_URI, headers, okHttpClient);
-        mStompClient.connect();
-        mStompClient.lifecycle()
+        //mStompClient.withClientHeartbeat(1000).withServerHeartbeat(1000);
+        resetSubscriptions();
+        Disposable dispLifecycle = mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(lifecycleEvent -> {
-                    //关注lifecycleEvent的回调来决定是否重连
-                    switch (lifecycleEvent.getType()) {
-                        case OPENED:
-                            mNeedConnect = false;
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
-                            mStompClient.topic("/user/queue/receive-settings", null);
-                            mStompClient.topic("/user/queue/receive-transaction", null);
-                            mStompClient.topic("/user/queue/receive-transaction-completion-confirmation", null);
-                            break;
-                        case ERROR:
-                            mNeedConnect = true;
-                            LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
-                            break;
-                        case CLOSED:
-                            mNeedConnect = true;
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
-                            break;
-                        case FAILED_SERVER_HEARTBEAT:
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection fail server heartBeat");
-                            break;
+                            //关注lifecycleEvent的回调来决定是否重连
+                            switch (lifecycleEvent.getType()) {
+                                case OPENED:
+                                    mNeedConnect = false;
+                                    LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
+                                    //topicMessage();
+                                    break;
+                                case ERROR:
+                                    mNeedConnect = true;
+                                    LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
+                                    break;
+                                case CLOSED:
+                                    mNeedConnect = true;
+                                    LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
+                                    resetSubscriptions();
+                                    break;
+                                case FAILED_SERVER_HEARTBEAT:
+                                    LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
+                                    break;
 
-                    }
-                });
+                            }
+                        }, throwable -> LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connect Throwable:" + Log.getStackTraceString(throwable))
+                );
+        compositeDisposable.add(dispLifecycle);
+        mStompClient.connect();
+    }
+
+    private void resetSubscriptions() {
+        if (compositeDisposable != null) {
+            compositeDisposable.dispose();
+        }
+        compositeDisposable = new CompositeDisposable();
     }
 
     public void disconnect() {
-        if (mStompClient != null) {
-            mStompClient.disconnect();
-        }
+        if (mStompClient != null) mStompClient.disconnect();
+        if (compositeDisposable != null) compositeDisposable.dispose();
     }
 
     /**
@@ -132,27 +152,61 @@ public class StompUtil {
      ***/
     @SuppressLint("CheckResult")
     public void sendStomp(String destPath, String jsonMsg) {
-        mStompClient.send("", jsonMsg)
-                .compose(applySchedulers())
-                .subscribe(() -> {
-                    Log.d(TAG, "STOMP send successfully");
-                }, throwable -> {
-                    Log.e(TAG, "Error send STOMP ", throwable);
-                });
+        if (mStompClient != null) {
+            mStompClient.send(destPath, jsonMsg)
+                    .compose(applySchedulers())
+                    .subscribe(() -> {
+                        Log.d(TAG, "STOMP send successfully");
+                    }, throwable -> {
+                        Log.e(TAG, "Error send STOMP ", throwable);
+                    });
+        }
+
 
     }
 
-    public void receiveStomp(String destPath, DisposableSubscriber<StompMessage> disposableSubscriber) {
-        mStompClient.topic(destPath)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(disposableSubscriber);
+    public void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
+        if (mStompClient != null) {
+            mStompClient.topic(destPath)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(flowableSubscriber);
+        }
+
 
 //                .subscribe(topicMessage -> {
 //                    Log.d(TAG, "Received " + topicMessage.getPayload());
 //                }, throwable -> {
 //                    Log.e(TAG, "Error on subscribe topic", throwable);
 //                });
+    }
+
+    private void topicMessage() {
+        Disposable dispTopic1 = mStompClient.topic("/user/queue/receive-settings")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    Log.d(TAG, "Received " + topicMessage.getPayload());
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic", throwable);
+                });
+        Disposable dispTopic2 = mStompClient.topic("/user/queue/receive-transaction")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    Log.d(TAG, "Received " + topicMessage.getPayload());
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic", throwable);
+                });
+        Disposable dispTopic3 = mStompClient.topic("/user/queue/receive-transaction-completion-confirmation")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    Log.d(TAG, "Received " + topicMessage.getPayload());
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic", throwable);
+                });
+        compositeDisposable.addAll(dispTopic1, dispTopic2, dispTopic3);
     }
 
     protected CompletableTransformer applySchedulers() {

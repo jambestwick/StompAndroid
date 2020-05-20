@@ -53,7 +53,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         super.onCreate(savedInstanceState);
         requestPermissions(permissions,0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
-        StompUtil.getInstance().sendStomp("/ws/cabinet/get-settings",new JsonObject().toString());
         initViews();
         initDevice();
     }

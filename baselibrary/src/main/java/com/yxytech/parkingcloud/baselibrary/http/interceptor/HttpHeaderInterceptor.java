@@ -24,12 +24,12 @@ public class HttpHeaderInterceptor implements Interceptor {
         String token = PreferencesManager.getInstance(BaseApplication.getAppContext()).get("token");
         LogUtil.d("HttpHeaderInterceptor", "Cookie: " + token);
         Request request = chain.request().newBuilder()
-                .header("app_key", "appId")
+                //.header("app_key", "appId")
                // .header("Authorization", tokenType + " " + accessToken)
-                .header("Content-Type", "application/json")
-                .addHeader("Connection", "close")
-                .addHeader("Accept-Encoding", "identity")
-                .addHeader("token", token)
+               // .header("Content-Type", "application/json;charset=utf-8")
+                //.addHeader("Connection", "close")
+                //.addHeader("Accept-Encoding", "identity")
+                //.addHeader("token", token)
                 .build();
         return chain.proceed(request);
     }
