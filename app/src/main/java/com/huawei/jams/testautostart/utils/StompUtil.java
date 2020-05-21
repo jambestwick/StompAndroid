@@ -102,7 +102,7 @@ public class StompUtil {
         headers.put("Authorization", Base64Util.encodeBasicAuth(userName, password));
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
-        mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, headers, okHttpClient);
+        mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
         resetSubscriptions();
         Disposable dispLifecycle = mStompClient.lifecycle()
@@ -114,7 +114,7 @@ public class StompUtil {
                                 case OPENED:
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
-                                    //topicMessage();
+                                    topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
@@ -133,8 +133,8 @@ public class StompUtil {
                         }, throwable -> LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connect Throwable:" + Log.getStackTraceString(throwable))
                 );
         compositeDisposable.add(dispLifecycle);
-        List<StompHeader> _headers =new ArrayList<>();
-        _headers.add(new StompHeader("Authorization",Base64Util.encodeBasicAuth(userName, password)));
+        List<StompHeader> _headers = new ArrayList<>();
+        _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
         mStompClient.connect(_headers);
     }
 
