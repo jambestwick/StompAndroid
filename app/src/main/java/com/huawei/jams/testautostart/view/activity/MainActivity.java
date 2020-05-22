@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
+import com.huawei.jams.testautostart.entity.Advise;
+import com.huawei.jams.testautostart.entity.Advise_Table;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.presenter.impl.AdvisePresenter;
 import com.huawei.jams.testautostart.presenter.impl.AppInfoPresenter;
@@ -20,7 +22,9 @@ import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 public class MainActivity extends BaseActivity implements IMainView {
@@ -65,7 +69,6 @@ public class MainActivity extends BaseActivity implements IMainView {
                     decreaseInputCode();
                     break;
                 case R.id.main_code_ok_tv:
-
                     //用户在广告界面点击任意键，则退出广告，输入（小程序下发）6位数字码，
                     //输入完成-->
                     //1.发送6位码Stomp-->后台
@@ -93,11 +96,19 @@ public class MainActivity extends BaseActivity implements IMainView {
         });
     }
 
-    private void initData(){
-        String path ="";
+    private void initData() {
+        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
+        String path = null;
+        if (lastAdvise != null && !StrUtil.isEmpty(lastAdvise.getFilePath())) {
+            path = lastAdvise.getFilePath();//广告路径
+        } else {
+            //被动接受推送广告
+        }
         binding.mainAdviseVideo.setVideoPath(path);
         MediaController mediaController = new MediaController(this);
         binding.mainAdviseVideo.setMediaController(mediaController);
+        binding.mainAdviseVideo.start();//播放
+        binding.mainAdviseVideo.pause();//暫停
 
     }
 
