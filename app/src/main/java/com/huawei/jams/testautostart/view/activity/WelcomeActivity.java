@@ -46,12 +46,11 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
     };
 
 
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestPermissions(permissions,0);
+        requestPermissions(permissions, 0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initDevice();
@@ -94,7 +93,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         } else {
             binding.welHintTv.setVisibility(View.GONE);
         }
-
         if (!StrUtil.isEmpty(btnMessage)) {
             binding.welConfirmBtn.setVisibility(View.VISIBLE);
             binding.setButton(btnMessage);
@@ -112,24 +110,24 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
 
     private void initDevice() {
         //检查网络
-        if (step == 1) {
+        if (step == EnumDeviceCheck.STEP_1.key) {
             if (!isConnectInternet()) {
                 return;
             }
-            step = 2;
+            step = EnumDeviceCheck.STEP_2.key;
             initDevice();
             return;
         }
-        if (step == 2) {
+        if (step == EnumDeviceCheck.STEP_2.key) {
             if (!isConnectServer()) {
                 return;
             }
-            step = 3;
+            step = EnumDeviceCheck.STEP_3.key;
             initDevice();
             return;
         }
 
-        if (step == 3) {
+        if (step == EnumDeviceCheck.STEP_3.key) {
             deviceNo = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
             String deviceCode = hasDeviceCode(deviceNo);
             if (!StrUtil.isEmpty(deviceCode)) {//SP有设备号
@@ -137,10 +135,10 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             }
             return;
         }
-        if (step == 4) {
+        if (step == EnumDeviceCheck.STEP_4.key) {
             readBoxAllClose();
         }
-        if (step == 5) {
+        if (step == EnumDeviceCheck.STEP_5.key) {
             judgeBoxAllClose();
         }
 //        if (step == 6) {
@@ -265,11 +263,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         if (NetworkUtils.isConnected() && result.result == 0) {
             return true;
         }
-        hintMessage = "未连接网络,请检查后重试";
-        btnMessage = "重试";
-        cancelMessage = "";
-        step = 1;
-        setData();
+        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", "重试", null);
         return false;
     }
 
@@ -282,27 +276,16 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;
         }
-        hintMessage = "后台通信失败，请联系后台人员处理";
-        btnMessage = "重试";
-        cancelMessage = "";
-        step = 2;
-        setData();
+        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败，请联系后台人员处理", "重试", null);
         return false;
     }
 
     private String hasDeviceCode(String deviceNo) {
-        cancelMessage = "";
         if (!StrUtil.isEmpty(deviceNo)) {
-            hintMessage = "";
-            btnMessage = "";
-            step = 6;
-            setData();
+            turnStep(EnumDeviceCheck.STEP_6, null, null, null);
             return deviceNo;
         }
-        hintMessage = "自检柜门,请手动关闭所有柜门";
-        btnMessage = "确定";
-        step = 4;
-        setData();
+        turnStep(EnumDeviceCheck.STEP_4, "自检柜门,请手动关闭所有柜门", "确定", null);
         return null;
     }
 
@@ -317,46 +300,15 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                 }
             }
             if (allClose) {
-                //弹开所有柜门
-                KeyCabinetReceiver.openBatchBox(this, BOX_ID_ARRAY, new KeyCabinetReceiver.OpenBoxListListener() {
-                    @Override
-                    public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
-                        boolean allOpen = true;
-                        for (int i = 0; i < isBatchOpen.length; i++) {
-                            if (!isBatchOpen[i]) {
-                                allOpen = false;
-                                break;
-                            }
-                        }
-                        if (allOpen) {
-                            hintMessage = "设备自检通过,请关闭所有柜门";
-                            btnMessage = "下一步";
-                            cancelMessage = "";
-                            step = 5;
-                            setData();
-                        } else {
-                            hintMessage = "设备柜门故障（卡住，设备无法使用）";
-                            btnMessage = "";
-                            cancelMessage = "";
-                            setData();
-                            return;
-                        }
-                    }
-                });
+                //弹开所有柜门，逐个弹开
+                intervalOpenBox(0);
             } else {
                 if (queryBoxStateTimes >= 2) {
-                    hintMessage = "设备柜门故障（卡住，设备无法使用）";
-                    btnMessage = "";
-                    cancelMessage = "";
-                    setData();
+                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
                     return;
 
                 }
-                hintMessage = "确定柜门是否全部关闭";
-                btnMessage = "是";
-                cancelMessage = "否";
-                step = 4;
-                setData();
+                turnStep(EnumDeviceCheck.STEP_4, "确定柜门是否全部关闭", "是", "否");
                 queryBoxStateTimes++;
             }
 
@@ -375,13 +327,9 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                     }
                 }
                 if (allClose) {
-                    step = 6;
-                    hintMessage = "请输入6位设备码进行绑定";
-                    btnMessage = "";
-                    cancelMessage = "";
+                    turnStep(EnumDeviceCheck.STEP_6, "请输入6位设备码进行绑定", null, null);
                     binding.welKeyboardLl.setVisibility(View.VISIBLE);
                     binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                    setData();
                     return;
                 } else {
                     new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
@@ -393,6 +341,28 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                                 sDialog.cancel();
                                 judgeBoxAllClose();
                             }).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * 逐个弹开柜门
+     **/
+    public void intervalOpenBox(final int index) {
+        KeyCabinetReceiver.openBatchBox(this, new String[]{BOX_ID_ARRAY[index]}, new KeyCabinetReceiver.OpenBoxListListener() {
+            @Override
+            public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
+                if (isBatchOpen[0]) {//弹开
+                    if (index == BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
+                        turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", "下一步", null);
+                    } else {
+                        intervalOpenBox(index + 1);
+                        return;
+                    }
+                } else {//没开
+                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
+                    return;
                 }
             }
         });
@@ -417,6 +387,31 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
             deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
         }
+    }
+
+
+    enum EnumDeviceCheck {
+        STEP_1(1, "网络自检"),
+        STEP_2(2, "后台联通自检"),
+        STEP_3(3, "设备已绑定过自检"),
+        STEP_4(4, "设备柜门全关自检"),
+        STEP_5(5, "设备全部弹开"),
+        STEP_6(6, "关闭柜门输入6位码绑定");
+        private int key;
+        private String value;
+
+        EnumDeviceCheck(int key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    private void turnStep(EnumDeviceCheck enumDeviceCheck, String hintMessage, String btnMessage, String cancelMessage) {
+        step = enumDeviceCheck.key;
+        this.hintMessage = hintMessage;
+        this.btnMessage = btnMessage;
+        this.cancelMessage = cancelMessage;
+        this.setData();
     }
 
 }

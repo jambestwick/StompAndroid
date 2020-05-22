@@ -25,7 +25,7 @@ public class BaseApp extends BaseApplication {
         // 初始化MultiDex
         MultiDex.install(this);
         FlowManager.init(this);
-        StompUtil.getInstance().createStompClient("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1");
+        StompUtil.getInstance().createStompClient("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1");//开启长连接
     }
 
     @Override
