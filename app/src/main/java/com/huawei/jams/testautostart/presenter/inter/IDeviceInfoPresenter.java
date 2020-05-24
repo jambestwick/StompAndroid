@@ -11,8 +11,6 @@ public interface IDeviceInfoPresenter {
 
     void uploadBoxState(String boxId, String boxState);
 
-    void queryAlarmProp();
-
     void openBox(String password, int times);
 
 

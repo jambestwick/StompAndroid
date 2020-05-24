@@ -16,7 +16,7 @@ import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
-import java.util.Date;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,7 +38,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        mainView.onBindDeviceSuccess();
+                        mainView.onBindDeviceSuccess(((Map)data).get(Constants.ACCOUNT).toString(),((Map)data).get(Constants.PASSWORD).toString());
                         break;
                     default:
                         mainView.onBindDeviceFail(msg);
@@ -62,25 +62,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         break;
                     default:
                         mainView.onUploadBoxStateFail(msg);
-                        break;
-                }
-            }
-        });
-
-    }
-
-    @Override
-    public void queryAlarmProp() {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-        mDeviceInfoModel.queryAlarmProperties(deviceUuid, new Date(), new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case ApiResponse.SUCCESS:
-                        mainView.onQueryAlarmPropSuccess();
-                        break;
-                    default:
-                        mainView.onQueryAlarmPropFail(msg);
                         break;
                 }
             }

@@ -53,9 +53,6 @@ public class StompUtil {
     private static StompUtil instance;
     private static final Object lock = new Object();
 
-    CompositeDisposable compositeDisposable;
-
-
     public static StompUtil getInstance() {
         if (instance == null) {
             synchronized (lock) {
@@ -98,14 +95,11 @@ public class StompUtil {
 
     @SuppressLint("CheckResult")
     private void connect(String userName, String password) throws IOException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", Base64Util.encodeBasicAuth(userName, password));
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
-        resetSubscriptions();
-        Disposable dispLifecycle = mStompClient.lifecycle()
+        mStompClient.lifecycle()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(lifecycleEvent -> {
@@ -114,7 +108,7 @@ public class StompUtil {
                                 case OPENED:
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
-                                    topicMessage();
+                                    //topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
@@ -123,7 +117,6 @@ public class StompUtil {
                                 case CLOSED:
                                     mNeedConnect = true;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
-                                    resetSubscriptions();
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
@@ -132,22 +125,14 @@ public class StompUtil {
                             }
                         }, throwable -> LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connect Throwable:" + Log.getStackTraceString(throwable))
                 );
-        compositeDisposable.add(dispLifecycle);
         List<StompHeader> _headers = new ArrayList<>();
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
         mStompClient.connect(_headers);
     }
 
-    private void resetSubscriptions() {
-        if (compositeDisposable != null) {
-            compositeDisposable.dispose();
-        }
-        compositeDisposable = new CompositeDisposable();
-    }
 
     public void disconnect() {
         if (mStompClient != null) mStompClient.disconnect();
-        if (compositeDisposable != null) compositeDisposable.dispose();
     }
 
     /**
@@ -209,7 +194,6 @@ public class StompUtil {
                 }, throwable -> {
                     Log.e(TAG, "Error on subscribe topic", throwable);
                 });
-        compositeDisposable.addAll(dispTopic1, dispTopic2, dispTopic3);
     }
 
     protected CompletableTransformer applySchedulers() {

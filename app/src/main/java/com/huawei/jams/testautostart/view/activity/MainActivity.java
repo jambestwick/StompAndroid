@@ -217,7 +217,7 @@ public class MainActivity extends BaseActivity implements IMainView {
     }
 
     @Override
-    public void onBindDeviceSuccess() {
+    public void onBindDeviceSuccess(String account,String password) {
 
     }
 

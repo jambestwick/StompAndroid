@@ -50,6 +50,9 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                         }
                         switch (EnumResponseCode.getEnumByKey(response.getCode())) {
                             case SUCCESS://绑定成功
+
+                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getData());
+                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getData());
                                 callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response.getData());
                                 break;
                             default:

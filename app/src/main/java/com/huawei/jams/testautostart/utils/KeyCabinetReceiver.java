@@ -105,7 +105,6 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
             if (boxStateListener != null) {
                 boxStateListener.onBoxStateBack(new String[]{boxId}, new boolean[]{isOpened});
             }
-            // TODO ...
         }
         if (intent.getAction().equals("android.intent.action.hal.iocontroller.batchopen.result")) {
             String[] batchboxid = intent.getExtras().getStringArray("batchboxid");

@@ -22,7 +22,7 @@ public interface IMainView {
 
     void onUploadBoxStateFail(String reason);
 
-    void onBindDeviceSuccess();
+    void onBindDeviceSuccess(String account,String password);
 
     void onBindDeviceFail(String reason);
 

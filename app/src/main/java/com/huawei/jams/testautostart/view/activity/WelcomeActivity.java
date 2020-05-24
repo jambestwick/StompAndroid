@@ -39,7 +39,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     private IDeviceInfoPresenter deviceInfoPresenter;
     private KeyCabinetReceiver.EnumActionType actionType;
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +56,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
                     initDevice();
                     break;
                 case R.id.wel_cancel_btn:
-                    step = 3;
+                    step = EnumDeviceCheck.STEP_3.key;
                     initDevice();
                     break;
                 case R.id.wel_code_delete_tv://删除前一位
@@ -226,8 +226,9 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     }
 
     @Override
-    public void onBindDeviceSuccess() {
+    public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
+        StompUtil.getInstance().createStompClient(account, password);
         startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
         finish();
     }

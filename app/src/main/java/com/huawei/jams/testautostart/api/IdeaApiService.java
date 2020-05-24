@@ -33,7 +33,7 @@ public interface IdeaApiService {
      *
      * @return
      */
-    @POST("/efss/register/sms")
+    @POST("/device/bind")
     Observable<ApiResponse> bindDevice(@Body Map reqMap);
 
     /**
