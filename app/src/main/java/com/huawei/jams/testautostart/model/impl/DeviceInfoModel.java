@@ -1,67 +1,85 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
+import com.huawei.jams.testautostart.api.RetrofitHelper;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.StompUtil;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
+import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
+import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
-
-import java.util.Date;
-
 import io.reactivex.subscribers.DisposableSubscriber;
 import ua.naiksoftware.stomp.dto.StompMessage;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class DeviceInfoModel implements IDeviceInfoModel {
     private static final String TAG = DeviceInfoModel.class.getName();
 
+    /**
+     * http请求方式
+     **/
     @Override
-    public void bindDevice(String deviceUuid, String deviceType, StompCallBack callBack) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceUuid", deviceUuid);
-        jsonObject.addProperty("deviceType", deviceType);
-        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_BIND, jsonObject.toString());
-        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_BIND, new DisposableSubscriber<StompMessage>() {
-            @Override
-            public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onNext:" + stompMessage);
-                ApiResponse<DeviceInfo> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                if (apiResponse == null) {
-                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                }
-                switch (EnumResponseCode.getEnumByKey(apiResponse.getCode())) {
-                    case SUCCESS://绑定成功
-                        callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
-                        break;
-                    default:
-                        callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                        break;
-                }
-            }
+    public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, StompCallBack callBack) {
+        HttpManager httpManager = new HttpManager(baseActivity, lifecycleProvider);
+        Map<String, Object> reqMap = new HashMap<>();
+        reqMap.put("sixCode", sixCode);
+        httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(reqMap),
+                new DefaultObserver<ApiResponse>() {
+                    @Override
+                    public void onSuccess(ApiResponse response) {
+                        if (response == null) {
+                            callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                        }
+                        switch (EnumResponseCode.getEnumByKey(response.getCode())) {
+                            case SUCCESS://绑定成功
+                                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response.getData());
+                                break;
+                            default:
+                                callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                                break;
+                        }
 
-            @Override
-            public void onError(Throwable t) {
-                LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onError" + Log.getStackTraceString(t));
-            }
+                    }
 
-            @Override
-            public void onComplete() {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onComplete");
-            }
-        });
+                    @Override
+                    public void onError(Throwable e) {
+                        super.onError(e);
+                        LogUtil.e(TAG, e.toString());
+                        callBack.onCallBack(ErrorCode.RESPONSE_FAILED, e.toString(), null);
 
+                    }
+
+                    @Override
+                    public void onException(ExceptionReason reason) {
+                        super.onException(reason);
+                        LogUtil.e(TAG, reason.toString());
+                        callBack.onCallBack(ErrorCode.RESPONSE_FAILED, reason.name(), null);
+                    }
+
+                    @Override
+                    public void onFail(int errorCode, String cause) {
+                        super.onFail(errorCode, cause);
+                        callBack.onCallBack(errorCode, cause, null);
+                    }
+                });
     }
 
     /**

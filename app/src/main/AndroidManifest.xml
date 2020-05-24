@@ -23,7 +23,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
-        <activity android:name=".view.activity.WelcomeActivity">
+        <activity android:name=".view.activity.WelcomeActivity" android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.activity.MainActivity"
+            android:name=".view.activity.MainActivity" android:screenOrientation="landscape"
             android:launchMode="singleTask" />
 
         <receiver

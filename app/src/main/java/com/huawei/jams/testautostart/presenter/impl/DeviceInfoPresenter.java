@@ -1,13 +1,10 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
-import android.content.Intent;
-
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
-import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
@@ -15,6 +12,8 @@ import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
 import java.util.Date;
@@ -33,9 +32,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void bindDevice(String sixCode) {
-        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
-        mDeviceInfoModel.bindDevice(sixCode, "deviceType", new StompCallBack() {
+    public void bindDevice(BaseActivity activity, LifecycleProvider lifecycleProvider, String sixCode) {
+        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, new StompCallBack() {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
@@ -192,6 +190,16 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         }
     }
 
+    @Override
+    public boolean boxListAllClose(boolean[] isOpens) {
+        for (int i = 0; i < isOpens.length; i++) {
+            if (isOpens[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     class TimeCountTask extends TimerTask {
         private String boxId;
         private Timer timer;
@@ -208,21 +216,26 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         @Override
         public void run() {
             i++;
-            KeyCabinetReceiver.queryBoxState(BaseApp.getAppContext(), boxId, new KeyCabinetReceiver.QueryBoxStateListener() {
+            KeyCabinetReceiver.getInstance().queryBoxState(BaseApp.getAppContext(), boxId, new KeyCabinetReceiver.BoxStateListener() {
                 @Override
-                public void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage) {
-                    if (!isOpen) {
-                        uploadBoxState(boxId, DeviceInfo.EnumBoxState.CLOSE.getKey());
+                public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
+
+                }
+                @Override
+                public void onBoxStateBack( String[] boxId, boolean[] isOpen) {
+                    if (!isOpen[0]) {
+                        uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
                         timer.cancel();
                         i = 1;
                     } else {
                         if (i > exeCount) {
                             //上报
-                            uploadBoxState(boxId, DeviceInfo.EnumBoxState.OPEN.getKey());
+                            uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
                             timer.cancel();
                             i = 1;
                         }
                     }
+
                 }
             });
 

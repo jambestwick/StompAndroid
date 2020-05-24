@@ -1,7 +1,6 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.api.ApiResponse;
@@ -14,7 +13,6 @@ import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-
 import io.reactivex.subscribers.DisposableSubscriber;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -23,11 +21,7 @@ public class AdviseModel implements IAdviseModel {
     private static final String TAG = AdviseModel.class.getName();
 
     @Override
-    public void queryVersion(String token, String currentVer, StompCallBack callBack) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("token", token);
-        jsonObject.addProperty("adviseVersion", currentVer);
-        StompUtil.getInstance().sendStomp(IdeaApiService.ADV_QUERY_VERSION, jsonObject.toString());
+    public void subscribeVersion(StompCallBack callBack) {
         StompUtil.getInstance().receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
@@ -36,6 +30,8 @@ public class AdviseModel implements IAdviseModel {
                 Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
                 if (!currentAdv.getAdvVersion().equals(apiResponse.getData().getAdvVersion())) {
                     //下载广告
+                    Advise advise =new Advise();
+                    //advise.save();
                 }
                 callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
             }

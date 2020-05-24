@@ -1,9 +1,7 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
-
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
@@ -15,7 +13,6 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
-
 import io.reactivex.subscribers.DisposableSubscriber;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -24,11 +21,7 @@ public class AppInfoModel implements IAppInfoModel {
     private static final String TAG = AppInfoModel.class.getName();
 
     @Override
-    public void queryVersion(String token, String currentVer, StompCallBack callBack) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("token", token);
-        jsonObject.addProperty("appVersion", currentVer);
-        StompUtil.getInstance().sendStomp(IdeaApiService.APP_QUERY_VERSION, jsonObject.toString());
+    public void subscribeVersion(StompCallBack callBack) {
         StompUtil.getInstance().receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {

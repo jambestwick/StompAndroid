@@ -1,6 +1,8 @@
 package com.huawei.jams.testautostart.model.inter;
 
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 
 import java.util.Date;
 
@@ -9,9 +11,8 @@ public interface IDeviceInfoModel<T> {
      * 初始化设备，需要网络交互后台设备绑定
      *
      * @param deviceUuid 设备uuid
-     * @param deviceType 例如:RLC-18/24EC
      **/
-    void bindDevice(String deviceUuid, String deviceType, StompCallBack<T> callBack);
+    void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String deviceUuid, StompCallBack<T> callBack);
 
 
     /**

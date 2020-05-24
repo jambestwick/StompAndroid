@@ -1,13 +1,12 @@
 package com.huawei.jams.testautostart.view.activity;
 
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.MediaController;
 import android.widget.TextView;
-
-import com.google.gson.JsonObject;
+import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -20,10 +19,10 @@ import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
-import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
@@ -52,10 +51,8 @@ public class MainActivity extends BaseActivity implements IMainView {
 
 
     private void initNetData() {
-//        deviceInfoPresenter.bindDevice();
-//        deviceInfoPresenter.queryAlarmProp();
-//        appInfoPresenter.queryAppInfo();
-//        advisePresenter.queryAdviseInfo();
+        appInfoPresenter.topicAppInfo();
+        advisePresenter.topicAdviseInfo();
     }
 
 
@@ -98,17 +95,19 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     private void initData() {
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
-        String path = null;
         if (lastAdvise != null && !StrUtil.isEmpty(lastAdvise.getFilePath())) {
-            path = lastAdvise.getFilePath();//广告路径
+            String path = lastAdvise.getFilePath();//广告路径
+            binding.mainAdviseVideo.setVideoPath(path);
+            binding.mainAdviseVideo.start();//播放
+            binding.mainAdviseVideo.setOnCompletionListener(mp -> {
+                binding.mainAdviseVideo.setVideoPath(path);
+                //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
+                binding.mainAdviseVideo.start();
+            });
         } else {
             //被动接受推送广告
         }
-        binding.mainAdviseVideo.setVideoPath(path);
-        MediaController mediaController = new MediaController(this);
-        binding.mainAdviseVideo.setMediaController(mediaController);
-        binding.mainAdviseVideo.start();//播放
-        binding.mainAdviseVideo.pause();//暫停
+
 
     }
 
@@ -146,7 +145,7 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onQueryAppInfoSuccess(String url) {
-        //下载app
+        //订阅的app推送过来下载app
 
     }
 
@@ -156,7 +155,8 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onQueryAdviseSuccess(String url) {
-        //下载广告
+        //订阅的广告推送过来下载广告
+        //Advise.Builder.anAdvise().advDate(new Date()).build().save
     }
 
     @Override
@@ -166,25 +166,24 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onOpenBoxSuccess(String boxId) {
-        KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, new KeyCabinetReceiver.OpenBoxListListener() {
+        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{boxId}, new KeyCabinetReceiver.BoxStateListener() {
             @Override
-            public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
-                boolean hasNotOpen = false;
-                for (int i = 0; i < isBatchOpen.length; i++) {
-                    if (!isBatchOpen[i]) {
-                        hasNotOpen = true;
-                        break;
-                    }
-                }
+            public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
+
+            }
+
+            @Override
+            public void onBoxStateBack( String[] boxId, boolean[] isOpen) {
                 Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_scal);
-                if (hasNotOpen) {
+                if (!isOpen[0]) {
                     binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_device_error);
                     binding.mainDialogAnimIv.startAnimation(animation);
                 } else {
                     binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_open_success);
                     binding.mainDialogAnimIv.startAnimation(animation);
+                    binding.mainAdviseVideo.setVideoURI(Uri.parse("android.resource://" + PackageUtils.getPackageInfo(BaseApp.getAppContext()).packageName + "/" + R.raw.msc_box_open));
+                    binding.mainAdviseVideo.start();
                 }
-
             }
         });
         deviceInfoPresenter.patrolBoxState(boxId, DeviceInfo.EnumBoxState.OPEN.getKey());

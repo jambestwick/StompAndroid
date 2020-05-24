@@ -6,10 +6,7 @@ public interface IAdviseModel<T> {
 
 
     /**
-     * 查询广告版本
-     * @param token 后台返回的token
-     * @param currentVer 广告的当前版本
-     *
-     * ***/
-    void queryVersion(String token, String currentVer, StompCallBack<T> callBack);
+     * 广告版本订阅
+     ***/
+    void subscribeVersion(StompCallBack<T> callBack);
 }

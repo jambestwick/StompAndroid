@@ -26,10 +26,7 @@
 
         <LinearLayout
                 android:id="@+id/wel_six_code_ll"
-                android:layout_width="@dimen/dp_216"
-                android:layout_height="@dimen/dp_40"
-                android:background="@drawable/bg_corner_circle_4"
-                android:weightSum="6"
+                style="@style/style_layout_six_input_linear"
                 android:visibility="gone">
 
             <TextView
@@ -60,8 +57,9 @@
 
         <TextView
                 android:id="@+id/wel_hint_tv"
-                android:layout_width="@dimen/dp_296"
-                android:layout_height="@dimen/dp_56"
+                android:layout_width="@dimen/dp_608"
+                android:layout_height="@dimen/dp_128"
+                android:textSize="@dimen/sp_30"
                 android:gravity="center"
                 android:text="@={hint}"/>
 
@@ -73,16 +71,18 @@
 
             <Button
                     android:id="@+id/wel_confirm_btn"
-                    android:layout_width="@dimen/dp_64"
-                    android:layout_height="@dimen/dp_40"
+                    android:layout_width="@dimen/dp_192"
+                    android:layout_height="@dimen/dp_128"
+                    android:textSize="@dimen/sp_30"
                     android:gravity="center"
                     android:onClick="@{click}"
                     android:text="@={button}"/>
 
             <Button
                     android:id="@+id/wel_cancel_btn"
-                    android:layout_width="@dimen/dp_64"
-                    android:layout_height="@dimen/dp_40"
+                    android:layout_width="@dimen/dp_192"
+                    android:layout_height="@dimen/dp_128"
+                    android:textSize="@dimen/sp_30"
                     android:gravity="center"
                     android:onClick="@{click}"
                     android:text="@={cancel}"/>
@@ -91,11 +91,7 @@
 
         <LinearLayout
                 android:id="@+id/wel_keyboard_ll"
-                android:layout_width="@dimen/dp_200"
-                android:layout_height="@dimen/dp_256"
-                android:background="@drawable/bg_corner_circle_8"
-                android:orientation="vertical"
-                android:padding="@dimen/dp_10"
+                style="@style/style_layout_number_total_linear"
                 android:visibility="gone">
 
             <LinearLayout style="@style/style_layout_number_linear">

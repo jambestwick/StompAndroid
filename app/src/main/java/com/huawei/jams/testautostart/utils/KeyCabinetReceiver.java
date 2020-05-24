@@ -12,10 +12,21 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
-    private static QueryBoxStateListener queryBoxStateListener;
-    private static QueryBatchBoxStateListener queryBatchBoxStateListener;
-    private static OpenBoxListListener openBoxListListener;
+    private static BoxStateListener boxStateListener;
     private static DialogUtils dialogUtils;
+    private static KeyCabinetReceiver instance;
+    private static final Object lock = new Object();
+
+    public static KeyCabinetReceiver getInstance() {
+        if (instance == null) {
+            synchronized (lock) {
+                if (instance == null) {
+                    instance = new KeyCabinetReceiver();
+                }
+            }
+        }
+        return instance;
+    }
 
 
     /***
@@ -38,21 +49,21 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
 //        }
 //        return false;
 //    }
-
-    public static void openBatchBox(Context context, String[] boxIdList, OpenBoxListListener listListener) {
-        if(dialogUtils==null){
-            dialogUtils =new DialogUtils();
+    public void openBatchBox(Context context, String[] boxIdList, BoxStateListener listListener) {
+        if (dialogUtils == null) {
+            dialogUtils = new DialogUtils();
         }
         dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
         intent.putExtra("batchboxid", boxIdList);
         context.sendBroadcast(intent);
-        openBoxListListener = listListener;
+        boxStateListener = listListener;
+        boxStateListener.setType(EnumActionType.OPEN_BATCH);
     }
 
-    public static void queryBoxState(Context context, String boxId, QueryBoxStateListener listener) {
-        if(dialogUtils==null){
-            dialogUtils =new DialogUtils();
+    public void queryBoxState(Context context, String boxId, BoxStateListener listener) {
+        if (dialogUtils == null) {
+            dialogUtils = new DialogUtils();
         }
         dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
@@ -60,26 +71,29 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         intent.putExtra("boxid", boxId);
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + boxId + ",查询操作完成");
-        queryBoxStateListener = listener;
+        boxStateListener = listener;
+        boxStateListener.setType(EnumActionType.QUERY);
 
     }
 
-    public static void queryBatchBoxState(Context context, String[] boxIds, QueryBatchBoxStateListener listener) {
-        if(dialogUtils==null){
-            dialogUtils =new DialogUtils();
+    public void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
+        if (dialogUtils == null) {
+            dialogUtils = new DialogUtils();
         }
         dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         //String[] batchBoxId = {"A01","A02","A03","A04","A05"};
         intent.putExtra("batchboxid", boxIds);
         context.sendBroadcast(intent);
-        queryBatchBoxStateListener = listener;
+        boxStateListener = listener;
+        boxStateListener.setType(EnumActionType.QUERY_BATCH);
+
     }
 
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(dialogUtils!=null){
+        if (dialogUtils != null) {
             dialogUtils.dismissProgress();
         }
         if (intent.getAction().equals("android.intent.action.hal.iocontroller.querydata")) {
@@ -88,36 +102,29 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
             boolean isOpened = intent.getExtras().getBoolean("isopened");
             boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
             LogUtil.d(TAG, "箱门:box" + boxId + "box状态" + isOpened + ",isStoraged:" + isStoraged);
-            if (queryBoxStateListener != null) {
-                queryBoxStateListener.onBoxStateBack(boxId, isOpened, isStoraged);
+            if (boxStateListener != null) {
+                boxStateListener.onBoxStateBack(new String[]{boxId}, new boolean[]{isOpened});
             }
             // TODO ...
         }
         if (intent.getAction().equals("android.intent.action.hal.iocontroller.batchopen.result")) {
             String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
-            boolean[] opened = intent.getExtras().getBooleanArray("opened ");
-            if (queryBatchBoxStateListener != null) {
-                queryBatchBoxStateListener.onBoxStateBack(batchboxid, opened);
+            boolean[] opened = intent.getExtras().getBooleanArray("opened");
+            if (boxStateListener != null) {
+                LogUtil.d(TAG, "中间层回调:操作完成");
+                boxStateListener.onBoxStateBack(batchboxid, opened);
             }
-            if (openBoxListListener != null) {
-                openBoxListListener.onBoxStateBack(batchboxid, opened);
-            }
-
         }
     }
 
+    public interface BoxStateListener {
+        void setType(EnumActionType enumActionType);
 
-    public interface QueryBoxStateListener {
-        void onBoxStateBack(String boxId, boolean isOpen, boolean isStorage);
+        void onBoxStateBack(String[] boxId, boolean[] isOpen);
     }
 
-    public interface QueryBatchBoxStateListener {
-        void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen);
+    public enum EnumActionType {
+        QUERY, QUERY_BATCH, OPEN_BATCH
     }
-
-    public interface OpenBoxListListener {
-        void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen);
-    }
-
 
 }

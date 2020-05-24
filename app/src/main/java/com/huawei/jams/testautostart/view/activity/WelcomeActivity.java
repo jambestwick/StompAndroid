@@ -1,6 +1,5 @@
 package com.huawei.jams.testautostart.view.activity;
 
-import android.Manifest;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
@@ -8,10 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
-
-import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
+import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
@@ -23,34 +21,28 @@ import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
 
+import java.util.Objects;
+
 import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
 
-public class WelcomeActivity extends BaseActivity implements IMainView {
+public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";
     private String btnMessage = "";
     private String cancelMessage = "";
-    private int step = 1;
-    private int queryBoxStateTimes = 1;
+    private int step = EnumDeviceCheck.STEP_1.key;
+    private int queryBoxStateTimes = 1;//查询柜门已关闭次数
+    private int openBoxIndex = 0;//打开柜门到第几个
     /***输入6位开箱码**/
     private String inputCode = "";
-    private String deviceNo = null;
     private IDeviceInfoPresenter deviceInfoPresenter;
-    private String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION
-            , Manifest.permission.ACCESS_FINE_LOCATION
-            , Manifest.permission.WRITE_EXTERNAL_STORAGE
-            , Manifest.permission.READ_EXTERNAL_STORAGE
-            , Manifest.permission.CAMERA
-            , Manifest.permission.INTERNET
-    };
-
+    private KeyCabinetReceiver.EnumActionType actionType;
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestPermissions(permissions, 0);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initDevice();
@@ -72,7 +64,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
                     break;
                 case R.id.wel_code_ok_tv:
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.bindDevice(inputCode);
+                        deviceInfoPresenter.bindDevice(this, this, inputCode);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, "输入的位数不足");
@@ -128,11 +120,14 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         }
 
         if (step == EnumDeviceCheck.STEP_3.key) {
-            deviceNo = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-            String deviceCode = hasDeviceCode(deviceNo);
-            if (!StrUtil.isEmpty(deviceCode)) {//SP有设备号
-                deviceInfoPresenter.bindDevice(deviceCode);
+            String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
+            String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
+            if (!StrUtil.isEmpty(account) && !StrUtil.isEmpty(password)) {//不是空说明已经注册过
+                StompUtil.getInstance().createStompClient(account, password);
+                return;
             }
+            step = EnumDeviceCheck.STEP_4.key;
+            initDevice();
             return;
         }
         if (step == EnumDeviceCheck.STEP_4.key) {
@@ -271,7 +266,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
      * 判断后台服务是否联通
      **/
     private boolean isConnectServer() {
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 mtk.sring.top", false);
+        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + Constants.SERVER_URL, false);
         if (commandResult.result == 0) {//ping后台失败
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;
@@ -280,92 +275,26 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         return false;
     }
 
-    private String hasDeviceCode(String deviceNo) {
-        if (!StrUtil.isEmpty(deviceNo)) {
-            turnStep(EnumDeviceCheck.STEP_6, null, null, null);
-            return deviceNo;
-        }
-        turnStep(EnumDeviceCheck.STEP_4, "自检柜门,请手动关闭所有柜门", "确定", null);
-        return null;
-    }
-
+    /***
+     *
+     * 读取设备柜门是否都关闭
+     * */
     private void readBoxAllClose() {
-
-        KeyCabinetReceiver.queryBatchBoxState(this, BOX_ID_ARRAY, (boxIds, isBatchOpen) -> {
-            boolean allClose = true;
-            for (int i = 0; i < isBatchOpen.length; i++) {
-                if (isBatchOpen[i]) {
-                    allClose = false;
-                    break;
-                }
-            }
-            if (allClose) {
-                //弹开所有柜门，逐个弹开
-                intervalOpenBox(0);
-            } else {
-                if (queryBoxStateTimes >= 2) {
-                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
-                    return;
-
-                }
-                turnStep(EnumDeviceCheck.STEP_4, "确定柜门是否全部关闭", "是", "否");
-                queryBoxStateTimes++;
-            }
-
-        });
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, BOX_ID_ARRAY, this);
     }
 
+    /**
+     * 判断柜门是否全关闭
+     **/
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.queryBatchBoxState(this, BOX_ID_ARRAY, new KeyCabinetReceiver.QueryBatchBoxStateListener() {
-            @Override
-            public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
-                boolean allClose = true;
-                for (int i = 0; i < isBatchOpen.length; i++) {
-                    if (isBatchOpen[i]) {
-                        allClose = false;
-                        break;
-                    }
-                }
-                if (allClose) {
-                    turnStep(EnumDeviceCheck.STEP_6, "请输入6位设备码进行绑定", null, null);
-                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                    return;
-                } else {
-                    new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
-                            //.setTitleText("")
-                            .setContentText("请关闭所有柜门，再点下一步")
-                            .setConfirmText("下一步")
-                            .showCancelButton(false)
-                            .setConfirmClickListener(sDialog -> {
-                                sDialog.cancel();
-                                judgeBoxAllClose();
-                            }).show();
-                }
-            }
-        });
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, BOX_ID_ARRAY, this);
     }
 
     /**
      * 逐个弹开柜门
      **/
-    public void intervalOpenBox(final int index) {
-        KeyCabinetReceiver.openBatchBox(this, new String[]{BOX_ID_ARRAY[index]}, new KeyCabinetReceiver.OpenBoxListListener() {
-            @Override
-            public void onBoxStateBack(String[] boxIds, boolean[] isBatchOpen) {
-                if (isBatchOpen[0]) {//弹开
-                    if (index == BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
-                        turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", "下一步", null);
-                    } else {
-                        intervalOpenBox(index + 1);
-                        return;
-                    }
-                } else {//没开
-                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
-                    return;
-                }
-            }
-        });
+    public void intervalOpenBox() {
+        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**
@@ -389,6 +318,71 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         }
     }
 
+    @Override
+    public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
+        this.actionType = enumActionType;
+        LogUtil.d(TAG, "当前处理类型:" + enumActionType);
+
+    }
+
+    @Override
+    public void onBoxStateBack(String[] boxId, boolean[] isOpen) {
+        switch (this.actionType) {
+            case QUERY:
+                break;
+            case OPEN_BATCH:
+                if (isOpen[0]) {//弹开
+                    if (openBoxIndex == BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
+                        turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", "下一步", null);
+                        return;
+                    } else {
+                        openBoxIndex++;
+                        intervalOpenBox();
+                        return;
+                    }
+                } else {//没开
+                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
+                }
+                break;
+            case QUERY_BATCH:
+                switch (Objects.requireNonNull(EnumDeviceCheck.getEnumByKey(step))) {
+                    case STEP_4:
+                        if (deviceInfoPresenter.boxListAllClose(isOpen)) {
+                            intervalOpenBox();
+                        } else {
+                            if (queryBoxStateTimes >= 2) {
+                                turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
+                                return;
+                            }
+                            turnStep(EnumDeviceCheck.STEP_4, "确定柜门是否全部关闭", "是", "否");
+                            queryBoxStateTimes++;
+                        }
+                        break;
+                    case STEP_5:
+                        if (deviceInfoPresenter.boxListAllClose(isOpen)) {
+                            turnStep(EnumDeviceCheck.STEP_6, "请输入6位设备码进行绑定", null, null);
+                            binding.welKeyboardLl.setVisibility(View.VISIBLE);
+                            binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                        } else {
+                            new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
+                                    .setTitleText("柜门尚有未关闭的!")
+                                    .setContentText("请关闭所有柜门，再点下一步")
+                                    .setConfirmText("确定")
+                                    .showCancelButton(false)
+                                    .setConfirmClickListener(sDialog -> {
+                                        sDialog.cancel();
+                                        judgeBoxAllClose();
+                                    }).show();
+                        }
+                        break;
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+
 
     enum EnumDeviceCheck {
         STEP_1(1, "网络自检"),
@@ -404,6 +398,31 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
             this.key = key;
             this.value = value;
         }
+
+        public static EnumDeviceCheck getEnumByKey(int key) {
+            for (EnumDeviceCheck enumDeviceCheck : EnumDeviceCheck.values()) {
+                if (enumDeviceCheck.key == key) {
+                    return enumDeviceCheck;
+                }
+            }
+
+            return null;
+        }
+
+        public static EnumDeviceCheck getEnumByValue(String value) {
+            if (value == null || value.equals("")) {
+                return null;
+            }
+
+            for (EnumDeviceCheck enumBoxState : EnumDeviceCheck.values()) {
+                if (enumBoxState.value.equals(value)) {
+                    return enumBoxState;
+                }
+            }
+
+            return null;
+        }
+
     }
 
     private void turnStep(EnumDeviceCheck enumDeviceCheck, String hintMessage, String btnMessage, String cancelMessage) {
@@ -413,5 +432,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView {
         this.cancelMessage = cancelMessage;
         this.setData();
     }
+
 
 }

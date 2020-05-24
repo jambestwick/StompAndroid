@@ -189,6 +189,7 @@
         <item name="android:layout_marginRight">@dimen/dp_12</item>
         <item name="android:background">@android:color/darker_gray</item>
     </style>
+    <!--9个数字按键textView的布局-->
     <style name="style_circle_number_button" parent="android:Widget.TextView">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
@@ -199,6 +200,7 @@
         <item name="android:gravity">center</item>
         <item name="android:layout_weight">1</item>
     </style>
+    <!--6位数字接收textView框的布局-->
     <style name="style_six_input_number" parent="android:Widget.TextView">
         <item name="android:textStyle">bold</item>
         <item name="android:gravity">center</item>
@@ -206,6 +208,7 @@
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    <!--9个数字按键整行的布局Linear-->
     <style name="style_layout_number_linear">
         <item name="android:orientation">horizontal</item>
         <item name="android:layout_width">match_parent</item>
@@ -214,14 +217,46 @@
         <item name="android:weightSum">3</item>
         <item name="android:gravity">center</item>
     </style>
+    <!--全屏竖直布局-->
     <style name="style_layout_match_vertical_linear">
         <item name="android:orientation">vertical</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    <!--全屏横向布局-->
     <style name="style_layout_match_horizon_linear">
         <item name="android:orientation">horizontal</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+    <!--6位数字接收Linaer外层布局-->
+    <style name="style_layout_six_input_linear">
+        <item name="android:weightSum">6</item>
+        <item name="android:layout_width">216dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:background">@drawable/bg_corner_circle_4</item>
+    </style>
+    <!--9个数字键盘整体的布局-->
+    <style name="style_layout_number_total_linear">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">256dp</item>
+        <item name="android:background">@drawable/bg_corner_circle_8</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">10dp</item>
+    </style>
+    <!--主界面两个数字区域的分隔布局-->
+    <style name="style_layout_main_each_linear">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+    <!--竖向间隔10dp-->
+    <style name="style_space_10_dp">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">10dp</item>
+    </style>
+
+
+
 </resources>

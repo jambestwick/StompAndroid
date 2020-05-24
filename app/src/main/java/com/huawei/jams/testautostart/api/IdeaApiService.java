@@ -6,6 +6,8 @@ import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.*;
 
+import java.util.Map;
+
 /**
  * Created by dell on 2017/4/1.
  */
@@ -24,6 +26,15 @@ public interface IdeaApiService {
     public static final String DEVICE_UPDATE_BOX_STATE = "/device/update/boxState";
     public static final String DEVICE_OPEN_BOX = "/device/openBox";
     public static final String DEVICE_QUERY_ALARM_PROP = "/device/query/alarmProp";
+
+
+    /**
+     * 绑定设备
+     *
+     * @return
+     */
+    @POST("/efss/register/sms")
+    Observable<ApiResponse> bindDevice(@Body Map reqMap);
 
     /**
      * 获取验证码

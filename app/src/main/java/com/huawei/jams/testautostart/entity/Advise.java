@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
-
 @Table(database = AppDataBase.class, name = "tb_advise")
 public class Advise extends BaseModel implements Serializable {
     private static final long serialVersionUID = -2039105766997712648L;
@@ -148,6 +147,5 @@ public class Advise extends BaseModel implements Serializable {
                 ", modifyTime=" + modifyTime +
                 '}';
     }
-
 
 }

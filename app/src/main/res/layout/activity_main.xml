@@ -15,17 +15,11 @@
                 android:background="@mipmap/ic_app_bg">
 
             <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="6"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    style="@style/style_layout_main_each_linear"
+                    android:layout_weight="6">
 
                 <LinearLayout
-                        android:layout_width="@dimen/dp_216"
-                        android:layout_height="@dimen/dp_40"
-                        android:background="@drawable/bg_corner_circle_4"
-                        android:weightSum="6">
+                        style="@style/style_layout_six_input_linear">
 
                     <TextView
                             android:id="@+id/main_six_code_1_tv"
@@ -54,9 +48,7 @@
                 </LinearLayout>
 
 
-                <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/dp_10"/>
+                <View style="@style/style_space_10_dp"/>
 
                 <TextView
                         android:id="@+id/main_prompt_six_code_tv"
@@ -84,17 +76,11 @@
             </LinearLayout>
 
             <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="5"
-                    android:gravity="center">
+                    style="@style/style_layout_main_each_linear"
+                    android:layout_weight="5">
 
                 <LinearLayout
-                        android:layout_width="@dimen/dp_200"
-                        android:layout_height="@dimen/dp_256"
-                        android:background="@drawable/bg_corner_circle_8"
-                        android:orientation="vertical"
-                        android:padding="@dimen/dp_10">
+                        style="@style/style_layout_number_total_linear">
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
@@ -194,10 +180,15 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <VideoView android:id="@+id/main_advise_video" android:layout_width="match_parent"
-                   android:layout_height="match_parent" android:visibility="invisible"
+        <!--广告播放-->
+        <VideoView android:id="@+id/main_advise_video"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:visibility="invisible"
                    android:onClick="@{click}"/>
-        <ImageView android:id="@+id/main_dialog_anim_iv" android:layout_width="match_parent"
+        <!--开柜门、谢谢使用、动画播放-->
+        <ImageView android:id="@+id/main_dialog_anim_iv"
+                   android:layout_width="match_parent"
                    android:layout_height="match_parent"/>
     </FrameLayout>
 </layout>

@@ -1,9 +1,7 @@
 package com.huawei.jams.testautostart;
 
 import android.support.multidex.MultiDex;
-
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.utils.StompUtil;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
@@ -25,12 +23,12 @@ public class BaseApp extends BaseApplication {
         // 初始化MultiDex
         MultiDex.install(this);
         FlowManager.init(this);
-        StompUtil.getInstance().createStompClient("100000000000001", "AAAAAAAAAAAAAAAAAAAA_1");//开启长连接
     }
 
     @Override
     protected void initRxRetrofitApp() {
         RxRetrofitApp.init(IdeaApiService.SERVER_HOST);
     }
+
 
 }
