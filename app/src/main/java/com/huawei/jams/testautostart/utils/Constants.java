@@ -13,5 +13,6 @@ public class Constants {
     public static final String ACCOUNT = "account";
     public static final String PASSWORD = "password";
     public static final String SERVER_URL = "www.metalcar.cn";
+    public static final long PATROL_INTERVAL_MILL_SECOND = 5000;//巡检间隔时间
 
 }

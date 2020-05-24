@@ -13,7 +13,7 @@ android {
             //解决编译时com.android.builder.merge.DuplicateRelativeFileException: More than one file was found with OS independent path 'META-INF/rxjava.properties'这个错误
             exclude 'META-INF/rxjava.properties'
         }
-        multiDexEnabled true
+//        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -47,10 +47,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     api project(':baselibrary')
-    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
-    api "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-    api "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
-    api "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflow_version"
+    api "com.github.Raizlabs.DBFlow:dbflow-core:$dbflow_version"
+    api "com.github.Raizlabs.DBFlow:dbflow-rx:$dbflow_version"
+    api "com.github.Raizlabs.DBFlow:dbflow:$dbflow_version"
     api 'com.github.NaikSoftware:StompProtocolAndroid:1.6.4'
     // 引入multidex库
     api 'com.android.support:multidex:1.0.3'

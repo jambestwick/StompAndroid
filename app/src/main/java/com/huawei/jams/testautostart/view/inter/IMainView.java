@@ -14,15 +14,11 @@ public interface IMainView {
 
     void onOpenBoxFail(String reason);
 
-    void onQueryAlarmPropSuccess();
-
-    void onQueryAlarmPropFail(String reason);
-
     void onUploadBoxStateSuccess();
 
     void onUploadBoxStateFail(String reason);
 
-    void onBindDeviceSuccess(String account,String password);
+    void onBindDeviceSuccess(String account, String password);
 
     void onBindDeviceFail(String reason);
 

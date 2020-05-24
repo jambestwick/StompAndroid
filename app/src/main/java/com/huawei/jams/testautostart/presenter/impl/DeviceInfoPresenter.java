@@ -38,7 +38,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        mainView.onBindDeviceSuccess(((Map)data).get(Constants.ACCOUNT).toString(),((Map)data).get(Constants.PASSWORD).toString());
+                        mainView.onBindDeviceSuccess(((Map) data).get(Constants.ACCOUNT).toString(), ((Map) data).get(Constants.PASSWORD).toString());
                         break;
                     default:
                         mainView.onBindDeviceFail(msg);
@@ -52,7 +52,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     @Override
     public void uploadBoxState(String boxId, String boxState) {
         String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
         mDeviceInfoModel.uploadBoxState(deviceUuid, "deviceType", boxId, boxState, new StompCallBack() {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
@@ -70,11 +69,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void openBox(String password, final int times) {
-        if (times > 3) {
-            mainView.onOpenBoxFail("网络异常");
-            return;
-        }
+    public void openBox(String password) {
         String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
         String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
         mDeviceInfoModel.openBox(deviceUuid, password, token, new StompCallBack() {
@@ -86,7 +81,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         break;
                     default:
                         mainView.onOpenBoxFail(msg);
-                        openBox(password, times + 1);
                         break;
                 }
             }
@@ -96,11 +90,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void patrolBoxState(String boxId, String boxState) {
-        long patrolTime = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PATROL_TIME, Long.class);
-        int patrolNum = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PATROL_NUM, Integer.class);
-        Timer timer = new Timer();
-        timer.schedule(new TimeCountTask(boxId, timer, patrolNum), 0, patrolTime);
+    public void patrolBoxState(Timer timer,String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        timer.schedule(new TimeCountTask(boxId, boxStateListener), 0, Constants.PATROL_INTERVAL_MILL_SECOND);
     }
 
     @Override
@@ -183,42 +174,16 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     class TimeCountTask extends TimerTask {
         private String boxId;
-        private Timer timer;
-        private int exeCount; //此处没有线程安全问题
+        private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeCountTask(String boxId, Timer timer, int exeCount) {
+        public TimeCountTask(String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
             this.boxId = boxId;
-            this.timer = timer;
-            this.exeCount = exeCount;
+            this.boxStateListener = boxStateListener;
         }
-
-        private int i = 1;
 
         @Override
         public void run() {
-            i++;
-            KeyCabinetReceiver.getInstance().queryBoxState(BaseApp.getAppContext(), boxId, new KeyCabinetReceiver.BoxStateListener() {
-                @Override
-                public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
-
-                }
-                @Override
-                public void onBoxStateBack( String[] boxId, boolean[] isOpen) {
-                    if (!isOpen[0]) {
-                        uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
-                        timer.cancel();
-                        i = 1;
-                    } else {
-                        if (i > exeCount) {
-                            //上报
-                            uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
-                            timer.cancel();
-                            i = 1;
-                        }
-                    }
-
-                }
-            });
+            KeyCabinetReceiver.getInstance().queryBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
 
         }
     }

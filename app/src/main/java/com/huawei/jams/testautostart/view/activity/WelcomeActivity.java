@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
+import android.se.omapi.SEService;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
@@ -25,7 +26,7 @@ import java.util.Objects;
 
 import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
 
-public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener {
+public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener, StompUtil.StompConnectListener {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";
@@ -37,7 +38,8 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     /***输入6位开箱码**/
     private String inputCode = "";
     private IDeviceInfoPresenter deviceInfoPresenter;
-    private KeyCabinetReceiver.EnumActionType actionType;
+    private KeyCabinetReceiver.EnumActionType actionType;//柜门广播类型
+    private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
 
 
     @Override
@@ -67,7 +69,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
                         deviceInfoPresenter.bindDevice(this, this, inputCode);
                     } else {
                         //提示码位数不够
-                        ToastUtil.showToast(this, "输入的位数不足");
+                        ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
                     }
                     break;
                 default:
@@ -123,7 +125,8 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
             String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
             if (!StrUtil.isEmpty(account) && !StrUtil.isEmpty(password)) {//不是空说明已经注册过
-                StompUtil.getInstance().createStompClient(account, password);
+                StompUtil.getInstance().createStompClient(account, password, this);//重绑
+                deviceBindState = EnumDeviceBindState.OLD;
                 return;
             }
             step = EnumDeviceCheck.STEP_4.key;
@@ -136,13 +139,9 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
         if (step == EnumDeviceCheck.STEP_5.key) {
             judgeBoxAllClose();
         }
-//        if (step == 6) {
-//            if (deviceNo == null) {
-//                deviceNo = inputCode;
-//            }
-//            deviceInfoPresenter.bindDevice(deviceNo);
-//
-//        }
+        if (step == EnumDeviceCheck.STEP_7.key) {
+            StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD), this);
+        }
 
 
 //        if (commandResult.result == -1) {//ping后台失败
@@ -206,16 +205,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     }
 
     @Override
-    public void onQueryAlarmPropSuccess() {
-
-    }
-
-    @Override
-    public void onQueryAlarmPropFail(String reason) {
-
-    }
-
-    @Override
     public void onUploadBoxStateSuccess() {
 
     }
@@ -228,18 +217,17 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     @Override
     public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
-        StompUtil.getInstance().createStompClient(account, password);
-        startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-        finish();
+        turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
+        StompUtil.getInstance().createStompClient(account, password, this);
     }
 
     @Override
     public void onBindDeviceFail(String reason) {
         //绑定失败,重新输入六位码进行绑定
         new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
-                .setTitleText("设备绑定")
-                .setContentText("设备绑定失败,联系后台人员")
-                .setConfirmText("确定")
+                .setTitleText(this.getString(R.string.bind_device))
+                .setContentText(this.getString(R.string.bind_device) + this.getString(R.string.fail) + "," + this.getString(R.string.contact_back_office_handle))
+                .setConfirmText(this.getString(R.string.ok))
                 .showCancelButton(false)
                 .setConfirmClickListener(sDialog -> {
                     inputCode = "";
@@ -259,7 +247,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
         if (NetworkUtils.isConnected() && result.result == 0) {
             return true;
         }
-        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", "重试", null);
+        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", this.getString(R.string.retry), null);
         return false;
     }
 
@@ -272,7 +260,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;
         }
-        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败，请联系后台人员处理", "重试", null);
+        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
         return false;
     }
 
@@ -334,7 +322,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
             case OPEN_BATCH:
                 if (isOpen[0]) {//弹开
                     if (openBoxIndex == BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
-                        turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", "下一步", null);
+                        turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", this.getString(R.string.next), null);
                         return;
                     } else {
                         openBoxIndex++;
@@ -342,7 +330,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
                         return;
                     }
                 } else {//没开
-                    turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
+                    turnStep(EnumDeviceCheck.STEP_4, this.getString(R.string.device_fault), null, null);
                 }
                 break;
             case QUERY_BATCH:
@@ -352,23 +340,23 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
                             intervalOpenBox();
                         } else {
                             if (queryBoxStateTimes >= 2) {
-                                turnStep(EnumDeviceCheck.STEP_4, "设备柜门故障（卡住，设备无法使用）", null, null);
+                                turnStep(EnumDeviceCheck.STEP_4, this.getString(R.string.device_fault), null, null);
                                 return;
                             }
-                            turnStep(EnumDeviceCheck.STEP_4, "确定柜门是否全部关闭", "是", "否");
+                            turnStep(EnumDeviceCheck.STEP_4, "确定柜门是否全部关闭", this.getString(R.string.yes), this.getString(R.string.no));
                             queryBoxStateTimes++;
                         }
                         break;
                     case STEP_5:
                         if (deviceInfoPresenter.boxListAllClose(isOpen)) {
-                            turnStep(EnumDeviceCheck.STEP_6, "请输入6位设备码进行绑定", null, null);
+                            turnStep(EnumDeviceCheck.STEP_6, this.getString(R.string.input_six_code_bind_device), null, null);
                             binding.welKeyboardLl.setVisibility(View.VISIBLE);
                             binding.welSixCodeLl.setVisibility(View.VISIBLE);
                         } else {
                             new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
                                     .setTitleText("柜门尚有未关闭的!")
                                     .setContentText("请关闭所有柜门，再点下一步")
-                                    .setConfirmText("确定")
+                                    .setConfirmText(this.getString(R.string.next))
                                     .showCancelButton(false)
                                     .setConfirmClickListener(sDialog -> {
                                         sDialog.cancel();
@@ -384,6 +372,34 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
         }
     }
 
+    /**
+     * 长连接结果
+     */
+    @Override
+    public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
+        if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
+            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            finish();
+        } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
+            switch (deviceBindState) {
+                case NEW:
+                    turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", this.getString(R.string.retry), null);
+                    binding.welKeyboardLl.setVisibility(View.GONE);
+                    binding.welSixCodeLl.setVisibility(View.GONE);
+                    break;
+                case OLD:
+                    turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
+                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
+                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                    deviceBindState = EnumDeviceBindState.NEW;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
+
 
     enum EnumDeviceCheck {
         STEP_1(1, "网络自检"),
@@ -391,7 +407,8 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
         STEP_3(3, "设备已绑定过自检"),
         STEP_4(4, "设备柜门全关自检"),
         STEP_5(5, "设备全部弹开"),
-        STEP_6(6, "关闭柜门输入6位码绑定");
+        STEP_6(6, "关闭柜门输入6位码绑定"),
+        STEP_7(7, "建立STOMP连接");
         private int key;
         private String value;
 
@@ -426,8 +443,12 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
 
     }
 
+    enum EnumDeviceBindState {
+        NEW, OLD
+    }
+
     private void turnStep(EnumDeviceCheck enumDeviceCheck, String hintMessage, String btnMessage, String cancelMessage) {
-        step = enumDeviceCheck.key;
+        this.step = enumDeviceCheck.key;
         this.hintMessage = hintMessage;
         this.btnMessage = btnMessage;
         this.cancelMessage = cancelMessage;

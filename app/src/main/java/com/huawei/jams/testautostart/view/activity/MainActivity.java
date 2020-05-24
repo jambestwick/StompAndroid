@@ -3,6 +3,7 @@ package com.huawei.jams.testautostart.view.activity;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -26,7 +27,10 @@ import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
-public class MainActivity extends BaseActivity implements IMainView {
+import java.io.File;
+import java.util.Timer;
+
+public class MainActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
 
@@ -39,6 +43,11 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     private IAdvisePresenter advisePresenter;
 
+    private KeyCabinetReceiver.EnumActionType enumActionType;
+    private Timer patrolTimer = new Timer();//巡检任务Timer
+
+    //网络超时8秒
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +56,6 @@ public class MainActivity extends BaseActivity implements IMainView {
         initNetData();
         initData();
 
-    }
-
-
-    private void initNetData() {
-        appInfoPresenter.topicAppInfo();
-        advisePresenter.topicAdviseInfo();
     }
 
 
@@ -76,14 +79,16 @@ public class MainActivity extends BaseActivity implements IMainView {
                     //1.2 返回异常或超时，重发送6位码Stomp-->后台 3次，如果有成功，break；，否则，，同步播放‘网络故障’,和弹出全屏‘动画网络故障 界面含有重试按键关闭网络故障界面’,用户点击重试-->清空当前6位码-->1
                     //1.3 密码错误,提示框（非全屏）:'密码错误(确定按钮)' 点击确定关闭窗口 清空当前6位码-->1
 
-
                     //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.openBox(inputCode, 1);
+                        deviceInfoPresenter.openBox(inputCode);
                     } else {
                         //提示码位数不够
-                        ToastUtil.showToast(this, "输入的位数不足");
+                        ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
                     }
+                    break;
+                case R.id.main_advise_video://点击video停止广告回到输入密码界面
+                    binding.mainAdviseVideo.setVisibility(View.GONE);
                     break;
                 default:
                     addInputCode(((TextView) v).getText().toString());
@@ -93,13 +98,22 @@ public class MainActivity extends BaseActivity implements IMainView {
         });
     }
 
+    private void initNetData() {
+        appInfoPresenter.topicAppInfo();
+        advisePresenter.topicAdviseInfo();
+    }
+
+    /**
+     * 初始化广告
+     *
+     * */
     private void initData() {
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
         if (lastAdvise != null && !StrUtil.isEmpty(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
-            binding.mainAdviseVideo.setOnCompletionListener(mp -> {
+            binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 binding.mainAdviseVideo.setVideoPath(path);
                 //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
                 binding.mainAdviseVideo.start();
@@ -107,7 +121,6 @@ public class MainActivity extends BaseActivity implements IMainView {
         } else {
             //被动接受推送广告
         }
-
 
     }
 
@@ -145,7 +158,7 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onQueryAppInfoSuccess(String url) {
-        //订阅的app推送过来下载app
+        //订阅的app推送过来下载app数据库存储，并更新安装
 
     }
 
@@ -155,7 +168,7 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     @Override
     public void onQueryAdviseSuccess(String url) {
-        //订阅的广告推送过来下载广告
+        //订阅的广告推送过来下载广告,数据库存储，并替换
         //Advise.Builder.anAdvise().advDate(new Date()).build().save
     }
 
@@ -164,60 +177,33 @@ public class MainActivity extends BaseActivity implements IMainView {
 
     }
 
+
     @Override
     public void onOpenBoxSuccess(String boxId) {
-        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{boxId}, new KeyCabinetReceiver.BoxStateListener() {
-            @Override
-            public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
-
-            }
-
-            @Override
-            public void onBoxStateBack( String[] boxId, boolean[] isOpen) {
-                Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_scal);
-                if (!isOpen[0]) {
-                    binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_device_error);
-                    binding.mainDialogAnimIv.startAnimation(animation);
-                } else {
-                    binding.mainDialogAnimIv.setImageResource(R.mipmap.bg_hint_open_success);
-                    binding.mainDialogAnimIv.startAnimation(animation);
-                    binding.mainAdviseVideo.setVideoURI(Uri.parse("android.resource://" + PackageUtils.getPackageInfo(BaseApp.getAppContext()).packageName + "/" + R.raw.msc_box_open));
-                    binding.mainAdviseVideo.start();
-                }
-            }
-        });
-        deviceInfoPresenter.patrolBoxState(boxId, DeviceInfo.EnumBoxState.OPEN.getKey());
-
+        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{boxId}, this);
     }
 
     @Override
-    public void onOpenBoxFail(String reason) {
+    public void onOpenBoxFail(String reason) {//密码错误，请重新输入，确定 提示框（非全屏）
+        //后台返回打开失败
+        ToastUtil.showInCenter(this, this.getString(R.string.back_server_exception_retry));
+        deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
 
     }
 
-    @Override
-    public void onQueryAlarmPropSuccess() {
-    }
-
-    @Override
-    public void onQueryAlarmPropFail(String reason) {
-
-    }
 
     @Override
     public void onUploadBoxStateSuccess() {
-        binding.mainDialogAnimIv.setVisibility(TextView.GONE);
-        //继续播放广告
-
     }
 
     @Override
     public void onUploadBoxStateFail(String reason) {
 
+
     }
 
     @Override
-    public void onBindDeviceSuccess(String account,String password) {
+    public void onBindDeviceSuccess(String account, String password) {
 
     }
 
@@ -225,4 +211,53 @@ public class MainActivity extends BaseActivity implements IMainView {
     public void onBindDeviceFail(String reason) {
 
     }
+
+    @Override
+    public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
+        this.enumActionType = enumActionType;
+    }
+
+    @Override
+    public void onBoxStateBack(String[] boxId, boolean[] isOpen) {
+        switch (this.enumActionType) {
+            case OPEN_BATCH:
+                if (!isOpen[0]) {//打开失败
+                    startAnim(R.mipmap.bg_hint_device_error);
+                } else {//打开成功,上传状态
+                    startAnim(R.mipmap.bg_hint_open_success);
+                    playMusic(R.raw.msc_box_open);
+                    deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
+                    deviceInfoPresenter.patrolBoxState(patrolTimer, boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey(), this);
+                }
+                break;
+            case QUERY_BATCH:
+                if (!isOpen[0]) {//关
+                    //上报
+                    deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
+                    patrolTimer.cancel();
+                    playMusic(R.raw.msc_thank_use);
+                }
+
+                break;
+        }
+    }
+
+    /**
+     * 播放动画
+     */
+    private void startAnim(int resId) {
+        Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_scal);
+        binding.mainDialogAnimIv.setImageResource(resId);
+        binding.mainDialogAnimIv.startAnimation(animation);
+    }
+
+    /**
+     * 播放音乐
+     */
+    private void playMusic(int rawId) {
+        binding.mainAdviseVideo.setVideoURI(Uri.parse("android.resource://" + PackageUtils.getPackageInfo(BaseApp.getAppContext()).packageName + File.separator + rawId));
+        binding.mainAdviseVideo.start();
+    }
+
+
 }

@@ -1,6 +1,5 @@
 package com.huawei.jams.testautostart;
 
-import android.support.multidex.MultiDex;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
@@ -21,8 +20,8 @@ public class BaseApp extends BaseApplication {
     public void onCreate() {
         super.onCreate();
         // 初始化MultiDex
-        MultiDex.install(this);
-        FlowManager.init(this);
+        //MultiDex.install(this);
+        FlowManager.init(this);//初始化dbflow
     }
 
     @Override

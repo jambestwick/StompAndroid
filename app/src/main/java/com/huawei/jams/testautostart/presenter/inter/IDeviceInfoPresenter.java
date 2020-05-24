@@ -2,8 +2,11 @@ package com.huawei.jams.testautostart.presenter.inter;
 
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
+import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+
+import java.util.Timer;
 
 public interface IDeviceInfoPresenter {
 
@@ -11,10 +14,10 @@ public interface IDeviceInfoPresenter {
 
     void uploadBoxState(String boxId, String boxState);
 
-    void openBox(String password, int times);
+    void openBox(String password);
 
 
-    void patrolBoxState(String boxId, String boxState);
+    void patrolBoxState(Timer timer, String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener);
 
     /**
      * 刷新主页6位码

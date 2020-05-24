@@ -65,9 +65,9 @@ public class StompUtil {
     }
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
-    public void createStompClient(String userName, String password) {
+    public void createStompClient(String userName, String password, StompConnectListener connectListener) {
         try {
-            connect(userName, password);
+            connect(userName, password, connectListener);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,13 +88,9 @@ public class StompUtil {
 //        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
     }
 
-    //点对点订阅，根据用户名来推送消息
-//    private void registerStompTopic() {
-//        mStompClient.topic("/user/" + "xxx" + "/msg").subscribe((Action1<StompMessage>) stompMessage -> Log.d(TAG, "debug msg is " + stompMessage.getPayload()));
-//    }
 
     @SuppressLint("CheckResult")
-    private void connect(String userName, String password) throws IOException {
+    private void connect(String userName, String password, StompConnectListener connectListener) throws IOException {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
@@ -108,15 +104,18 @@ public class StompUtil {
                                 case OPENED:
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
+                                    connectListener.onConnectState(EnumConnectState.CONNECT);
                                     //topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
                                     LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
+                                    connectListener.onConnectState(EnumConnectState.CLOSE);
                                     break;
                                 case CLOSED:
                                     mNeedConnect = true;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
+                                    connectListener.onConnectState(EnumConnectState.CLOSE);
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
@@ -144,15 +143,18 @@ public class StompUtil {
             mStompClient.send(destPath, jsonMsg)
                     .compose(applySchedulers())
                     .subscribe(() -> {
-                        Log.d(TAG, "STOMP send successfully");
+                        Log.d(TAG, "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
                     }, throwable -> {
-                        Log.e(TAG, "Error send STOMP ", throwable);
+                        Log.e(TAG, "Error send STOMP " + destPath + ",data:" + jsonMsg, throwable);
                     });
         }
 
 
     }
 
+    /**
+     * 订阅信息
+     * */
     public void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
         if (mStompClient != null) {
             mStompClient.topic(destPath)
@@ -201,6 +203,14 @@ public class StompUtil {
                 .unsubscribeOn(Schedulers.newThread())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public interface StompConnectListener {
+        void onConnectState(EnumConnectState enumConnectState);
+    }
+
+    public enum EnumConnectState {
+        CONNECT, CLOSE
     }
 
 

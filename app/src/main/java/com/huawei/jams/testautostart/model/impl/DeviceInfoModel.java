@@ -166,44 +166,5 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
     }
 
-    @Override
-    public void queryAlarmProperties(String deviceUuid, Date operatorTime, StompCallBack callBack) {
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceUuid", deviceUuid);
-        jsonObject.addProperty("operatorTime", TimeUtil.date2Str(operatorTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
-        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
-        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
-            @Override
-            public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onNext:" + stompMessage);
-                //返回开箱编号，根据编号开指定柜门
-                ApiResponse<AlarmPropVO> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                if (apiResponse == null) {
-                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                }
-                switch (EnumResponseCode.getEnumByKey(apiResponse.getCode())) {
-                    case SUCCESS:
-                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PATROL_TIME, apiResponse.getData().getIntervalTime());
-                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PATROL_NUM, apiResponse.getData().getIntervalNum());
-                        callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
-                        break;
-                    default:
-                        callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                        break;
-                }
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                LogUtil.e(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onError" + Log.getStackTraceString(t));
-            }
-
-            @Override
-            public void onComplete() {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",queryAlarmProperties onComplete");
-            }
-        });
-
-    }
 
 }

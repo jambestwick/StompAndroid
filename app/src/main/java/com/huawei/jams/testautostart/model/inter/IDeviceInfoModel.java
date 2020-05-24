@@ -8,7 +8,7 @@ import java.util.Date;
 
 public interface IDeviceInfoModel<T> {
     /**
-     * 初始化设备，需要网络交互后台设备绑定
+     * 初始化设备，http需要网络交互后台设备绑定
      *
      * @param deviceUuid 设备uuid
      **/
@@ -33,13 +33,5 @@ public interface IDeviceInfoModel<T> {
      ***/
     void openBox(String deviceUuid, String sixCode, String token, StompCallBack<T> callBack);
 
-    /**
-     * 查询柜门长时间未锁
-     * 报警配置
-     *
-     * @param deviceUuid   设备UUid
-     * @param operatorTime 操作时间
-     */
-    void queryAlarmProperties(String deviceUuid, Date operatorTime, StompCallBack<T> callBack);
 
 }

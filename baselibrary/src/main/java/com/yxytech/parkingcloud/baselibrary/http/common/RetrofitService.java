@@ -62,26 +62,12 @@ public class RetrofitService {
                 //.pingInterval(3, TimeUnit.SECONDS)
                 //.addInterceptor(interceptor)
                 //.addInterceptor(loggingInterceptor)
-               // .addInterceptor(new HttpHeaderInterceptor())
-               // .addNetworkInterceptor(new HttpCacheInterceptor())
+                // .addInterceptor(new HttpHeaderInterceptor())
+                // .addNetworkInterceptor(new HttpCacheInterceptor())
                 //.sslSocketFactory(createSSLSocketFactory())  // https认证 如果要使用https且为自定义证书 可以去掉这两行注释，并自行配制证书。
                 .hostnameVerifier((hostname, session) -> true)
                 .cache(cache);
 
-    }
-
-    public static OkHttpClient.Builder setSSL(Context context, String certPath, String priKeyPath, String password) throws IOException {
-        InputStream[] certIs = null;
-        if (!StrUtil.isEmpty(certPath)) {
-            certIs = new InputStream[1];
-            certIs[0] = context.getAssets().open(certPath);
-        }
-        InputStream prikeyIs = null;
-        if (!StrUtil.isEmpty(priKeyPath)) {
-            prikeyIs = context.getAssets().open(priKeyPath);
-        }
-        SSLHelper.SSLParams sslParams = SSLHelper.getSslSocketFactory(certIs, prikeyIs, password);
-        return getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
     }
 
     public static SSLHelper.SSLParams setSSLParams(Context context) throws IOException {
@@ -90,9 +76,10 @@ public class RetrofitService {
         return SSLHelper.getSslSocketFactory(null, priKeyIs, SSLHelper.CLIENT_BKS_PASSWORD);
     }
 
-    public static Retrofit.Builder getRetrofitBuilder(String baseUrl) {
+    public static Retrofit.Builder getRetrofitBuilder(String baseUrl) throws IOException {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls().create();
-        OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().build();
+        SSLHelper.SSLParams sslParams = setSSLParams(BaseApplication.getAppContext());
+        OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         return new Retrofit.Builder()
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))     //json 自动解析最外层
