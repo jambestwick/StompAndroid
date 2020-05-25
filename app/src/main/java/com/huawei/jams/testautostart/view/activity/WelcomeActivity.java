@@ -2,15 +2,12 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
-import android.se.omapi.SEService;
-import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.TextView;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
-import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
@@ -20,7 +17,12 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IMainView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.*;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Objects;
 

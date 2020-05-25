@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
@@ -105,8 +106,7 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
 
     /**
      * 初始化广告
-     *
-     * */
+     */
     private void initData() {
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
         if (lastAdvise != null && !StrUtil.isEmpty(lastAdvise.getFilePath())) {

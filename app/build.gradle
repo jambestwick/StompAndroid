@@ -52,8 +52,6 @@ dependencies {
     api "com.github.Raizlabs.DBFlow:dbflow-rx:$dbflow_version"
     api "com.github.Raizlabs.DBFlow:dbflow:$dbflow_version"
     api 'com.github.NaikSoftware:StompProtocolAndroid:1.6.4'
-    // 引入multidex库
-    api 'com.android.support:multidex:1.0.3'
 
 
 }

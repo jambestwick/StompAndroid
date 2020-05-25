@@ -4,6 +4,7 @@ import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
+import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
 
 /**
  * <p>文件描述：<p>
@@ -19,9 +20,8 @@ public class BaseApp extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        // 初始化MultiDex
-        //MultiDex.install(this);
         FlowManager.init(this);//初始化dbflow
+        ExceptionHelper.getInstance().init();//初始化未知异常捕获
     }
 
     @Override
