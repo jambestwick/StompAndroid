@@ -92,60 +92,7 @@ public class PopupwindowUtils {
         });
 
     }
-
-    /**
-     * @param context                        DOU运营商选择的popupwindow
-     * @param parent
-     * @param list
-     * @param selIndex
-     * @param popDismissAndItemClickCallBack
-     */
-    public static void showPlateColorMenuPop(final Context context, View parent, List<PopWindowInfo> list, int selIndex, final PopDismissAndItemClickCallBack popDismissAndItemClickCallBack) {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.pop_sel_layout, null);
-
-        view.setOnClickListener(v -> BasePopupWindow.dismiss());
-
-        ListView listView =  view.findViewById(R.id.listView);
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(parent.getWidth() - 60,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.setMargins(30, 0, 30, 0);
-        listView.setLayoutParams(params);
-
-        PlateColorAdapter popWindowListAdapter = new PlateColorAdapter(context);
-        popWindowListAdapter.setInfos(list);
-        popWindowListAdapter.setSelCityIndex(selIndex);
-        listView.setAdapter(popWindowListAdapter);
-        int totalHeight = 0;
-
-        for (int i = 0; i < popWindowListAdapter.getCount(); i++) {
-
-            View listItem = popWindowListAdapter.getView(i, null, listView);
-
-            listItem.measure(0, 0);
-
-            totalHeight += listItem.getMeasuredHeight();
-
-        }
-        popupWindow = new PopupWindow(view, parent.getWidth(),
-                totalHeight + (int) DensityUtil.dip2px(context, 10));
-
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setBackgroundDrawable(new BitmapDrawable());
-        popupWindow.showAsDropDown(parent, 0, 0);
-        //        setDarkBackground(context,pwHelpView,true);
-        popupWindow.setOnDismissListener(() -> popDismissAndItemClickCallBack.ToDismiss());
-        listView.setOnItemClickListener((parent1, view1, position, id) -> {
-            popDismissAndItemClickCallBack.OnItemClick(position);
-            BasePopupWindow.dismiss();
-
-        });
-
-    }
-
-
+    
     public interface PopDismissAndItemClickCallBack {
 
         void ToDismiss();
