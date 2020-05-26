@@ -52,27 +52,13 @@
 
                 <TextView
                         android:id="@+id/main_prompt_six_code_tv"
-                        android:layout_width="@dimen/dp_96"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="@string/input_six_code_open"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/sp_10"
-                        android:typeface="sans"/>
+                        style="@style/style_six_input_dialog_number"/>
 
-                <View
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/dp_80"/>
+                <View style="@style/style_space_120_dp"/>
 
                 <TextView
                         android:id="@+id/main_customer_service_phone_tv"
-                        android:layout_width="@dimen/dp_108"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_corner_circle_2"
-                        android:gravity="center"
-                        android:text="@string/customer_service_telephone"
-                        android:textColor="@color/font_bg_gray_2b"
-                        android:textSize="@dimen/sp_6"/>
+                        style="@style/style_service_phone"/>
             </LinearLayout>
 
             <LinearLayout

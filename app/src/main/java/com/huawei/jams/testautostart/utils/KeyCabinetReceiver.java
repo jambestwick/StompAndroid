@@ -13,7 +13,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
-    private BoxStateListener boxStateListener;
+    private static BoxStateListener boxStateListener;
     private static DialogUtils dialogUtils;
     private static KeyCabinetReceiver instance;
     private static final Object lock = new Object();
