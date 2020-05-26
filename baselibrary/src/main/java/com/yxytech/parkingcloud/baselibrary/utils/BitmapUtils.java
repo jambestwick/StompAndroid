@@ -137,7 +137,7 @@ public class BitmapUtils {
         paint.setTypeface(Typeface.DEFAULT_BOLD);//设置字体类型
 //        paint.setMaskFilter(new BlurMaskFilter(10f, BlurMaskFilter.Blur.OUTER));
 
-        String timeStr = StrUtil.long2String(time, StrUtil.MILLI_TIME);
+        String timeStr = TimeUtil.long2String(time, StrUtil.MILLI_TIME);
         String drawText = timeStr + " " + deviceName + " " + berthCode;
         Rect bounds = new Rect();
         paint.getTextBounds(drawText, 0, drawText.length(), bounds);
@@ -155,7 +155,7 @@ public class BitmapUtils {
         paint.setTextAlign(Paint.Align.LEFT);//左对齐
         paint.setTypeface(Typeface.DEFAULT_BOLD);//设置字体类型
 //        paint.setMaskFilter(new BlurMaskFilter(10f, BlurMaskFilter.Blur.OUTER));
-        String timeStr = StrUtil.long2String(time, StrUtil.MILLI_TIME);
+        String timeStr = TimeUtil.long2String(time, StrUtil.MILLI_TIME);
         Rect bounds = new Rect();
         Bitmap resultBitMap = null;
         switch (line) {

@@ -45,6 +45,28 @@ public class StrUtil {
         return str == null || str.trim().length() == 0;
     }
 
+    public static boolean isNotEmpty(String str) {
+        return !isEmpty(str);
+    }
+
+    public static boolean isBlank(String str) {
+        int strLen;
+        if (str != null && (strLen = str.length()) != 0) {
+            for (int i = 0; i < strLen; ++i) {
+                if (!Character.isWhitespace(str.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean isNotBlank(String str) {
+        return !isBlank(str);
+    }
 
     /**
      * 读取baseurl
@@ -542,42 +564,6 @@ public class StrUtil {
 //        System.out.println(dateTimeFormat("2012-3-2 12:2:20"));
 //    }
 
-    /**
-     * 把时间戳变yyyy-MM-dd
-     * HH:mm:ss格式时间
-     *
-     * @param time
-     * @return
-     */
-
-    public static String long2String(long time, String format) {
-        Date d = new Date(time);
-        SimpleDateFormat sf = new SimpleDateFormat(format);
-        return sf.format(d);
-    }
-
-    /**
-     * 前补零几位
-     *
-     * @param str     需要补零的参数
-     * @param pattern 补零的总位数 （例：pattern :0000, str =12 ,则0012）
-     **/
-    public static String leadingZero(String str, String pattern) {
-        int origin = Integer.parseInt(str);
-        DecimalFormat df = new DecimalFormat(pattern);
-        return df.format(origin);
-    }
-
-    /**
-     * 前补零几位
-     *
-     * @param number  需要补零的参数
-     * @param pattern 补零的总位数 （例：pattern :0000, str =12 ,则0012）
-     **/
-    public static String leadingZero(Integer number, String pattern) {
-        DecimalFormat df = new DecimalFormat(pattern);
-        return df.format(number);
-    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -162,6 +163,43 @@ public class TimeUtil {
             }
         }
         return temDate;
+    }
+
+    /**
+     * 把时间戳变yyyy-MM-dd
+     * HH:mm:ss格式时间
+     *
+     * @param time
+     * @return
+     */
+
+    public static String long2String(long time, String format) {
+        Date d = new Date(time);
+        SimpleDateFormat sf = new SimpleDateFormat(format);
+        return sf.format(d);
+    }
+
+    /**
+     * 前补零几位
+     *
+     * @param str     需要补零的参数
+     * @param pattern 补零的总位数 （例：pattern :0000, str =12 ,则0012）
+     **/
+    public static String leadingZero(String str, String pattern) {
+        int origin = Integer.parseInt(str);
+        DecimalFormat df = new DecimalFormat(pattern);
+        return df.format(origin);
+    }
+
+    /**
+     * 前补零几位
+     *
+     * @param number  需要补零的参数
+     * @param pattern 补零的总位数 （例：pattern :0000, str =12 ,则0012）
+     **/
+    public static String leadingZero(Integer number, String pattern) {
+        DecimalFormat df = new DecimalFormat(pattern);
+        return df.format(number);
     }
 
 }

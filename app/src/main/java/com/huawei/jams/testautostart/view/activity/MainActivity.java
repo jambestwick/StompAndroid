@@ -105,11 +105,11 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
     }
 
     /**
-     * 初始化广告
+     * 初始化广告播放
      */
     private void initData() {
-        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
-        if (lastAdvise != null && !StrUtil.isEmpty(lastAdvise.getFilePath())) {
+        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
+        if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
@@ -118,10 +118,7 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
                 //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
                 binding.mainAdviseVideo.start();
             });
-        } else {
-            //被动接受推送广告
         }
-
     }
 
     /**

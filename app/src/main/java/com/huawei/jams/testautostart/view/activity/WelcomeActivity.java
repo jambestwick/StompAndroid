@@ -31,14 +31,14 @@ import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
 public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener, StompUtil.StompConnectListener {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
-    private String hintMessage = "";
-    private String btnMessage = "";
-    private String cancelMessage = "";
+    private String hintMessage = "";//提示语
+    private String btnMessage = "";//确认按钮
+    private String cancelMessage = "";//取消按钮
     private int step = EnumDeviceCheck.STEP_1.key;
     private int queryBoxStateTimes = 1;//查询柜门已关闭次数
-    private int openBoxIndex = 0;//打开柜门到第几个
+    private int openBoxIndex = 0;//逐个打开柜门到第几个
     /***输入6位开箱码**/
-    private String inputCode = "";
+    private String inputCode = "";//6未输入码
     private IDeviceInfoPresenter deviceInfoPresenter;
     private KeyCabinetReceiver.EnumActionType actionType;//柜门广播类型
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）

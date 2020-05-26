@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
@@ -12,7 +13,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
-    private static BoxStateListener boxStateListener;
+    private BoxStateListener boxStateListener;
     private static DialogUtils dialogUtils;
     private static KeyCabinetReceiver instance;
     private static final Object lock = new Object();
