@@ -6,16 +6,16 @@ import com.huawei.jams.testautostart.model.impl.AdviseModel;
 import com.huawei.jams.testautostart.model.inter.IAdviseModel;
 import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
-import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.huawei.jams.testautostart.view.inter.IAdviseView;
 
 public class AdvisePresenter implements IAdvisePresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IAdviseModel mAdviseModel;//Model接口
-    private IMainView mainView;//View接口
+    private IAdviseView adviseView;//View接口
 
-    public AdvisePresenter(IMainView mainView) {
+    public AdvisePresenter(IAdviseView adviseView) {
         this.mAdviseModel = new AdviseModel();
-        this.mainView = mainView;
+        this.adviseView = adviseView;
     }
 
     @Override
@@ -26,10 +26,10 @@ public class AdvisePresenter implements IAdvisePresenter {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
                         ((Advise) data).getFilePath();
-                        mainView.onQueryAdviseSuccess(((Advise) data).getFilePath());
+                        adviseView.onTopicAdviseSuccess(((Advise) data).getFilePath());
                         break;
                     default:
-                        mainView.onQueryAdviseFail(msg);
+                        adviseView.onTopicAdviseFail(msg);
                         break;
                 }
             }

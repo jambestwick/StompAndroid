@@ -21,7 +21,9 @@ import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
-import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.huawei.jams.testautostart.view.inter.IAdviseView;
+import com.huawei.jams.testautostart.view.inter.IAppInfoView;
+import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
@@ -31,7 +33,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 import java.io.File;
 import java.util.Timer;
 
-public class MainActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener {
+public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
 
@@ -61,7 +63,7 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
 
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this);
         advisePresenter = new AdvisePresenter(this);
         binding.setClick(v -> {
@@ -154,23 +156,23 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
     }
 
     @Override
-    public void onQueryAppInfoSuccess(String url) {
+    public void onTopicAppInfoSuccess(String url) {
         //订阅的app推送过来下载app数据库存储，并更新安装
 
     }
 
     @Override
-    public void onQueryAppInfoFail(String reason) {
+    public void onTopicAppInfoFail(String reason) {
     }
 
     @Override
-    public void onQueryAdviseSuccess(String url) {
+    public void onTopicAdviseSuccess(String url) {
         //订阅的广告推送过来下载广告,数据库存储，并替换
         //Advise.Builder.anAdvise().advDate(new Date()).build().save
     }
 
     @Override
-    public void onQueryAdviseFail(String reason) {
+    public void onTopicAdviseFail(String reason) {
 
     }
 
@@ -214,6 +216,9 @@ public class MainActivity extends BaseActivity implements IMainView, KeyCabinetR
         this.enumActionType = enumActionType;
     }
 
+    /**
+     * 操作柜门的回调
+     **/
     @Override
     public void onBoxStateBack(String[] boxId, boolean[] isOpen) {
         switch (this.enumActionType) {

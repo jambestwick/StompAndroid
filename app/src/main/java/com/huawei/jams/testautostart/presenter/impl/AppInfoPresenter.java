@@ -5,16 +5,17 @@ import com.huawei.jams.testautostart.entity.AppInfo;
 import com.huawei.jams.testautostart.model.impl.AppInfoModel;
 import com.huawei.jams.testautostart.model.inter.IAppInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
-import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.huawei.jams.testautostart.view.inter.IAdviseView;
+import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 
 public class AppInfoPresenter implements IAppInfoPresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IAppInfoModel mAppInfoModel;//Model接口
-    private IMainView mainView;//View接口
+    private IAppInfoView appInfoView;//View接口
 
-    public AppInfoPresenter(IMainView mainView) {
+    public AppInfoPresenter(IAppInfoView appInfoView) {
         this.mAppInfoModel = new AppInfoModel();
-        this.mainView = mainView;
+        this.appInfoView = appInfoView;
     }
 
     @Override
@@ -22,10 +23,10 @@ public class AppInfoPresenter implements IAppInfoPresenter {
         mAppInfoModel.subscribeVersion((errorCode, msg, data) -> {
             switch (errorCode) {
                 case ApiResponse.SUCCESS:
-                    mainView.onQueryAppInfoSuccess(((AppInfo) data).getUrl());
+                    appInfoView.onTopicAppInfoSuccess(((AppInfo) data).getUrl());
                     break;
                 default:
-                    mainView.onQueryAppInfoFail(msg);
+                    appInfoView.onTopicAppInfoFail(msg);
                     break;
             }
         });

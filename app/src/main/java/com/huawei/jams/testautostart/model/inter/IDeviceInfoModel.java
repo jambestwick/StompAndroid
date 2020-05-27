@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.model.inter;
 
+import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
@@ -12,7 +13,7 @@ public interface IDeviceInfoModel<T> {
      *
      * @param deviceUuid 设备uuid
      **/
-    void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String deviceUuid, StompCallBack<T> callBack);
+    void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String deviceUuid, HttpCallBack<T> callBack);
 
 
     /**

@@ -14,7 +14,7 @@ import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
-import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
@@ -26,9 +26,8 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Objects;
 
-import static com.huawei.jams.testautostart.utils.Constants.BOX_ID_ARRAY;
 
-public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabinetReceiver.BoxStateListener, StompUtil.StompConnectListener {
+public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, StompUtil.StompConnectListener {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";//提示语
@@ -53,7 +52,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     }
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -127,7 +126,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
             String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
             if (!StrUtil.isEmpty(account) && !StrUtil.isEmpty(password)) {//不是空说明已经注册过
-                StompUtil.getInstance().createStompClient(account, password, this);//重绑
+                StompUtil.getInstance().createStompClient(this, account, password, this);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
                 return;
             }
@@ -142,7 +141,10 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
             judgeBoxAllClose();
         }
         if (step == EnumDeviceCheck.STEP_7.key) {
-            StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD), this);
+            StompUtil.getInstance().createStompClient(this
+                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
+                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD)
+                    , this);
         }
 
 
@@ -177,26 +179,6 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     }
 
     @Override
-    public void onQueryAppInfoSuccess(String url) {
-
-    }
-
-    @Override
-    public void onQueryAppInfoFail(String reason) {
-
-    }
-
-    @Override
-    public void onQueryAdviseSuccess(String url) {
-
-    }
-
-    @Override
-    public void onQueryAdviseFail(String reason) {
-
-    }
-
-    @Override
     public void onOpenBoxSuccess(String boxId) {
 
     }
@@ -220,7 +202,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
         turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
-        StompUtil.getInstance().createStompClient(account, password, this);
+        StompUtil.getInstance().createStompClient(this, account, password, this);
     }
 
     @Override
@@ -271,21 +253,21 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
      * 读取设备柜门是否都关闭
      * */
     private void readBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 判断柜门是否全关闭
      **/
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{BOX_ID_ARRAY[openBoxIndex]}, this);
+        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**
@@ -312,7 +294,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
     @Override
     public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
         this.actionType = enumActionType;
-        LogUtil.d(TAG, "当前处理类型:" + enumActionType);
+        LogUtil.d(TAG, "当前柜门广播的处理类型:" + enumActionType);
 
     }
 
@@ -323,7 +305,7 @@ public class WelcomeActivity extends BaseActivity implements IMainView, KeyCabin
                 break;
             case OPEN_BATCH:
                 if (isOpen[0]) {//弹开
-                    if (openBoxIndex == BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
+                    if (openBoxIndex == Constants.BOX_ID_ARRAY.length - 1) {//最后一个门，则说明全部OK，进入下一轮校验
                         turnStep(EnumDeviceCheck.STEP_5, "设备自检通过,请关闭所有柜门", this.getString(R.string.next), null);
                         return;
                     } else {

@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
+
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
@@ -11,6 +12,7 @@ import com.huawei.jams.testautostart.api.RetrofitHelper;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
+import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.StompUtil;
@@ -22,6 +24,7 @@ import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
+
 import io.reactivex.subscribers.DisposableSubscriber;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
@@ -32,12 +35,17 @@ import java.util.Map;
 
 public class DeviceInfoModel implements IDeviceInfoModel {
     private static final String TAG = DeviceInfoModel.class.getName();
+    private BaseActivity activity;
+
+    public DeviceInfoModel(BaseActivity activity) {
+        this.activity = activity;
+    }
 
     /**
      * http请求方式
      **/
     @Override
-    public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, StompCallBack callBack) {
+    public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack callBack) {
         HttpManager httpManager = new HttpManager(baseActivity, lifecycleProvider);
         Map<String, Object> reqMap = new HashMap<>();
         reqMap.put("sixCode", sixCode);
@@ -95,7 +103,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         jsonObject.addProperty("deviceType", deviceType);
         jsonObject.addProperty("boxId", boxId);
         jsonObject.addProperty("boxState", boxState);
-        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString());
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString());
         StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
@@ -133,7 +141,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         jsonObject.addProperty("deviceUuid", deviceUuid);
         jsonObject.addProperty("token", token);
         jsonObject.addProperty("password", sixCode);
-        StompUtil.getInstance().sendStomp(IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
         StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {

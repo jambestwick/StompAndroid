@@ -4,14 +4,15 @@ import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
-import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
+import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
-import com.huawei.jams.testautostart.view.inter.IMainView;
+import com.huawei.jams.testautostart.view.inter.IAdviseView;
+import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
@@ -24,24 +25,24 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     private static final String TAG = AppInfoPresenter.class.getName();
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
-    private IMainView mainView;//View接口
+    private IDeviceInfoView deviceInfoView;//View接口
 
-    public DeviceInfoPresenter(IMainView mainView) {
-        this.mDeviceInfoModel = new DeviceInfoModel();
-        this.mainView = mainView;
+    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity) {
+        this.mDeviceInfoModel = new DeviceInfoModel(activity);
+        this.deviceInfoView = deviceInfoView;
     }
 
     @Override
     public void bindDevice(BaseActivity activity, LifecycleProvider lifecycleProvider, String sixCode) {
-        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, new StompCallBack() {
+        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, new HttpCallBack() {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        mainView.onBindDeviceSuccess(((Map) data).get(Constants.ACCOUNT).toString(), ((Map) data).get(Constants.PASSWORD).toString());
+                        deviceInfoView.onBindDeviceSuccess(((Map) data).get(Constants.ACCOUNT).toString(), ((Map) data).get(Constants.PASSWORD).toString());
                         break;
                     default:
-                        mainView.onBindDeviceFail(msg);
+                        deviceInfoView.onBindDeviceFail(msg);
                         break;
                 }
             }
@@ -57,10 +58,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        mainView.onUploadBoxStateSuccess();
+                        deviceInfoView.onUploadBoxStateSuccess();
                         break;
                     default:
-                        mainView.onUploadBoxStateFail(msg);
+                        deviceInfoView.onUploadBoxStateFail(msg);
                         break;
                 }
             }
@@ -77,10 +78,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        mainView.onOpenBoxSuccess((String) data);
+                        deviceInfoView.onOpenBoxSuccess((String) data);
                         break;
                     default:
-                        mainView.onOpenBoxFail(msg);
+                        deviceInfoView.onOpenBoxFail(msg);
                         break;
                 }
             }
@@ -90,7 +91,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void patrolBoxState(Timer timer,String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+    public void patrolBoxState(Timer timer, String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener) {
         timer.schedule(new TimeCountTask(boxId, boxStateListener), 0, Constants.PATROL_INTERVAL_MILL_SECOND);
     }
 
