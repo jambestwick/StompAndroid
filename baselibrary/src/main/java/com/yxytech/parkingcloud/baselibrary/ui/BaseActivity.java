@@ -23,13 +23,12 @@ import io.reactivex.Observable;
 import io.reactivex.subjects.BehaviorSubject;
 
 /**
- * 基础的activity 实现则Retrifit生命周期的碧昂定
+ * 基础的activity 实现则Retrofit生命周期的碧昂定
  * Created by Water on 2018/3/26.
  */
 
 public abstract class BaseActivity extends AppCompatActivity implements LifecycleProvider<ActivityEvent> {
-    protected String TAG;
-    protected ProgressDialog proDia;
+    protected ProgressDialog progressDialog;
     /**
      * 全局的LayoutInflater对象，已经完成初始化.
      */
@@ -46,11 +45,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
         // 设置竖屏显示
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        TAG = this.getClass().getSimpleName();
         mInflater = LayoutInflater.from(this);
-        proDia = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this);
 //        proDia.setTitle("正在请求网络");
-        proDia.setMessage("努力加载中。。。");
+        progressDialog.setMessage("努力加载中... ...");
         //状态栏入侵
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
                 && isFullStatusBar()) {

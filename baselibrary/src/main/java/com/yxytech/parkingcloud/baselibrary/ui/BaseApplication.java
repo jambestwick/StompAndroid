@@ -22,8 +22,8 @@ public abstract class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        initRxRetrofitApp();
         application = this;
+        initRxRetrofitApp();
     }
 
     /**

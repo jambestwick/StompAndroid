@@ -8,9 +8,11 @@ import android.content.DialogInterface;
 import android.location.LocationManager;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.yxytech.parkingcloud.baselibrary.R;
+
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 

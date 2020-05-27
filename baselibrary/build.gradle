@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    dataBinding{
+    dataBinding {
         enabled = true
     }
     compileOptions {
@@ -50,9 +50,7 @@ dependencies {
     api 'com.squareup.okhttp3:okhttp:3.12.1'
     api 'com.github.bumptech.glide:glide:3.7.0'
     //RxPermissions 权限申请
-    api 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.3@aar'
-
-    api 'org.greenrobot:eventbus:3.0.0'
+    api 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5'
     api 'com.pnikosis:materialish-progress:1.0'
     api 'com.ycjiang:ImagePreview:2.2.2'
 }

@@ -2,6 +2,7 @@ package com.yxytech.parkingcloud.baselibrary.http.common;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.google.gson.JsonParseException;
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException;
@@ -28,6 +29,8 @@ import io.reactivex.disposables.Disposable;
 
 public abstract class DefaultObserver<T> implements Observer<T> {
 
+    private static final String TAG = DefaultObserver.class.getName();
+
     private Context context;
 
 //    public DefaultObserver(Context context) {
@@ -50,8 +53,8 @@ public abstract class DefaultObserver<T> implements Observer<T> {
 
     @Override
     public void onError(Throwable e) {
-        if (e!=null){
-            LogUtil.e("Retrofit", e.getMessage() + "");
+        if (e != null) {
+            LogUtil.e(TAG, "onError" + Log.getStackTraceString(e));
             if (e instanceof HttpException) {     //   HTTP错误
                 onException(ExceptionReason.BAD_NETWORK);
             } else if (e instanceof ConnectException
@@ -94,7 +97,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
         LogUtil.d("---------", "---------------" + cause);
         if (errorCode == ErrorCode.TOKEN_PAST) {
             try {
-                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.MainActivity"));
+                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.view.activity.WelcomeActivity"));
                 //intent.putExtra("isRefresh", true);
                 context.startActivity(intent);
             } catch (ClassNotFoundException e) {

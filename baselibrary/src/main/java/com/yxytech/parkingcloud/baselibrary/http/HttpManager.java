@@ -24,15 +24,28 @@ public class HttpManager {
         this.lifecycleProvider = lifecycleProvider;
     }
 
+    /**
+     * Http 请求
+     *
+     * @param observable      被观察者
+     * @param defaultObserver 观察者
+     **/
     public void doHttpDeal(Observable observable, DefaultObserver defaultObserver) {
         defaultObserver.setContext(baseActivity);
         observable.compose(lifecycleProvider.bindToLifecycle())
                 .compose(ProgressUtils.applyProgressBar(baseActivity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(defaultObserver);
+                .subscribe(defaultObserver);//订阅到观察者
     }
 
+    /**
+     * Http 请求
+     *
+     * @param observable      被观察者
+     * @param defaultObserver 观察者
+     * @param msg             Loading时的文字
+     **/
     public void doHttpDeal(String msg, Observable observable, DefaultObserver defaultObserver) {
         defaultObserver.setContext(baseActivity);
         observable.compose(lifecycleProvider.bindToLifecycle())
@@ -41,8 +54,6 @@ public class HttpManager {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(defaultObserver);
     }
-
-
 
 
 }
