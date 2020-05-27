@@ -48,6 +48,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private KeyCabinetReceiver.EnumActionType enumActionType;
     private Timer patrolTimer = new Timer();//巡检任务Timer
+    private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
 
     //网络超时8秒
 
@@ -229,14 +230,15 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
-                    deviceInfoPresenter.patrolBoxState(patrolTimer, boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey(), this);
+                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
+                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask, boxId[0], this);
                 }
                 break;
             case QUERY_BATCH:
                 if (!isOpen[0]) {//关
                     //上报
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
-                    patrolTimer.cancel();
+                    timeCountTask.cancel();
                     playMusic(R.raw.msc_thank_use);
                 }
 

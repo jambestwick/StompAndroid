@@ -48,13 +48,13 @@
                 </LinearLayout>
 
 
-                <View style="@style/style_space_10_dp"/>
+                <View style="@style/style_space_10_dp_vertical"/>
 
                 <TextView
                         android:id="@+id/main_prompt_six_code_tv"
                         style="@style/style_six_input_dialog_number"/>
 
-                <View style="@style/style_space_120_dp"/>
+                <View style="@style/style_space_120_dp_vertical"/>
 
                 <TextView
                         android:id="@+id/main_customer_service_phone_tv"

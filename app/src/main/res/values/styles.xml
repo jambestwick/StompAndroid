@@ -238,6 +238,7 @@
         <item name="android:layout_height">90dp</item>
         <item name="android:background">@drawable/bg_corner_circle_16</item>
     </style>
+    <!--请输入6位码的提示框-->
     <style name="style_six_input_dialog_number">
         <item name="android:layout_width">256dp</item>
         <item name="android:layout_height">40dp</item>
@@ -247,7 +248,7 @@
         <item name="android:textSize">24sp</item>
         <item name="android:typeface">sans</item>
     </style>
-
+    <!-- 客服电话的textView-->
     <style name="style_service_phone">
         <item name="android:layout_width">448dp</item>
         <item name="android:layout_height">40dp</item>
@@ -275,18 +276,78 @@
         <item name="android:orientation">vertical</item>
     </style>
     <!--竖向间隔10dp-->
-    <style name="style_space_10_dp">
+    <style name="style_space_10_dp_vertical">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">10dp</item>
     </style>
+    <!--竖向间隔20dp-->
+    <style name="style_space_20_dp_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">20dp</item>
+    </style>
+
+    <style name="style_space_40_dp_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">40dp</item>
+    </style>
     <!--竖向间隔80dp-->
-    <style name="style_space_80_dp">
+    <style name="style_space_80_dp_vertical">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">80dp</item>
     </style>
-    <style name="style_space_120_dp">
+    <!--竖向间隔120dp-->
+    <style name="style_space_120_dp_vertical">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">120dp</item>
     </style>
+    <!--横向间隔10dp-->
+    <style name="style_space_10_dp_horizon">
+        <item name="android:layout_width">10dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--横向间隔20dp-->
+    <style name="style_space_20_dp_horizon">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--横向间隔40dp-->
+    <style name="style_space_40_dp_horizon">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--横向间隔80dp-->
+    <style name="style_space_80_dp_horizon">
+        <item name="android:layout_width">80dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <!--横向间隔120dp-->
+    <style name="style_space_120_dp_horizon">
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+
+    <!--工人设备自检按键-->
+    <style name="style_device_check_btn" parent="android:Widget.Button">
+        <item name="android:layout_width">192dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+    <!-- 工人设备自检layout-->
+    <style name="style_layout_device_check_linear">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">128dp</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="style_device_check_dialog_btn">
+        <item name="android:layout_width">608dp</item>
+        <item name="android:layout_height">128dp</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 
 </resources>

@@ -91,8 +91,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void patrolBoxState(Timer timer, String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener) {
-        timer.schedule(new TimeCountTask(boxId, boxStateListener), 0, Constants.PATROL_INTERVAL_MILL_SECOND);
+    public void patrolBoxState(Timer timer, TimerTask task, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        timer.schedule(task, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         return true;
     }
 
-    class TimeCountTask extends TimerTask {
+   public static class TimeCountTask extends TimerTask {
         private String boxId;
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 

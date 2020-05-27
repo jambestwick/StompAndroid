@@ -7,6 +7,7 @@ import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 
 import java.util.Timer;
+import java.util.TimerTask;
 
 public interface IDeviceInfoPresenter {
 
@@ -17,7 +18,7 @@ public interface IDeviceInfoPresenter {
     void openBox(String password);
 
 
-    void patrolBoxState(Timer timer, String boxId, String boxState, KeyCabinetReceiver.BoxStateListener boxStateListener);
+    void patrolBoxState(Timer timer, TimerTask timerTask, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener);
 
     /**
      * 刷新主页6位码
@@ -31,7 +32,6 @@ public interface IDeviceInfoPresenter {
 
     /**
      * 判断是否全关
-     *
-     * **/
+     **/
     boolean boxListAllClose(boolean[] isOpens);
 }
