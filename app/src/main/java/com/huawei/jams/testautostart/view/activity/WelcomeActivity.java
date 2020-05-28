@@ -5,11 +5,9 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
-import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
@@ -18,12 +16,7 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
-import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.*;
 
 import java.util.Objects;
 
@@ -40,7 +33,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     /***输入6位开箱码**/
     private String inputCode = "";//6未输入码
     private IDeviceInfoPresenter deviceInfoPresenter;
-    private KeyCabinetReceiver.EnumActionType actionType;//柜门广播类型
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
 
 
@@ -254,21 +246,21 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
      * 读取设备柜门是否都关闭
      * */
     private void readBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 判断柜门是否全关闭
      **/
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
+        KeyCabinetReceiver.openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**
@@ -293,15 +285,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     }
 
     @Override
-    public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
-        this.actionType = enumActionType;
-        LogUtil.d(TAG, "当前柜门广播的处理类型:" + enumActionType);
-
-    }
-
-    @Override
-    public void onBoxStateBack(String[] boxId, boolean[] isOpen) {
-        switch (this.actionType) {
+    public void onBoxStateBack(KeyCabinetReceiver.EnumActionType actionType, String[] boxId, boolean[] isOpen) {
+        switch (actionType) {
             case QUERY:
                 break;
             case OPEN_BATCH:

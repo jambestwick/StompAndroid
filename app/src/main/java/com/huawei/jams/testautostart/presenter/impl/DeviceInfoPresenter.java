@@ -91,7 +91,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void patrolBoxState(Timer timer, TimerTask task, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+    public void patrolBoxState(Timer timer, TimerTask task) {
         timer.schedule(task, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
     }
 
@@ -184,7 +184,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         @Override
         public void run() {
-            KeyCabinetReceiver.getInstance().queryBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
+            KeyCabinetReceiver.queryBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
 
         }
     }

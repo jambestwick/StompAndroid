@@ -18,7 +18,7 @@ public interface IDeviceInfoPresenter {
     void openBox(String password);
 
 
-    void patrolBoxState(Timer timer, TimerTask timerTask, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener);
+    void patrolBoxState(Timer timer, TimerTask timerTask);
 
     /**
      * 刷新主页6位码

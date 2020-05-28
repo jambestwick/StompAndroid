@@ -27,7 +27,7 @@
         <LinearLayout
             android:id="@+id/wel_six_code_ll"
             style="@style/style_layout_six_input_linear"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/wel_six_code_1_tv"
@@ -83,7 +83,7 @@
         <LinearLayout
             android:id="@+id/wel_keyboard_ll"
             style="@style/style_layout_number_total_linear"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <LinearLayout style="@style/style_layout_number_linear">
 

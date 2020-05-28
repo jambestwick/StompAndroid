@@ -14,20 +14,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
     private static BoxStateListener boxStateListener;//接口回调必须设置静态的，否则onReceive回调接收到的boxStateListener为空
     private static DialogUtils dialogUtils;
-    private static KeyCabinetReceiver instance;
-    private static final Object lock = new Object();
-
-    public static KeyCabinetReceiver getInstance() {
-        if (instance == null) {
-            synchronized (lock) {
-                if (instance == null) {
-                    instance = new KeyCabinetReceiver();
-                }
-            }
-        }
-        return instance;
-    }
-
+    private static EnumActionType enumActionType;
 
     /***
      * 参数说明:
@@ -35,7 +22,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * boxId 指盒子的编号主柜 Z开头Z01，Z02......
      *                  副柜 A01，B01... ...
      * ****/
-    public void openBatchBox(Context context, String[] boxIdList, BoxStateListener listListener) {
+    public static void openBatchBox(Context context, String[] boxIdList, BoxStateListener listListener) {
         if (dialogUtils == null) {
             dialogUtils = new DialogUtils();
         }
@@ -45,10 +32,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIdList) + ",打开操作广播发出");
         boxStateListener = listListener;
-        boxStateListener.setType(EnumActionType.OPEN_BATCH);
+        enumActionType = EnumActionType.OPEN_BATCH;
     }
 
-    public void queryBoxState(Context context, String boxId, BoxStateListener listener) {
+    public static void queryBoxState(Context context, String boxId, BoxStateListener listener) {
         if (dialogUtils == null) {
             dialogUtils = new DialogUtils();
         }
@@ -59,11 +46,11 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + boxId + ",查询操作广播发出");
         boxStateListener = listener;
-        boxStateListener.setType(EnumActionType.QUERY);
+        enumActionType = EnumActionType.QUERY;
 
     }
 
-    public void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
+    public static void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
         if (dialogUtils == null) {
             dialogUtils = new DialogUtils();
         }
@@ -73,7 +60,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         context.sendBroadcast(intent);
         LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIds) + ",查询操作广播发出");
         boxStateListener = listener;
-        boxStateListener.setType(EnumActionType.QUERY_BATCH);
+        enumActionType = EnumActionType.QUERY_BATCH;
 
     }
 
@@ -89,14 +76,13 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
                 boolean isOpened = intent.getExtras().getBoolean("isopened");
                 boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
                 LogUtil.d(TAG, "箱门:" + boxId + ",查询操作广播返回isOpened:" + isOpened + ",isStoraged:" + isStoraged);
-                if (boxStateListener != null)
-                    boxStateListener.onBoxStateBack(new String[]{boxId}, new boolean[]{isOpened});
+                if (boxStateListener != null) boxStateListener.onBoxStateBack(enumActionType,new String[]{boxId}, new boolean[]{isOpened});
             }
             if ("android.intent.action.hal.iocontroller.batchopen.result".equals(intent.getAction())) {
                 String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
                 boolean[] opened = intent.getExtras().getBooleanArray("opened");
                 LogUtil.d(TAG, "箱门:" + Arrays.toString(batchboxid) + ",操作广播返回opened:" + Arrays.toString(opened));
-                if (boxStateListener != null) boxStateListener.onBoxStateBack(batchboxid, opened);
+                if (boxStateListener != null) boxStateListener.onBoxStateBack(enumActionType, batchboxid, opened);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,8 +91,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public interface BoxStateListener {
-        void setType(EnumActionType enumActionType);//区分当前操作
-        void onBoxStateBack(String[] boxId, boolean[] isOpen);
+        void onBoxStateBack(EnumActionType enumActionType, String[] boxId, boolean[] isOpen);
     }
 
     public enum EnumActionType {

@@ -45,8 +45,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAppInfoPresenter appInfoPresenter;
 
     private IAdvisePresenter advisePresenter;
-
-    private KeyCabinetReceiver.EnumActionType enumActionType;
     private Timer patrolTimer = new Timer();//巡检任务Timer
     private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
 
@@ -180,7 +178,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     public void onOpenBoxSuccess(String boxId) {
-        KeyCabinetReceiver.getInstance().openBatchBox(this, new String[]{boxId}, this);
+        KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, this);
     }
 
     @Override
@@ -212,17 +210,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     }
 
-    @Override
-    public void setType(KeyCabinetReceiver.EnumActionType enumActionType) {
-        this.enumActionType = enumActionType;
-    }
 
     /**
      * 操作柜门的回调
      **/
     @Override
-    public void onBoxStateBack(String[] boxId, boolean[] isOpen) {
-        switch (this.enumActionType) {
+    public void onBoxStateBack(KeyCabinetReceiver.EnumActionType enumActionType, String[] boxId, boolean[] isOpen) {
+        switch (enumActionType) {
             case OPEN_BATCH:
                 if (!isOpen[0]) {//打开失败
                     startAnim(R.mipmap.bg_hint_device_error);
@@ -231,11 +225,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     playMusic(R.raw.msc_box_open);
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
                     timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
-                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask, boxId[0], this);
+                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
                 }
                 break;
             case QUERY_BATCH:
-                if (!isOpen[0]) {//关
+                if (!isOpen[0]) {//查看柜门已关
                     //上报
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeCountTask.cancel();
