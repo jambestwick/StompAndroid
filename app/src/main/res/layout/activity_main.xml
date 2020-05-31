@@ -170,8 +170,7 @@
         <VideoView android:id="@+id/main_advise_video"
                    android:layout_width="match_parent"
                    android:layout_height="match_parent"
-                   android:visibility="invisible"
-                   android:onClick="@{click}"/>
+                   android:visibility="invisible"/>
         <!--开柜门、谢谢使用、动画播放-->
         <ImageView android:id="@+id/main_dialog_anim_iv"
                    android:layout_width="match_parent"

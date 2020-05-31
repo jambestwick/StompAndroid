@@ -34,4 +34,14 @@ public interface IDeviceInfoPresenter {
      * 判断是否全关
      **/
     boolean boxListAllClose(boolean[] isOpens);
+
+    /**
+     * 订阅打开柜门
+     **/
+    void topicOpenBox();
+
+    /**
+     * 订阅上传柜门状态
+     **/
+    void topicUploadBoxState();
 }

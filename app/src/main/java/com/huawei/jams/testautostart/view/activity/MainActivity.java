@@ -1,14 +1,11 @@
 package com.huawei.jams.testautostart.view.activity;
 
+import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-
-import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -20,18 +17,18 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
+import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
-import java.io.File;
 import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener {
     private static final String TAG = MainActivity.class.getName();
@@ -45,7 +42,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAppInfoPresenter appInfoPresenter;
 
     private IAdvisePresenter advisePresenter;
-    private Timer patrolTimer = new Timer();//巡检任务Timer
+    private Timer patrolTimer = new Timer();//巡检柜门状态任务Timer
     private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
 
     //网络超时8秒
@@ -62,7 +59,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this, this);
         appInfoPresenter = new AppInfoPresenter(this);
         advisePresenter = new AdvisePresenter(this);
         binding.setClick(v -> {
@@ -89,20 +86,26 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
                     }
                     break;
-                case R.id.main_advise_video://点击video停止广告回到输入密码界面
-                    binding.mainAdviseVideo.setVisibility(View.GONE);
-                    break;
                 default:
                     addInputCode(((TextView) v).getText().toString());
                     break;
             }
 
         });
+        binding.mainAdviseVideo.setOnTouchListener((v, event) -> {//点击就暂停并消失
+            if (binding.mainAdviseVideo.isPlaying()) {
+                binding.mainAdviseVideo.pause();
+                binding.mainAdviseVideo.setVisibility(View.GONE);
+            }
+            return false;
+        });
     }
 
     private void initNetData() {
         appInfoPresenter.topicAppInfo();
         advisePresenter.topicAdviseInfo();
+        deviceInfoPresenter.topicOpenBox();
+        deviceInfoPresenter.topicUploadBoxState();
     }
 
     /**
@@ -112,6 +115,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
+            binding.mainAdviseVideo.setVisibility(View.VISIBLE);
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
@@ -186,7 +190,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         //后台返回打开失败
         ToastUtil.showInCenter(this, this.getString(R.string.back_server_exception_retry));
         deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-
+        startAnim(R.mipmap.bg_hint_net_work_error);
     }
 
 
@@ -222,7 +226,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_device_error);
                 } else {//打开成功,上传状态
                     startAnim(R.mipmap.bg_hint_open_success);
-                    playMusic(R.raw.msc_box_open);
+                    playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
                     timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
@@ -233,7 +237,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     //上报
                     deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeCountTask.cancel();
-                    playMusic(R.raw.msc_thank_use);
+                    playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
                 }
 
                 break;
@@ -244,18 +248,53 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      * 播放动画
      */
     private void startAnim(int resId) {
-        Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.anim_scal);
-        binding.mainDialogAnimIv.setImageResource(resId);
-        binding.mainDialogAnimIv.startAnimation(animation);
+        binding.mainDialogAnimIv.setVisibility(View.VISIBLE);
+        binding.mainDialogAnimIv.setBackgroundResource(resId);
+        ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);//设置属性值
+        setAnima(animator);
+        closeAnim();
+
+    }
+
+    /**
+     * 关闭动画
+     **/
+    private void closeAnim() {
+        ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
+        setAnima(animator);
+        binding.mainDialogAnimIv.setBackgroundResource(0);
+        binding.mainDialogAnimIv.setVisibility(View.GONE);
     }
 
     /**
      * 播放音乐
      */
-    private void playMusic(int rawId) {
-        binding.mainAdviseVideo.setVideoURI(Uri.parse("android.resource://" + PackageUtils.getPackageInfo(BaseApp.getAppContext()).packageName + File.separator + rawId));
-        binding.mainAdviseVideo.start();
+    private void playMusic(int rawId, DeviceInfo.EnumBoxState enumBoxState) {
+        //直接创建，不需要设置setDataSource
+        MediaPlayer mMediaPlayer = MediaPlayer.create(this, rawId);
+        mMediaPlayer.start();
+        mMediaPlayer.setOnCompletionListener(mp -> {
+            mp.release();
+            if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
+                patrolTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        closeAnim();
+                        binding.mainAdviseVideo.setVisibility(View.VISIBLE);
+                        binding.mainAdviseVideo.start();
+                    }
+                }, Constants.DELAY_ADVISE_MILL_SECOND);
+            }
+        });
     }
 
+    private void setAnima(ValueAnimator animator) {
+        animator.setTarget(binding.mainDialogAnimIv);//设置操作对象
+        animator.setDuration(Constants.ANIMA_DURATION_MILL_SECOND).start();//动画开始
+        animator.addUpdateListener(animation -> {
+            binding.mainDialogAnimIv.setScaleY((Float) animation.getAnimatedValue());//设置Y轴上的变化
+            binding.mainDialogAnimIv.setScaleX((Float) animation.getAnimatedValue());//设置X轴上的变化
+        });
+    }
 
 }

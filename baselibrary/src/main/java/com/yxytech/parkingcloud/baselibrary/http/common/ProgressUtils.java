@@ -7,13 +7,12 @@ import android.support.annotation.NonNull;
 import com.yxytech.parkingcloud.baselibrary.R;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 
+import io.reactivex.*;
+import io.reactivex.functions.Action;
 import org.reactivestreams.Subscription;
 
 import java.lang.ref.WeakReference;
 
-import io.reactivex.CompletableTransformer;
-import io.reactivex.FlowableTransformer;
-import io.reactivex.ObservableTransformer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
@@ -28,53 +27,58 @@ public class ProgressUtils {
         final DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showProgress(activityWeakReference.get(), msg);
         return upstream -> upstream.doOnSubscribe(disposable -> {
-
         }).doOnTerminate(() -> {//订阅被终止
-            Activity context = activityWeakReference.get();
-            if (context != null
+            Activity context;
+            if ((context = activityWeakReference.get()) != null
                     && !context.isFinishing()) {
                 dialogUtils.dismissProgress();
             }
         }).doOnSubscribe((Consumer<Disposable>) disposable -> {
             /*Activity context;
-            if ((context = activityWeakReference.get()) != null
-                    && !context.isFinishing()) {
-                dialogUtils.dismissProgress();
-            }*/
+                        if ((context = activityWeakReference.get()) != null
+                                && !context.isFinishing()) {
+                            dialogUtils.dismissProgress();
+                        }*/
         });
     }
 
     public static <T> FlowableTransformer<T, T> applyProgressBarStomp(
             @NonNull final Activity activity, String msg) {
         final WeakReference<Activity> activityWeakReference = new WeakReference<>(activity);
-        final DialogUtils dialogUtils = new DialogUtils();
+        DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showProgress(activityWeakReference.get(), msg);
-        return upstream -> upstream.doOnSubscribe(disposable -> {
-
+        return upstream -> upstream.doOnSubscribe(subscription -> {
         }).doOnTerminate(() -> {//订阅被终止
-            Activity context = activityWeakReference.get();
-            if (context != null
+            Activity context;
+            if ((context = activityWeakReference.get()) != null
                     && !context.isFinishing()) {
                 dialogUtils.dismissProgress();
             }
-        }).doOnSubscribe((Consumer<Subscription>) subscription -> {
-
+        }).doFinally(() -> {
+//            Activity context = activityWeakReference.get();
+//            if (null != context && !context.isFinishing()) {
+//                dialogUtils.dismissProgress();
+//            }
         });
     }
+
     public static <T> CompletableTransformer applyProgressBarStomp1(
             @NonNull final Activity activity, String msg) {
         final WeakReference<Activity> activityWeakReference = new WeakReference<>(activity);
         final DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showProgress(activityWeakReference.get(), msg);
         return upstream -> upstream.doOnSubscribe(disposable -> {
-
         }).doOnTerminate(() -> {//订阅被终止
             Activity context = activityWeakReference.get();
             if (context != null
                     && !context.isFinishing()) {
                 dialogUtils.dismissProgress();
             }
-        }).doOnSubscribe((Consumer<Disposable>) disposable -> {
+        }).doFinally(() -> {
+//            Activity context = activityWeakReference.get();
+//            if (null != context && !context.isFinishing()) {
+//                dialogUtils.dismissProgress();
+//            }
         });
     }
 
@@ -83,11 +87,12 @@ public class ProgressUtils {
         return applyProgressBar(activity, "");
     }
 
-    public static <T> FlowableTransformer<T, T> applyProgressBarStomp(@NonNull final Activity activity){
-        return applyProgressBarStomp(activity,"");
+    public static <T> FlowableTransformer<T, T> applyProgressBarStomp(@NonNull final Activity activity) {
+        return applyProgressBarStomp(activity, "");
     }
-    public static <T> CompletableTransformer applyProgressBarStomp1(@NonNull final Activity activity){
-        return applyProgressBarStomp1(activity,"");
+
+    public static <T> CompletableTransformer applyProgressBarStomp1(@NonNull final Activity activity) {
+        return applyProgressBarStomp1(activity, "");
     }
 
 

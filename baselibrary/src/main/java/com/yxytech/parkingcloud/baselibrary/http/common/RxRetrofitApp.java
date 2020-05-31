@@ -8,7 +8,7 @@ public class RxRetrofitApp {
     /**
      * 网络请求超时时间毫秒
      */
-    private static int DEFAULT_TIMEOUT = 30000;
+    private static int DEFAULT_TIMEOUT = 30 * 1000;
     private static String IP;
     private static String HOST;
     private static String API_SERVER_URL;

@@ -25,6 +25,7 @@ public class AppInfoModel implements IAppInfoModel {
         StompUtil.getInstance().receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());
                 //返回数据
                 stompMessage.getPayload();
                 ApiResponse<AppInfo> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
@@ -41,16 +42,17 @@ public class AppInfoModel implements IAppInfoModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, Thread.currentThread().getName() + ",onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeVersion onError:" + Log.getStackTraceString(t));
                 //错误异常
                 callBack.onCallBack(ErrorCode.PARSE_JSON_ERROR, t.toString(), null);
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onComplete");
 
             }
+
         });
     }
 }

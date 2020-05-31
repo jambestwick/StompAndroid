@@ -8,6 +8,9 @@ import android.util.Log;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
+import com.trello.rxlifecycle2.LifecycleProvider;
+import com.trello.rxlifecycle2.RxLifecycle;
+import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
 import com.yxytech.parkingcloud.baselibrary.http.common.SSLHelper;
@@ -24,14 +27,17 @@ import io.reactivex.CompletableTransformer;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
+import static ua.naiksoftware.stomp.dto.LifecycleEvent.Type.OPENED;
 
 /**
  * <p>文件描述：<p>
@@ -105,20 +111,24 @@ public class StompUtil {
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
                                     connectListener.onConnectState(EnumConnectState.CONNECT);
+                                    //dialogUtils.dismissProgress();
                                     //topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
                                     LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
                                     connectListener.onConnectState(EnumConnectState.CLOSE);
+                                   // dialogUtils.dismissProgress();
                                     break;
                                 case CLOSED:
                                     mNeedConnect = true;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
                                     connectListener.onConnectState(EnumConnectState.CLOSE);
+                                    //dialogUtils.dismissProgress();
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
+                                   // dialogUtils.dismissProgress();
                                     break;
 
                             }
@@ -138,10 +148,10 @@ public class StompUtil {
      * 发送信息
      ***/
     @SuppressLint("CheckResult")
-    public void sendStomp(BaseActivity activity, String destPath, String jsonMsg) {
+    public void sendStomp(BaseActivity activity, LifecycleProvider lifecycleProvider, String destPath, String jsonMsg) {
         if (mStompClient != null) {
             mStompClient.send(destPath, jsonMsg)
-                    .compose(applySchedulers(activity))
+                    .compose(applySchedulers(activity, lifecycleProvider))
                     .subscribe(() -> {
                         Log.d(TAG, "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
                     }, throwable -> {
@@ -190,8 +200,9 @@ public class StompUtil {
                 });
     }
 
-    private CompletableTransformer applySchedulers(Activity activity) {
+    private CompletableTransformer applySchedulers(Activity activity, LifecycleProvider lifecycleProvider) {
         return upstream -> upstream
+                .compose(lifecycleProvider.bindToLifecycle())
                 .compose(ProgressUtils.applyProgressBarStomp1(activity))
                 .unsubscribeOn(Schedulers.newThread())
                 .subscribeOn(Schedulers.io())

@@ -14,7 +14,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 
 /**
- * Created by Water on 2018/3/29.
+ * Created by zhpan on 2017/4/13.
  */
 
 public class CustomProgressDialog extends Dialog {
@@ -50,14 +50,12 @@ public class CustomProgressDialog extends Dialog {
         ImageView imageView = (ImageView) mDialogView.findViewById(R.id.loadingImageView);
         animationDrawable = (AnimationDrawable) imageView.getBackground();
         animationDrawable.start();
-        LogUtil.d("CustomProgressDialog", "animationDrawable:" + animationDrawable);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (animationDrawable != null)
-            animationDrawable.stop();
+        animationDrawable.stop();
     }
 
     public static final class Builder {
@@ -73,7 +71,6 @@ public class CustomProgressDialog extends Dialog {
 
         /**
          * 设置主题
-         *
          * @param resStyle style id
          * @return CustomProgressDialog.Builder
          */

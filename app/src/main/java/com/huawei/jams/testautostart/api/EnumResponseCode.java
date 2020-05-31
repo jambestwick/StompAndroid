@@ -1,7 +1,5 @@
 package com.huawei.jams.testautostart.api;
 
-import com.huawei.jams.testautostart.entity.DeviceInfo;
-
 public enum EnumResponseCode {
     SUCCESS(0, "SUCCESS"),
     COMMON_BIZ_ERROR(1, "COMMON_BIZ_ERROR"),

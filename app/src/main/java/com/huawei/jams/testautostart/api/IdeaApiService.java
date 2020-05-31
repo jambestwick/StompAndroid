@@ -14,17 +14,17 @@ import java.util.Map;
 public interface IdeaApiService {
 
 
-    public static final String SERVER_HOST = "https://www.metalcar.cn";
+    String SERVER_HOST = "https://www.metalcar.cn";
 
-    public static final String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
+    String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
 
 
-    public static final String APP_QUERY_VERSION = "/app/queryVersion";
-    public static final String ADV_QUERY_VERSION = "/advise/queryVersion";
-    public static final String DEVICE_BIND = "/device/bind";
-    public static final String DEVICE_UPDATE_BOX_STATE = "/device/update/boxState";
-    public static final String DEVICE_OPEN_BOX = "/device/openBox";
-    public static final String DEVICE_QUERY_ALARM_PROP = "/device/query/alarmProp";
+    String APP_QUERY_VERSION = "/app/queryVersion";
+    String ADV_QUERY_VERSION = "/advise/queryVersion";
+    String DEVICE_BIND = "/device/bind";
+    String DEVICE_UPDATE_BOX_STATE = "/device/update/boxState";
+    String DEVICE_OPEN_BOX = "/device/openBox";
+    String DEVICE_QUERY_ALARM_PROP = "/device/query/alarmProp";
 
 
     /**

@@ -10,13 +10,7 @@ import java.io.IOException;
 
 public class IdeaApi {
     public static <T> T getApiService(Class<T> cls, String baseUrl) {
-        Retrofit retrofit = new Retrofit.Builder().build();
-        try {
-            retrofit = RetrofitService.getRetrofitBuilder(baseUrl).build();
-            return retrofit.create(cls);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Retrofit retrofit = RetrofitService.getRetrofitBuilder(baseUrl).build();
         return retrofit.create(cls);
     }
 }

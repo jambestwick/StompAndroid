@@ -8,10 +8,9 @@ public class RetrofitHelper {
     private static IdeaApiService mIdeaApiService;
 
     public static IdeaApiService getApiService() {
+        if (mIdeaApiService == null)
+            mIdeaApiService = IdeaApi.getApiService(IdeaApiService.class, RxRetrofitApp.getApiServerUrl());
         return mIdeaApiService;
     }
 
-    static {
-        mIdeaApiService = IdeaApi.getApiService(IdeaApiService.class, RxRetrofitApp.getApiServerUrl());
-    }
 }

@@ -27,8 +27,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
 
-    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity) {
-        this.mDeviceInfoModel = new DeviceInfoModel(activity);
+    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity, LifecycleProvider lifecycleProvider) {
+        this.mDeviceInfoModel = new DeviceInfoModel(activity, lifecycleProvider);
         this.deviceInfoView = deviceInfoView;
     }
 
@@ -71,21 +71,19 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void openBox(String password) {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
-        mDeviceInfoModel.openBox(deviceUuid, password, token, new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case ApiResponse.SUCCESS:
-                        deviceInfoView.onOpenBoxSuccess((String) data);
-                        break;
-                    default:
-                        deviceInfoView.onOpenBoxFail(msg);
-                        break;
-                }
-            }
-        });
+        deviceInfoView.onOpenBoxFail(password);
+//        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
+//        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
+//        mDeviceInfoModel.openBox(deviceUuid, password, token, (errorCode, msg, data) -> {
+//            switch (errorCode) {
+//                case ApiResponse.SUCCESS:
+//                    deviceInfoView.onOpenBoxSuccess((String) data);
+//                    break;
+//                default:
+//                    deviceInfoView.onOpenBoxFail(msg);
+//                    break;
+//            }
+//        });
 
 
     }
@@ -173,7 +171,42 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         return true;
     }
 
-   public static class TimeCountTask extends TimerTask {
+    @Override
+    public void topicOpenBox() {
+        mDeviceInfoModel.subscribeOpenBox(new StompCallBack() {
+            @Override
+            public void onCallBack(int errorCode, String msg, Object data) {
+                switch (errorCode) {
+                    case ApiResponse.SUCCESS:
+                        deviceInfoView.onOpenBoxSuccess((String) data);
+                        break;
+                    default:
+                        deviceInfoView.onOpenBoxFail(msg);
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public void topicUploadBoxState() {
+        mDeviceInfoModel.subscribeBoxState(new StompCallBack() {
+            @Override
+            public void onCallBack(int errorCode, String msg, Object data) {
+                switch (errorCode) {
+                    case ApiResponse.SUCCESS:
+                        deviceInfoView.onUploadBoxStateSuccess();
+                        break;
+                    default:
+                        deviceInfoView.onUploadBoxStateFail(msg);
+                        break;
+                }
+            }
+        });
+
+    }
+
+    public static class TimeCountTask extends TimerTask {
         private String boxId;
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 

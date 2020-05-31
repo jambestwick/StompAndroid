@@ -45,7 +45,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     }
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -201,18 +201,20 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     @Override
     public void onBindDeviceFail(String reason) {
         //绑定失败,重新输入六位码进行绑定
-        new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
-                .setTitleText(this.getString(R.string.bind_device))
-                .setContentText(this.getString(R.string.bind_device) + this.getString(R.string.fail) + "," + this.getString(R.string.contact_back_office_handle))
-                .setConfirmText(this.getString(R.string.ok))
-                .showCancelButton(false)
-                .setConfirmClickListener(sDialog -> {
-                    inputCode = "";
-                    deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
-                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                    sDialog.cancel();
-                }).show();
+//        new SweetAlertDialog(WelcomeActivity.this, SweetAlertDialog.WARNING_TYPE)
+//                .setTitleText(this.getString(R.string.bind_device))
+//                .setContentText(this.getString(R.string.bind_device) + this.getString(R.string.fail) + "," + this.getString(R.string.contact_back_office_handle))
+//                .setConfirmText(this.getString(R.string.ok))
+//                .showCancelButton(false)
+//                .setConfirmClickListener(sDialog -> {
+//                    inputCode = "";
+//                    deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+//                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
+//                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
+//                    sDialog.cancel();
+//                }).show();
+        turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
+        StompUtil.getInstance().createStompClient(this, "100000000000001", "AAAAAAAAAAAAAAAAAAAA_1", this);
     }
 
 
@@ -349,24 +351,26 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
         if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
             startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-            finish();
-        } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
-            switch (deviceBindState) {
-                case NEW:
-                    turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", this.getString(R.string.retry), null);
-                    binding.welKeyboardLl.setVisibility(View.GONE);
-                    binding.welSixCodeLl.setVisibility(View.GONE);
-                    break;
-                case OLD:
-                    turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
-                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                    deviceBindState = EnumDeviceBindState.NEW;
-                    break;
-                default:
-                    break;
-            }
+        }else{
+            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
         }
+//        else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
+//            switch (deviceBindState) {
+//                case NEW:
+//                    turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", this.getString(R.string.retry), null);
+//                    binding.welKeyboardLl.setVisibility(View.GONE);
+//                    binding.welSixCodeLl.setVisibility(View.GONE);
+//                    break;
+//                case OLD:
+//                    turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
+//                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
+//                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
+//                    deviceBindState = EnumDeviceBindState.NEW;
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
 
     }
 

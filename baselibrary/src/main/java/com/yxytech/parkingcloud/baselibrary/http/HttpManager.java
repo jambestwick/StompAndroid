@@ -1,10 +1,9 @@
 package com.yxytech.parkingcloud.baselibrary.http;
 
-import com.trello.rxlifecycle2.LifecycleProvider;
+import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -17,11 +16,9 @@ public class HttpManager {
 
     /*软引用對象*/
     private BaseActivity baseActivity;
-    private LifecycleProvider lifecycleProvider;
 
-    public HttpManager(BaseActivity baseActivity, LifecycleProvider lifecycleProvider) {
+    public HttpManager(BaseActivity baseActivity) {
         this.baseActivity = baseActivity;
-        this.lifecycleProvider = lifecycleProvider;
     }
 
     /**
@@ -32,10 +29,10 @@ public class HttpManager {
      **/
     public void doHttpDeal(Observable observable, DefaultObserver defaultObserver) {
         defaultObserver.setContext(baseActivity);
-        observable.compose(lifecycleProvider.bindToLifecycle())
-                .compose(ProgressUtils.applyProgressBar(baseActivity))
-                .subscribeOn(Schedulers.io())
+        observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(baseActivity.bindUntilEvent(ActivityEvent.DESTROY))
+                .compose(ProgressUtils.applyProgressBar(baseActivity))
                 .subscribe(defaultObserver);//订阅到观察者
     }
 
@@ -48,10 +45,10 @@ public class HttpManager {
      **/
     public void doHttpDeal(String msg, Observable observable, DefaultObserver defaultObserver) {
         defaultObserver.setContext(baseActivity);
-        observable.compose(lifecycleProvider.bindToLifecycle())
-                .compose(ProgressUtils.applyProgressBar(baseActivity, msg))
-                .subscribeOn(Schedulers.io())
+        observable.subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .compose(baseActivity.bindUntilEvent(ActivityEvent.DESTROY))
+                .compose(ProgressUtils.applyProgressBar(baseActivity, msg))
                 .subscribe(defaultObserver);
     }
 

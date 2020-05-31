@@ -33,10 +33,6 @@ public abstract class DefaultObserver<T> implements Observer<T> {
 
     private Context context;
 
-//    public DefaultObserver(Context context) {
-//        this.context = context;
-//    }
-
     public void setContext(Context context) {
         this.context = context;
     }
@@ -49,6 +45,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
     @Override
     public void onNext(T response) {
         onSuccess(response);
+        onFinish();
     }
 
     @Override
@@ -71,9 +68,12 @@ public abstract class DefaultObserver<T> implements Observer<T> {
             } else {
                 onException(ExceptionReason.UNKNOWN_ERROR);
             }
+            onFinish();
         }
 
     }
+
+
 
     @Override
     public void onComplete() {
@@ -94,18 +94,20 @@ public abstract class DefaultObserver<T> implements Observer<T> {
      * 服务器返回数据，但响应码不为1000
      */
     public void onFail(int errorCode, String cause) {
-        LogUtil.d("---------", "---------------" + cause);
-        if (errorCode == ErrorCode.TOKEN_PAST) {
-            try {
-                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.view.activity.WelcomeActivity"));
-                //intent.putExtra("isRefresh", true);
-                context.startActivity(intent);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+        LogUtil.d(TAG, "onFail---------------" + cause);
+//        if (errorCode == ErrorCode.TOKEN_PAST) {
+//            try {
+//                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.view.activity.WelcomeActivity"));
+//                //intent.putExtra("isRefresh", true);
+//                context.startActivity(intent);
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        }
         ToastUtil.showToast(BaseApplication.getAppContext(), cause);
     }
+
+    public void onFinish(){}
 
     /**
      * 请求异常

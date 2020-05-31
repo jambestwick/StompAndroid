@@ -69,6 +69,16 @@ public class StrUtil {
     }
 
     /**
+     * 判断字符串是否为null或全为空格
+     *
+     * @param s 待校验字符串
+     * @return {@code true}: null或全空格<br> {@code false}: 不为null且不全空格
+     */
+    public static boolean isSpace(String s) {
+        return (s == null || s.trim().length() == 0);
+    }
+
+    /**
      * 读取baseurl
      *
      * @param url
@@ -563,7 +573,6 @@ public class StrUtil {
 //    public static void main(String[] args) {
 //        System.out.println(dateTimeFormat("2012-3-2 12:2:20"));
 //    }
-
 
 
 }

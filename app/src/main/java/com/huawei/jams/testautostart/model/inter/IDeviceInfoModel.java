@@ -34,5 +34,15 @@ public interface IDeviceInfoModel<T> {
      ***/
     void openBox(String deviceUuid, String sixCode, String token, StompCallBack<T> callBack);
 
+    /**
+     * 订阅柜门状态
+     */
+    void subscribeBoxState(StompCallBack<T> callBack);
+
+    /**
+     * 订阅打开柜门
+     */
+    void subscribeOpenBox(StompCallBack<T> callBack);
+
 
 }

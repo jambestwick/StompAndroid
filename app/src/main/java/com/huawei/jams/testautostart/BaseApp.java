@@ -1,10 +1,19 @@
 package com.huawei.jams.testautostart;
 
+import android.os.Environment;
 import com.huawei.jams.testautostart.api.IdeaApiService;
+import com.huawei.jams.testautostart.entity.Advise;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
+
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>文件描述：<p>
@@ -22,11 +31,28 @@ public class BaseApp extends BaseApplication {
         super.onCreate();
         FlowManager.init(this);//初始化dbflow
         ExceptionHelper.getInstance().init();//初始化未知异常捕获
+        initVideo();
     }
 
     @Override
     protected void initRxRetrofitApp() {
         RxRetrofitApp.init(IdeaApiService.SERVER_HOST);
+    }
+
+    private void initVideo() {
+        List adviseList = SQLite.select().from(Advise.class).queryList();
+        if (adviseList == null || adviseList.size() <= 0) {
+            Advise advise = new Advise();
+            advise.setAdvNo("1");
+            advise.setAdvDate(new Date());
+            advise.setAdvVersion("01");
+            advise.setUuid(UUID.randomUUID());
+            advise.setCreateTime(new Date());
+            advise.setFileName("001");
+            advise.setFilePath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test01.mp4");
+            advise.save();
+        }
+
     }
 
 

@@ -25,12 +25,13 @@ public class AdviseModel implements IAdviseModel {
         StompUtil.getInstance().receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());
                 stompMessage.getPayload();
                 ApiResponse<Advise> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
                 Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
                 if (!currentAdv.getAdvVersion().equals(apiResponse.getData().getAdvVersion())) {
                     //下载广告
-                    Advise advise =new Advise();
+                    Advise advise = new Advise();
                     //advise.save();
                 }
                 callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
@@ -38,12 +39,12 @@ public class AdviseModel implements IAdviseModel {
 
             @Override
             public void onError(Throwable t) {
-                LogUtil.e(TAG, Thread.currentThread().getName() + ",onError" + Log.getStackTraceString(t));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeVersion onError:" + Log.getStackTraceString(t));
             }
 
             @Override
             public void onComplete() {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",onComplete");
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onComplete");
             }
         });
     }

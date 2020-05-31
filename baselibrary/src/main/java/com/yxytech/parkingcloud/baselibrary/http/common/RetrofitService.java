@@ -76,10 +76,17 @@ public class RetrofitService {
         return SSLHelper.getSslSocketFactory(null, priKeyIs, SSLHelper.CLIENT_BKS_PASSWORD);
     }
 
-    public static Retrofit.Builder getRetrofitBuilder(String baseUrl) throws IOException {
+    public static Retrofit.Builder getRetrofitBuilder(String baseUrl) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls().create();
-        SSLHelper.SSLParams sslParams = setSSLParams(BaseApplication.getAppContext());
-        OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
+        OkHttpClient okHttpClient;
+        SSLHelper.SSLParams sslParams = null;
+        try {
+            sslParams = setSSLParams(BaseApplication.getAppContext());
+            okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+            okHttpClient = getOkHttpClientBuilder().build();
+        }
         return new Retrofit.Builder()
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))     //json 自动解析最外层
