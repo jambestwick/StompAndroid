@@ -32,8 +32,8 @@ public interface IdeaApiService {
      *
      * @return
      */
-    @POST("/device/bind")
-    Observable<ApiResponse> bindDevice(@Body Map reqMap);
+    @GET("/cabinet/init")
+    Observable<String> bindDevice(@Query("key") String sixCode);
 
     /**
      * 获取验证码

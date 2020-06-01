@@ -2,20 +2,15 @@ package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.trello.rxlifecycle2.RxLifecycle;
-import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
-import com.yxytech.parkingcloud.baselibrary.http.common.SSLHelper;
+import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
@@ -27,17 +22,14 @@ import io.reactivex.CompletableTransformer;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
-import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
-import static ua.naiksoftware.stomp.dto.LifecycleEvent.Type.OPENED;
 
 /**
  * <p>文件描述：<p>

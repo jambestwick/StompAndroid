@@ -1,4 +1,4 @@
-package com.yxytech.parkingcloud.baselibrary.http.common;
+package com.yxytech.parkingcloud.baselibrary.http.https;
 
 import android.content.Context;
 

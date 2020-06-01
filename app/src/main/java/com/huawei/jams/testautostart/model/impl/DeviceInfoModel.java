@@ -49,27 +49,25 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     @Override
     public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack callBack) {
         HttpManager httpManager = new HttpManager(baseActivity);
-        Map<String, Object> reqMap = new HashMap<>();
-        reqMap.put("sixCode", sixCode);
-        httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(reqMap),
-                new DefaultObserver<ApiResponse>() {
+        httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(sixCode),
+                new DefaultObserver<String>() {
                     @Override
-                    public void onSuccess(ApiResponse response) {
+                    public void onSuccess(String response) {
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onSuccess:" + response);
                         if (response == null) {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
                         }
-                        switch (EnumResponseCode.getEnumByKey(response.getCode())) {
-                            case SUCCESS://绑定成功
-
-                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getData());
-                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getData());
-                                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response.getData());
-                                break;
-                            default:
-                                callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                                break;
-                        }
+//                        switch (EnumResponseCode.getEnumByKey(response.getCode())) {
+//                            case SUCCESS://绑定成功
+//
+//                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getData());
+//                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getData());
+//                                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response.getData());
+//                                break;
+//                            default:
+//                                callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+//                                break;
+//                        }
 
                     }
 
