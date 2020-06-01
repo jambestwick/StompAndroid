@@ -110,18 +110,16 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     }
 
     @Override
-    public void openBox(String deviceUuid, String sixCode, String token, StompCallBack callBack) {
+    public void openBox(String sixCode, StompCallBack callBack) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceUuid", deviceUuid);
-        jsonObject.addProperty("token", token);
-        jsonObject.addProperty("password", sixCode);
+        jsonObject.addProperty("openBoxCode", sixCode);
         StompUtil.getInstance().sendStomp(activity, lifecycleProvider, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
 
     }
 
     @Override
     public void subscribeBoxState(StompCallBack callBack) {
-        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE_RECEIVE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeBoxState onNext:" + stompMessage.toString());
@@ -153,7 +151,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
     @Override
     public void subscribeOpenBox(StompCallBack callBack) {
-        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX_RECEIVE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeOpenBox onNext:" + stompMessage);

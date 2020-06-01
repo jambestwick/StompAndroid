@@ -19,12 +19,12 @@ public interface IdeaApiService {
     String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
 
 
-    String APP_QUERY_VERSION = "/app/queryVersion";
-    String ADV_QUERY_VERSION = "/advise/queryVersion";
-    String DEVICE_BIND = "/device/bind";
-    String DEVICE_UPDATE_BOX_STATE = "/device/update/boxState";
-    String DEVICE_OPEN_BOX = "/device/openBox";
-    String DEVICE_QUERY_ALARM_PROP = "/device/query/alarmProp";
+    String APP_QUERY_VERSION = "/user/queue/apk";
+    String ADV_QUERY_VERSION = "/user/queue/ad";
+    String DEVICE_UPDATE_BOX_STATE = "/ws/cabinet/box-event";
+    String DEVICE_UPDATE_BOX_STATE_RECEIVE = "/user/queue/box-event";
+    String DEVICE_OPEN_BOX = "/ws/cabinet/ask-for-open-box";
+    String DEVICE_OPEN_BOX_RECEIVE = "/user/queue/ask-for-open-box";
 
 
     /**

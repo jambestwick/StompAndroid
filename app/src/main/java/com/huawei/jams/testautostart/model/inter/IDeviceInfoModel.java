@@ -29,10 +29,10 @@ public interface IDeviceInfoModel<T> {
     /**
      * 打开柜门
      *
-     * @param deviceUuid 设备编号
-     * @param token      令牌
+     *
+     * @param sixCode      openBoxCode
      ***/
-    void openBox(String deviceUuid, String sixCode, String token, StompCallBack<T> callBack);
+    void openBox(String sixCode, StompCallBack<T> callBack);
 
     /**
      * 订阅柜门状态
