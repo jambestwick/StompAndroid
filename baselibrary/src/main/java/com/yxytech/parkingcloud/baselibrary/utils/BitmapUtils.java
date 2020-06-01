@@ -118,12 +118,12 @@ public class BitmapUtils {
                                                int size, int color, int paddingRight, int paddingBottom) {
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(color);
-        paint.setTextSize(DensityUtil.dipToPx(context, size));
+        paint.setTextSize(DensityUtil.dip2px(context, size));
         Rect bounds = new Rect();
         paint.getTextBounds(text, 0, text.length(), bounds);
         return drawTextToBitmap(bitmap, text, name, ctx, text1, name1, ctx1, paint,
-                bitmap.getWidth() - bounds.width() - DensityUtil.dipToPx(context, paddingRight),
-                bitmap.getHeight() - DensityUtil.dipToPx(context, paddingBottom));
+                bitmap.getWidth() - bounds.width() - DensityUtil.dip2px(context, paddingRight),
+                bitmap.getHeight() - DensityUtil.dip2px(context, paddingBottom));
     }
 
     public static Bitmap drawTextToLeftTop(Context context, Bitmap bitmap, Long time, String deviceName, String berthCode, int size, int color, int paddingLeft, int paddingTop) {
@@ -132,7 +132,7 @@ public class BitmapUtils {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setShadowLayer(5, 1, 1, Color.BLACK);
         paint.setStrokeWidth(5);
-        paint.setTextSize(DensityUtil.dipToPx(context, size));//设置字符大小
+        paint.setTextSize(DensityUtil.dip2px(context, size));//设置字符大小
         paint.setTextAlign(Paint.Align.LEFT);//左对齐
         paint.setTypeface(Typeface.DEFAULT_BOLD);//设置字体类型
 //        paint.setMaskFilter(new BlurMaskFilter(10f, BlurMaskFilter.Blur.OUTER));
@@ -151,7 +151,7 @@ public class BitmapUtils {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setShadowLayer(5, 1, 1, Color.BLACK);
         paint.setStrokeWidth(5);
-        paint.setTextSize(DensityUtil.dipToPx(context, size));//设置字符大小
+        paint.setTextSize(DensityUtil.dip2px(context, size));//设置字符大小
         paint.setTextAlign(Paint.Align.LEFT);//左对齐
         paint.setTypeface(Typeface.DEFAULT_BOLD);//设置字体类型
 //        paint.setMaskFilter(new BlurMaskFilter(10f, BlurMaskFilter.Blur.OUTER));

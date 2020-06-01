@@ -100,11 +100,8 @@ public class BasePopupWindow {
             int[] position = new int[2];
             parent.getLocationInWindow(position);
 
-            //屏幕的坐标
-            int screen[] = DensityUtil.getScreenDispaly(context);
-
             //控件距离屏幕底部的距离
-            dis = screen[1] - position[1];
+            dis = DensityUtil.getScreenHeight(context) - position[1];
         }
         params.bottomMargin = dis;
     }

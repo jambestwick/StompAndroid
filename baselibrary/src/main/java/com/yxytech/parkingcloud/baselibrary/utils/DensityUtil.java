@@ -1,14 +1,11 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 public class DensityUtil {
 
-    public static float dip2px(Context context, float dpValue) {
-        float scale = context.getResources().getDisplayMetrics().density;
-        return dpValue * scale;
-    }
 
     /**
      * 获得状态栏高度
@@ -33,29 +30,80 @@ public class DensityUtil {
     /**
      * dip转px
      */
-    public static int dipToPx(Context context, float dip) {
-        return (int) (dip * context.getResources().getDisplayMetrics().density + 0.5f);
+    public static int dip2px(Context context, float dip) {
+        return (int) (dip * context.getResources().getDisplayMetrics().density);
     }
 
     /**
      * px转dip
      */
-    public static int pxToDip(Context context, float pxValue) {
+    public static int px2Dip(Context context, float pxValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (pxValue / scale + 0.5f);
     }
 
     /**
-     * 获取屏幕分辨率
+     * sp转px
      *
      * @param context
+     * @param spVal
      * @return
      */
-    public static int[] getScreenDispaly(Context context) {
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        int width = windowManager.getDefaultDisplay().getWidth();// 手机屏幕的宽度
-        int height = windowManager.getDefaultDisplay().getHeight();// 手机屏幕的高度
-        return new int[]{width, height};
+    public static int sp2px(Context context, float spVal) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                spVal, context.getResources().getDisplayMetrics());
     }
+
+    /**
+     * px转sp
+     *
+     * @param context
+     * @param pxVal
+     * @return
+     */
+    public static float px2sp(Context context, float pxVal) {
+        return (pxVal / context.getResources().getDisplayMetrics().scaledDensity);
+    }
+
+
+
+
+    /**
+     * 获取屏幕的宽度（像素）
+     */
+    public static int getScreenWidth(Context context) {
+        return context.getResources().getDisplayMetrics().widthPixels;//1080
+    }
+
+    /**
+     * 获取屏幕的宽度（dp）
+     */
+    public static int getScreenWidthDp(Context context) {
+        float scale = getScreenDensity(context);
+        return (int) (context.getResources().getDisplayMetrics().widthPixels / scale);//360
+    }
+
+    /**
+     * 获取屏幕的高度（像素）
+     */
+    public static int getScreenHeight(Context context) {
+        return context.getResources().getDisplayMetrics().heightPixels;//1776
+    }
+
+    /**
+     * 获取屏幕的高度（像素）
+     */
+    public static int getScreenHeightDp(Context context) {
+        float scale = getScreenDensity(context);
+        return (int) (context.getResources().getDisplayMetrics().heightPixels / scale);//592
+    }
+
+    /**
+     * 屏幕密度比例
+     */
+    public static float getScreenDensity(Context context) {
+        return context.getResources().getDisplayMetrics().density;//3
+    }
+
 
 }

@@ -72,8 +72,7 @@ public class PullSelPopupwindow {
             totalHeight += listItem.getMeasuredHeight();
 
         }
-        int[] screen = DensityUtil.getScreenDispaly(mContext);
-        int height = screen[1];// 手机屏幕的高度//- DensityUtil.dip2px(mContext, 60) - parent.getHeight()
+        int height = DensityUtil.getScreenHeight(mContext);// 手机屏幕的高度//- DensityUtil.dip2px(mContext, 60) - parent.getHeight()
         if (totalHeight >= height) {
             totalHeight = (int) (height - DensityUtil.dip2px(mContext, 20));
         } else {
