@@ -4,176 +4,179 @@
     <data>
 
         <variable
-                name="click"
-                type="android.view.View.OnClickListener"/>
+            name="click"
+            type="android.view.View.OnClickListener" />
     </data>
 
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
-                 android:keepScreenOn="true">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true">
+
         <LinearLayout
-                style="@style/style_layout_match_horizon_linear"
-                android:background="@mipmap/ic_app_bg">
+            style="@style/style_layout_match_horizon_linear"
+            android:background="@mipmap/ic_app_bg">
 
             <LinearLayout
-                    style="@style/style_layout_main_each_linear"
-                    android:layout_weight="6">
+                style="@style/style_layout_main_each_linear"
+                android:layout_weight="6">
 
-                <LinearLayout
-                        style="@style/style_layout_six_input_linear">
-
-                    <TextView
-                            android:id="@+id/main_six_code_1_tv"
-                            style="@style/style_six_input_number"/>
+                <LinearLayout style="@style/style_layout_six_input_linear">
 
                     <TextView
-                            android:id="@+id/main_six_code_2_tv"
-                            style="@style/style_six_input_number"/>
+                        android:id="@+id/main_six_code_1_tv"
+                        style="@style/style_six_input_number" />
 
                     <TextView
-                            android:id="@+id/main_six_code_3_tv"
-                            style="@style/style_six_input_number"/>
+                        android:id="@+id/main_six_code_2_tv"
+                        style="@style/style_six_input_number" />
 
                     <TextView
-                            android:id="@+id/main_six_code_4_tv"
-                            style="@style/style_six_input_number"/>
+                        android:id="@+id/main_six_code_3_tv"
+                        style="@style/style_six_input_number" />
 
                     <TextView
-                            android:id="@+id/main_six_code_5_tv"
-                            style="@style/style_six_input_number"/>
+                        android:id="@+id/main_six_code_4_tv"
+                        style="@style/style_six_input_number" />
 
                     <TextView
-                            android:id="@+id/main_six_code_6_tv"
-                            style="@style/style_six_input_number"/>
+                        android:id="@+id/main_six_code_5_tv"
+                        style="@style/style_six_input_number" />
+
+                    <TextView
+                        android:id="@+id/main_six_code_6_tv"
+                        style="@style/style_six_input_number" />
 
                 </LinearLayout>
 
 
-                <View style="@style/style_space_10_dp_vertical"/>
+                <View style="@style/style_space_10_dp_vertical" />
 
                 <TextView
-                        android:id="@+id/main_prompt_six_code_tv"
-                        style="@style/style_six_input_dialog_number"/>
+                    android:id="@+id/main_prompt_six_code_tv"
+                    style="@style/style_six_input_dialog_number" />
 
-                <View style="@style/style_space_120_dp_vertical"/>
+                <View style="@style/style_space_120_dp_vertical" />
 
                 <TextView
-                        android:id="@+id/main_customer_service_phone_tv"
-                        style="@style/style_service_phone"/>
+                    android:id="@+id/main_customer_service_phone_tv"
+                    style="@style/style_service_phone" />
             </LinearLayout>
 
             <LinearLayout
-                    style="@style/style_layout_main_each_linear"
-                    android:layout_weight="5">
+                style="@style/style_layout_main_each_linear"
+                android:layout_weight="5">
 
-                <LinearLayout
-                        style="@style/style_layout_number_total_linear">
+                <LinearLayout style="@style/style_layout_number_total_linear">
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                                android:id="@+id/main_code_1_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_1"/>
+                            android:id="@+id/main_code_1_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_1" />
 
                         <TextView
-                                android:id="@+id/main_code_2_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_2"/>
+                            android:id="@+id/main_code_2_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_2" />
 
                         <TextView
-                                android:id="@+id/main_code_3_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_3"/>
+                            android:id="@+id/main_code_3_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_3" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                                android:id="@+id/main_code_4_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_4"/>
+                            android:id="@+id/main_code_4_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_4" />
 
                         <TextView
-                                android:id="@+id/main_code_5_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_5"/>
+                            android:id="@+id/main_code_5_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_5" />
 
                         <TextView
-                                android:id="@+id/main_code_6_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_6"/>
+                            android:id="@+id/main_code_6_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_6" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                                android:id="@+id/main_code_7_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_7"/>
+                            android:id="@+id/main_code_7_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_7" />
 
                         <TextView
-                                android:id="@+id/main_code_8_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_8"/>
+                            android:id="@+id/main_code_8_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_8" />
 
                         <TextView
-                                android:id="@+id/main_code_9_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_9"/>
+                            android:id="@+id/main_code_9_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_9" />
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                                android:id="@+id/main_code_delete_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle_red"
-                                android:onClick="@{click}"
-                                android:text="@string/delete"/>
+                            android:id="@+id/main_code_delete_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle_red"
+                            android:onClick="@{click}"
+                            android:text="@string/delete" />
 
                         <TextView
-                                android:id="@+id/main_code_0_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle"
-                                android:onClick="@{click}"
-                                android:text="@string/number_0"/>
+                            android:id="@+id/main_code_0_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle"
+                            android:onClick="@{click}"
+                            android:text="@string/number_0" />
 
                         <TextView
-                                android:id="@+id/main_code_ok_tv"
-                                style="@style/style_circle_number_button"
-                                android:background="@drawable/bg_circle_green"
-                                android:onClick="@{click}"
-                                android:text="@string/ok"/>
+                            android:id="@+id/main_code_ok_tv"
+                            style="@style/style_circle_number_button"
+                            android:background="@drawable/bg_circle_green"
+                            android:onClick="@{click}"
+                            android:text="@string/ok" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
         <!--广告播放-->
-        <VideoView android:id="@+id/main_advise_video"
-                   android:layout_width="match_parent"
-                   android:layout_height="match_parent"
-                   android:visibility="invisible"/>
+        <VideoView
+            android:id="@+id/main_advise_video"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" />
         <!--开柜门、谢谢使用、动画播放-->
-        <ImageView android:id="@+id/main_dialog_anim_iv"
-                   android:layout_width="match_parent"
-                   android:layout_height="match_parent"/>
+        <ImageView
+            android:id="@+id/main_dialog_anim_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </FrameLayout>
 </layout>

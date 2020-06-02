@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -118,6 +119,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             binding.mainAdviseVideo.setVisibility(View.VISIBLE);
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
+            binding.mainAdviseVideo.setOnPreparedListener(mp -> mp.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING));
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 binding.mainAdviseVideo.setVideoPath(path);
                 //或 //mVideoView.setVideoPath(Uri.parse(_filePath));

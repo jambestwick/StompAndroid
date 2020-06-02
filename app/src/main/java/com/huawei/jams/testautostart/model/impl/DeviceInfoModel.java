@@ -50,9 +50,9 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack callBack) {
         HttpManager httpManager = new HttpManager(baseActivity);
         httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(sixCode),
-                new DefaultObserver<String>() {
+                new DefaultObserver<Object>() {
                     @Override
-                    public void onSuccess(String response) {
+                    public void onSuccess(Object response) {
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onSuccess:" + response);
                         if (response == null) {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);

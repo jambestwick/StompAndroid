@@ -33,7 +33,7 @@ public interface IdeaApiService {
      * @return
      */
     @GET("/cabinet/init")
-    Observable<String> bindDevice(@Query("key") String sixCode);
+    Observable<Object> bindDevice(@Query("key") String sixCode);
 
     /**
      * 获取验证码
