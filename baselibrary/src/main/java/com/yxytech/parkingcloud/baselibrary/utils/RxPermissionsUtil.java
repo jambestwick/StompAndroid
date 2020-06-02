@@ -63,36 +63,25 @@ public class RxPermissionsUtil {
         return new RxPermissions(activity).shouldShowRequestPermissionRationale(activity, permissions);
     }
 
+    /**
+     * 检查指定的权限集
+     **/
     public static void check(final Activity activity, final String[] permissions,
                              final String title, /*final String cancelText, String ensureText, */
                              final OnPermissionRequestListener listener) {
         new RxPermissions(activity).requestEach(permissions)
-                .subscribe(new Consumer<Permission>() {
-                    @Override
-                    public void accept(Permission permission) throws Exception {
-                        if (permission.granted) {//已获取权限
-                            //要延时 ，否则显示弹窗会报错
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (listener != null) listener.onSucceed();
-                                }
-                            }, 100);
-                        } else if (permission.shouldShowRequestPermissionRationale) {//是否需要向用户解释为何申请权限
-                            showPermissionDialog(activity, "", title, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    check(activity, permissions, title, listener);
-                                }
-                            });
-                        } else {//被拒绝，弹窗提示
-                            showPermissionDialog(activity, "", title, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (listener != null) listener.onFailed();
-                                }
-                            });
-                        }
+                .subscribe(permission -> {
+                    if (permission.granted) {//已获取权限
+                        //要延时 ，否则显示弹窗会报错
+                        mHandler.postDelayed(() -> {
+                            if (listener != null) listener.onSucceed();
+                        }, 100);
+                    } else if (permission.shouldShowRequestPermissionRationale) {//是否需要向用户解释为何申请权限
+                        showPermissionDialog(activity, "", title, (dialog, which) -> check(activity, permissions, title, listener));
+                    } else {//被拒绝，弹窗提示
+                        showPermissionDialog(activity, "", title, (dialog, which) -> {
+                            if (listener != null) listener.onFailed();
+                        });
                     }
                 });
     }

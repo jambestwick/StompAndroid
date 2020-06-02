@@ -6,26 +6,36 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import com.yxytech.parkingcloud.baselibrary.http.https.HttpsUtils;
 import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
+import com.yxytech.parkingcloud.baselibrary.http.https.SSLSocketFactoryCompat;
+import com.yxytech.parkingcloud.baselibrary.http.https.Tls12SocketFactory;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 import io.reactivex.functions.Consumer;
 import io.reactivex.plugins.RxJavaPlugins;
-import okhttp3.*;
+import okhttp3.Cache;
+import okhttp3.ConnectionSpec;
+import okhttp3.OkHttpClient;
+import okhttp3.TlsVersion;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
-import javax.net.ssl.*;
 
 /**
  * Retrofit实例化类
@@ -81,10 +91,35 @@ public class RetrofitService {
 
     public static Retrofit.Builder getRetrofitBuilder(String baseUrl) {
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").serializeNulls().create();
+        SSLContext sc = null;
+        try {
+            sc = SSLContext.getInstance("TLSv1.2");
+            sc.init(null, null, null);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        }
+        ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_2)
+                .build();
+
+        List<ConnectionSpec> specs = new ArrayList<>();
+        specs.add(cs);
+        specs.add(ConnectionSpec.COMPATIBLE_TLS);
+        specs.add(ConnectionSpec.CLEARTEXT);
+
+
         OkHttpClient okHttpClient = RetrofitService
                 .getOkHttpClientBuilder()
-                .sslSocketFactory(createSSLSocketFactory(), new TrustAllManager())
-                .connectionSpecs(Collections.singletonList(lowVerSupportSSL()))
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .retryOnConnectionFailure(true)
+                .cache(null)
+                //.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
+                //.sslSocketFactory(new SSLSocketFactoryCompat(trustAllManager),trustAllManager)
+                .sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()))
+                .connectionSpecs(specs)
                 .build();
         return new Retrofit.Builder()
                 .client(okHttpClient)
@@ -94,12 +129,10 @@ public class RetrofitService {
     }
 
     private static SSLSocketFactory createSSLSocketFactory() {
-
         SSLSocketFactory sSLSocketFactory = null;
-
         try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, new TrustManager[]{new TrustAllManager()}, new SecureRandom());
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, null, null);
             sSLSocketFactory = sc.getSocketFactory();
         } catch (Exception e) {
             LogUtil.e(TAG, "createSSLSocketFactory: " + e.getMessage());
@@ -126,17 +159,5 @@ public class RetrofitService {
         }
 
     }
-
-    private static ConnectionSpec lowVerSupportSSL() {
-        return new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                //.tlsVersions(TlsVersion.TLS_1_2)
-                .tlsVersions(TlsVersion.SSL_3_0)
-                .cipherSuites(
-                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-                        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-                        CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256)
-                .build();
-    }
-
 
 }
