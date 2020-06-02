@@ -1,6 +1,7 @@
 package com.yxytech.parkingcloud.baselibrary.http.common;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -121,8 +122,10 @@ public class RetrofitService {
                 .sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()))
                 .connectionSpecs(specs)
                 .build();
+
+
         return new Retrofit.Builder()
-                .client(okHttpClient)
+                .client(getNewHttpClient())
                 .addConverterFactory(GsonConverterFactory.create(gson))     //json 自动解析最外层
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(baseUrl);
@@ -158,6 +161,43 @@ public class RetrofitService {
             return new X509Certificate[]{};
         }
 
+    }
+
+    public static OkHttpClient.Builder enableTls12OnPreLollipop(OkHttpClient.Builder client) {
+        if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT < 22) {
+            try {
+                SSLContext sc = SSLContext.getInstance("TLSv1.2");
+                sc.init(null, null, null);
+                client.sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()));
+
+                ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                        .tlsVersions(TlsVersion.TLS_1_2)
+                        .build();
+
+                List<ConnectionSpec> specs = new ArrayList<>();
+                specs.add(cs);
+                specs.add(ConnectionSpec.COMPATIBLE_TLS);
+                specs.add(ConnectionSpec.CLEARTEXT);
+
+                client.connectionSpecs(specs);
+            } catch (Exception exc) {
+                Log.e("OkHttpTLSCompat", "Error while setting TLS 1.2", exc);
+            }
+        }
+
+        return client;
+    }
+    private static OkHttpClient getNewHttpClient() {
+        OkHttpClient.Builder client = new OkHttpClient.Builder()
+                .followRedirects(true)
+                .followSslRedirects(true)
+                .retryOnConnectionFailure(true)
+                .cache(null)
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS);
+
+        return enableTls12OnPreLollipop(client).build();
     }
 
 }
