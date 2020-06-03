@@ -74,7 +74,6 @@ public abstract class DefaultObserver<T> implements Observer<T> {
     }
 
 
-
     @Override
     public void onComplete() {
     }
@@ -85,7 +84,6 @@ public abstract class DefaultObserver<T> implements Observer<T> {
      * @param response 服务器返回的数据
      */
     abstract public void onSuccess(T response);
-
     /**
      * 服务器返回数据，但响应码不为200
      *
@@ -107,7 +105,8 @@ public abstract class DefaultObserver<T> implements Observer<T> {
         ToastUtil.showToast(BaseApplication.getAppContext(), cause);
     }
 
-    public void onFinish(){}
+    public void onFinish() {
+    }
 
     /**
      * 请求异常

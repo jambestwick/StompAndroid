@@ -2,6 +2,7 @@ package com.yxytech.parkingcloud.baselibrary.http;
 
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
+import com.yxytech.parkingcloud.baselibrary.http.common.FileDownLoadObserver;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import io.reactivex.Observable;
@@ -49,6 +50,19 @@ public class HttpManager {
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(baseActivity.bindUntilEvent(ActivityEvent.DESTROY))
                 .compose(ProgressUtils.applyProgressBar(baseActivity, msg))
+                .subscribe(defaultObserver);
+    }
+
+    /**
+     * Http 下载
+     *
+     * **/
+    public void doHttpDownload( Observable observable, DefaultObserver defaultObserver) {
+        defaultObserver.setContext(baseActivity);
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(baseActivity.bindUntilEvent(ActivityEvent.DESTROY))
+                .compose(ProgressUtils.applyProgressBar(baseActivity))
                 .subscribe(defaultObserver);
     }
 

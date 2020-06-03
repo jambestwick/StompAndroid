@@ -1,5 +1,8 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
+import okhttp3.ResponseBody;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -21,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Observable;
 
 /**
  * <pre>
@@ -1287,4 +1291,5 @@ public class FileUtils {
         if (lastPoi == -1 || lastSep >= lastPoi) return "";
         return filePath.substring(lastPoi + 1);
     }
+    
 }

@@ -171,7 +171,7 @@ public class RetrofitService {
                 client.sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()));
 
                 ConnectionSpec cs = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
-                        .tlsVersions(TlsVersion.TLS_1_2)
+                        .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_1)
                         .build();
 
                 List<ConnectionSpec> specs = new ArrayList<>();
@@ -187,6 +187,7 @@ public class RetrofitService {
 
         return client;
     }
+
     private static OkHttpClient getNewHttpClient() {
         OkHttpClient.Builder client = new OkHttpClient.Builder()
                 .followRedirects(true)
