@@ -1,6 +1,9 @@
 package com.huawei.jams.testautostart.api;
 
 
+import com.google.gson.JsonObject;
+import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
+
 import io.reactivex.Observable;
 import okhttp3.ResponseBody;
 import retrofit2.http.*;
@@ -33,7 +36,7 @@ public interface IdeaApiService {
      * @return
      */
     @GET("/cabinet/init")
-    Observable<Object> bindDevice(@Query("key") String sixCode);
+    Observable<BindDeviceVO> bindDevice(@Query("key") String sixCode);
 
     /**
      * 获取验证码

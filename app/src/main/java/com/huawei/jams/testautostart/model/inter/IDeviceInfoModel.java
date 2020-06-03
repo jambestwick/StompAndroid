@@ -29,8 +29,7 @@ public interface IDeviceInfoModel<T> {
     /**
      * 打开柜门
      *
-     *
-     * @param sixCode      openBoxCode
+     * @param sixCode openBoxCode
      ***/
     void openBox(String sixCode, StompCallBack<T> callBack);
 

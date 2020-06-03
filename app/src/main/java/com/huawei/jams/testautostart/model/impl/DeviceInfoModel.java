@@ -2,6 +2,7 @@ package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
@@ -11,6 +12,7 @@ import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.api.RetrofitHelper;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
+import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
@@ -50,24 +52,19 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack callBack) {
         HttpManager httpManager = new HttpManager(baseActivity);
         httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(sixCode),
-                new DefaultObserver<Object>() {
+                new DefaultObserver<BindDeviceVO>() {
                     @Override
-                    public void onSuccess(Object response) {
+                    public void onSuccess(BindDeviceVO response) {
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onSuccess:" + response);
                         if (response == null) {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
                         }
-//                        switch (EnumResponseCode.getEnumByKey(response.getCode())) {
-//                            case SUCCESS://绑定成功
-//
-//                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getData());
-//                                PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getData());
-//                                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response.getData());
-//                                break;
-//                            default:
-//                                callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-//                                break;
-//                        }
+                        if (response.getErrcode() == 1) {
+                            callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                        }
+                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getCabinetNumber());
+                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getCabinetPassword());
+                        callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response);
 
                     }
 

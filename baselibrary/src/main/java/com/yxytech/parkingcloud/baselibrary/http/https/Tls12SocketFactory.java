@@ -17,9 +17,9 @@ import javax.net.ssl.SSLSocketFactory;
  * <p>邮箱：jambestwick@126.com<p>
  */
 public class Tls12SocketFactory extends SSLSocketFactory {
-    private static final String[] TLS_SUPPORT_VERSION = {"TLSv1.2"};
+    private static final String[] TLS_SUPPORT_VERSION = {"TLSv1.1", "TLSv1.2"};
 
-    final SSLSocketFactory delegate;
+    private final SSLSocketFactory delegate;
 
     public Tls12SocketFactory(SSLSocketFactory base) {
         this.delegate = base;
