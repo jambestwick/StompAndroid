@@ -9,7 +9,10 @@ package com.huawei.jams.testautostart.view.inter;
  * <p>邮箱：jambestwick@126.com<p>
  */
 public interface IAppInfoView {
-    void onTopicAppInfoSuccess(String url);
+    void onTopicAppInfoSuccess(String url,String version);
 
     void onTopicAppInfoFail(String reason);
+
+    void onDownloadSuccess();
+    void onDownloadFail(String reason);
 }

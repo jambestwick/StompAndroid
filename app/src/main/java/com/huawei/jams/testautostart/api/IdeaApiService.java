@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
 
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
 import okhttp3.ResponseBody;
 import retrofit2.http.*;
 
@@ -70,11 +71,12 @@ public interface IdeaApiService {
 
 
     /**
-     * 下载文件
-     **/
+     /**
+     * 大文件官方建议用 @Streaming 来进行注解，不然会出现IO异常，小文件可以忽略不注入
+     */
     @Streaming
     @GET
-    Observable<ResponseBody> download(@Url String url);
+    Observable<ResponseBody> download(@NonNull @Url String url);
 //
 //    @Multipart
 //    @POST("/efss/attendance/uploadUserCheck")

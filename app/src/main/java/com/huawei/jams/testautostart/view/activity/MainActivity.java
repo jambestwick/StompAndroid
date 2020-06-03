@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private void initViews() {
         deviceInfoPresenter = new DeviceInfoPresenter(this, this, this);
-        appInfoPresenter = new AppInfoPresenter(this);
+        appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this);
         binding.setClick(v -> {
             switch (v.getId()) {
@@ -161,13 +161,22 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     @Override
-    public void onTopicAppInfoSuccess(String url) {
-        //订阅的app推送过来下载app数据库存储，并更新安装
-
+    public void onTopicAppInfoSuccess(String url, String newVer) {
+        appInfoPresenter.downloadApp(url, newVer);
     }
 
     @Override
     public void onTopicAppInfoFail(String reason) {
+    }
+
+    @Override
+    public void onDownloadSuccess() {
+
+    }
+
+    @Override
+    public void onDownloadFail(String reason) {
+
     }
 
     @Override

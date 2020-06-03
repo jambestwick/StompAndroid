@@ -103,24 +103,20 @@ public class StompUtil {
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
                                     connectListener.onConnectState(EnumConnectState.CONNECT);
-                                    //dialogUtils.dismissProgress();
                                     //topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
                                     LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
                                     connectListener.onConnectState(EnumConnectState.CLOSE);
-                                   // dialogUtils.dismissProgress();
                                     break;
                                 case CLOSED:
                                     mNeedConnect = true;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
                                     connectListener.onConnectState(EnumConnectState.CLOSE);
-                                    //dialogUtils.dismissProgress();
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
-                                   // dialogUtils.dismissProgress();
                                     break;
 
                             }

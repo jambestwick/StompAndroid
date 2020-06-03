@@ -42,8 +42,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
-        deviceInfoPresenter.bindDevice(this,this,"666666");
-        //initDevice();
+        initDevice();
     }
 
     private void initViews() {
@@ -215,8 +214,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                     binding.welKeyboardLl.setVisibility(View.VISIBLE);
                     sDialog.cancel();
                 }).show();
-//        turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
-//        StompUtil.getInstance().createStompClient(this, "100000000000001", "AAAAAAAAAAAAAAAAAAAA_1", this);
     }
 
 
@@ -353,11 +350,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
         if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
             startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-        }
-//        else{
-//            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-//        }
-        else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
+        } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
             switch (deviceBindState) {
                 case NEW:
                     turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", this.getString(R.string.retry), null);

@@ -4,6 +4,7 @@ import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
+import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
 import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
@@ -34,17 +35,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void bindDevice(BaseActivity activity, LifecycleProvider lifecycleProvider, String sixCode) {
-        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, new HttpCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case ApiResponse.SUCCESS:
-                        deviceInfoView.onBindDeviceSuccess(((Map) data).get(Constants.ACCOUNT).toString(), ((Map) data).get(Constants.PASSWORD).toString());
-                        break;
-                    default:
-                        deviceInfoView.onBindDeviceFail(msg);
-                        break;
-                }
+        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, (HttpCallBack<BindDeviceVO>) (errorCode, msg, data) -> {
+            if (errorCode == ApiResponse.SUCCESS) {
+                deviceInfoView.onBindDeviceSuccess(data.getCabinetNumber(), data.getCabinetPassword());
+            } else {
+                deviceInfoView.onBindDeviceFail(msg);
             }
         });
 

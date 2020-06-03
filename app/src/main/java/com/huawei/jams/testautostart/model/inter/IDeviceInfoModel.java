@@ -7,13 +7,13 @@ import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 
 import java.util.Date;
 
-public interface IDeviceInfoModel<T> {
+public interface IDeviceInfoModel<E> {
     /**
      * 初始化设备，http需要网络交互后台设备绑定
      *
-     * @param deviceUuid 设备uuid
+     * @param sixCode 设备sixCode
      **/
-    void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String deviceUuid, HttpCallBack<T> callBack);
+    <T> void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack<T> callBack);
 
 
     /**
@@ -23,7 +23,7 @@ public interface IDeviceInfoModel<T> {
      * @param boxId      箱子编号
      * @param boxState   箱子状态
      ***/
-    void uploadBoxState(String deviceUuid, String deviceType, String boxId, String boxState, StompCallBack<T> callBack);
+    <T> void uploadBoxState(String deviceUuid, String deviceType, String boxId, String boxState, StompCallBack<T> callBack);
 
 
     /**
@@ -31,17 +31,17 @@ public interface IDeviceInfoModel<T> {
      *
      * @param sixCode openBoxCode
      ***/
-    void openBox(String sixCode, StompCallBack<T> callBack);
+    <T>  void openBox(String sixCode, StompCallBack<T> callBack);
 
     /**
      * 订阅柜门状态
      */
-    void subscribeBoxState(StompCallBack<T> callBack);
+    <T>  void subscribeBoxState(StompCallBack<T> callBack);
 
     /**
      * 订阅打开柜门
      */
-    void subscribeOpenBox(StompCallBack<T> callBack);
+    <T> void subscribeOpenBox(StompCallBack<T> callBack);
 
 
 }

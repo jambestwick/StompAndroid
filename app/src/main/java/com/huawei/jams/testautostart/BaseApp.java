@@ -1,19 +1,12 @@
 package com.huawei.jams.testautostart;
 
-import android.os.Environment;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.entity.Advise;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.sql.language.Select;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
-
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 
 /**
  * <p>文件描述：<p>

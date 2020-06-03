@@ -58,9 +58,11 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onSuccess:" + response);
                         if (response == null) {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                            return;
                         }
                         if (response.getErrcode() == 1) {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                            return;
                         }
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getCabinetNumber());
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getCabinetPassword());

@@ -2,23 +2,35 @@ package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
 import com.google.gson.GsonBuilder;
-import com.huawei.jams.testautostart.BaseApp;
-import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.entity.AppInfo;
+import com.huawei.jams.testautostart.api.RetrofitHelper;
+import com.huawei.jams.testautostart.entity.vo.AppVO;
 import com.huawei.jams.testautostart.model.inter.IAppInfoModel;
+import com.huawei.jams.testautostart.presenter.inter.HttpDownloadCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
+import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.StompUtil;
+import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
+import com.yxytech.parkingcloud.baselibrary.http.common.FileDownLoadObserver;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
+import io.reactivex.functions.Function;
 import io.reactivex.subscribers.DisposableSubscriber;
+import okhttp3.ResponseBody;
 import ua.naiksoftware.stomp.dto.StompMessage;
+
+import java.io.File;
 
 
 public class AppInfoModel implements IAppInfoModel {
     private static final String TAG = AppInfoModel.class.getName();
+    private BaseActivity baseActivity;
+
+    public AppInfoModel(BaseActivity activity) {
+        this.baseActivity = activity;
+    }
 
     @Override
     public void subscribeVersion(StompCallBack callBack) {
@@ -28,16 +40,8 @@ public class AppInfoModel implements IAppInfoModel {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());
                 //返回数据
                 stompMessage.getPayload();
-                ApiResponse<AppInfo> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                if (null != apiResponse.getData()) {
-                    String versionName = PackageUtils.getVersionName(BaseApp.getAppContext());
-                    if (!versionName.equals(apiResponse.getData().getAppName())) {
-                        //下载
-
-                    }
-
-                }
-                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
+                AppVO appVO = new GsonBuilder().create().fromJson(stompMessage.getPayload(), AppVO.class);
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), appVO);
             }
 
             @Override
@@ -55,4 +59,40 @@ public class AppInfoModel implements IAppInfoModel {
 
         });
     }
+
+    @Override
+    public void downloadApp(String url, HttpDownloadCallBack callBack) {
+        HttpManager httpManager = new HttpManager(baseActivity);
+        FileDownLoadObserver<File> fileFileDownLoadObserver = new FileDownLoadObserver<File>() {
+            @Override
+            public void onDownLoadSuccess(File file) {
+                callBack.onDownLoadSuccess(file);
+
+            }
+
+            @Override
+            public void onDownLoadFail(Throwable throwable) {
+                callBack.onDownLoadFail(throwable);
+            }
+
+            @Override
+            public void onProgress(int progress, long total) {
+                callBack.onProgress(progress, total);
+            }
+
+            @Override
+            public void onSuccess(File response) {
+
+            }
+        };
+
+        httpManager.doHttpDeal(RetrofitHelper.getApiService().download(url).map(new Function<ResponseBody, Object>() {
+                    @Override
+                    public Object apply(ResponseBody responseBody) throws Exception {
+                        return fileFileDownLoadObserver.saveFile(responseBody, Constants.APP_DIR, url.substring(url.lastIndexOf("/") + 1));
+                    }
+                })
+                , fileFileDownLoadObserver);
+    }
+
 }

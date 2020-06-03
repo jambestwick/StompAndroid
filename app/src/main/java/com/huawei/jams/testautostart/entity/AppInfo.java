@@ -35,6 +35,15 @@ public class AppInfo extends BaseModel implements Serializable {
     @Column(name = "force_update")
     private boolean forceUpdate;
 
+    public AppInfo(UUID uuid, String appVersion, Date createTime, String url, String filePath, boolean forceUpdate) {
+        this.uuid = uuid;
+        this.appVersion = appVersion;
+        this.createTime = createTime;
+        this.url = url;
+        this.filePath = filePath;
+        this.forceUpdate = forceUpdate;
+    }
+
     public UUID getUuid() {
         return uuid;
     }
@@ -102,5 +111,16 @@ public class AppInfo extends BaseModel implements Serializable {
                 ", filePath='" + filePath + '\'' +
                 ", forceUpdate=" + forceUpdate +
                 '}';
+    }
+
+    public enum EnumForceUpdate {
+        FORCE("1", true), NOT_FORCE("2", false);
+        public String key;
+        public boolean value;
+
+        EnumForceUpdate(String key, boolean value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 }
