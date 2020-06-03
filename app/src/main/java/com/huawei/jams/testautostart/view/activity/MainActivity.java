@@ -180,7 +180,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     @Override
-    public void onTopicAdviseSuccess(String url) {
+    public void onTopicAdviseSuccess(String url,String newVer) {
+        advisePresenter.downloadAdvise(url,newVer);
         //订阅的广告推送过来下载广告,数据库存储，并替换
         //Advise.Builder.anAdvise().advDate(new Date()).build().save
     }

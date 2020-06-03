@@ -8,6 +8,7 @@ import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
 import com.huawei.jams.testautostart.entity.Advise_Table;
+import com.huawei.jams.testautostart.entity.vo.AdviseVO;
 import com.huawei.jams.testautostart.model.inter.IAdviseModel;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.StompUtil;
@@ -27,14 +28,8 @@ public class AdviseModel implements IAdviseModel {
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());
                 stompMessage.getPayload();
-                ApiResponse<Advise> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
-                if (!currentAdv.getAdvVersion().equals(apiResponse.getData().getAdvVersion())) {
-                    //下载广告
-                    Advise advise = new Advise();
-                    //advise.save();
-                }
-                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
+                AdviseVO adviseVO = new GsonBuilder().create().fromJson(stompMessage.getPayload(), AdviseVO.class);
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), adviseVO);
             }
 
             @Override

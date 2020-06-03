@@ -2,11 +2,15 @@ package com.huawei.jams.testautostart.presenter.impl;
 
 import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.entity.Advise;
+import com.huawei.jams.testautostart.entity.Advise_Table;
+import com.huawei.jams.testautostart.entity.vo.AdviseVO;
 import com.huawei.jams.testautostart.model.impl.AdviseModel;
 import com.huawei.jams.testautostart.model.inter.IAdviseModel;
 import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 public class AdvisePresenter implements IAdvisePresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
@@ -20,13 +24,19 @@ public class AdvisePresenter implements IAdvisePresenter {
 
     @Override
     public void topicAdviseInfo() {
-        mAdviseModel.subscribeVersion( new StompCallBack() {
+        mAdviseModel.subscribeVersion(new StompCallBack<AdviseVO>() {
             @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
+            public void onCallBack(int errorCode, String msg, AdviseVO data) {
                 switch (errorCode) {
                     case ApiResponse.SUCCESS:
-                        ((Advise) data).getFilePath();
-                        adviseView.onTopicAdviseSuccess(((Advise) data).getFilePath());
+                        Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
+                        if (null == currentAdv) {
+                            adviseView.onTopicAdviseSuccess(data.getDownloadUrl(), data.getVersion());
+                        } else {
+                            if (StrUtil.compareVerName(data.getVersion(), currentAdv.getAdvVersion())) {
+                                adviseView.onTopicAdviseSuccess(data.getDownloadUrl(), data.getVersion());
+                            }
+                        }
                         break;
                     default:
                         adviseView.onTopicAdviseFail(msg);
@@ -34,6 +44,11 @@ public class AdvisePresenter implements IAdvisePresenter {
                 }
             }
         });
+
+    }
+
+    @Override
+    public void downloadAdvise(String url, String newVer) {
 
     }
 }

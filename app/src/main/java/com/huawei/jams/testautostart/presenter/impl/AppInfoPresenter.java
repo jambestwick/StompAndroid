@@ -15,6 +15,7 @@ import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.yxytech.parkingcloud.baselibrary.http.common.FileDownLoadObserver;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 import java.io.File;
 import java.util.Date;
@@ -36,7 +37,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
             if (errorCode == ApiResponse.SUCCESS) {
                 if (null != data) {
                     String versionName = PackageUtils.getVersionName(BaseApp.getAppContext());
-                    if (compareVerName(data.getVersion(), versionName)) {
+                    if (StrUtil.compareVerName(data.getVersion(), versionName)) {
                         appInfoView.onTopicAppInfoSuccess(data.getDownloadUrl(), data.getVersion());
                     }
                 }
@@ -70,21 +71,6 @@ public class AppInfoPresenter implements IAppInfoPresenter {
         });
     }
 
-    /**
-     * @param ver1 大于ver2 @return true
-     **/
-    private boolean compareVerName(String ver1, String ver2) {
-        if (!TextUtils.isEmpty(ver1) && !TextUtils.isEmpty(ver2)) {
-            String verStr1 = ver1.replaceAll(".", "");
-            String verStr2 = ver2.replaceAll(".", "");
-            if (TextUtils.isDigitsOnly(verStr1) && TextUtils.isDigitsOnly(verStr2)) {
-                int verInt1 = Integer.parseInt(ver1);
-                int verInt2 = Integer.parseInt(ver2);
-                return verInt1 > verInt2;
-            }
-        }
-        return false;
-    }
 
 
 }

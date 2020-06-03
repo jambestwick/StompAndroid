@@ -573,6 +573,21 @@ public class StrUtil {
 //    public static void main(String[] args) {
 //        System.out.println(dateTimeFormat("2012-3-2 12:2:20"));
 //    }
+    /**
+     * @param ver1 大于ver2 @return true
+     **/
+    public static boolean compareVerName(String ver1, String ver2) {
+        if (!TextUtils.isEmpty(ver1) && !TextUtils.isEmpty(ver2)) {
+            String verStr1 = ver1.replaceAll(".", "");
+            String verStr2 = ver2.replaceAll(".", "");
+            if (TextUtils.isDigitsOnly(verStr1) && TextUtils.isDigitsOnly(verStr2)) {
+                int verInt1 = Integer.parseInt(ver1);
+                int verInt2 = Integer.parseInt(ver2);
+                return verInt1 > verInt2;
+            }
+        }
+        return false;
+    }
 
 
 }

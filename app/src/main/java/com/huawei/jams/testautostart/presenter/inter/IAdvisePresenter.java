@@ -5,4 +5,6 @@ public interface IAdvisePresenter {
      * 订阅广告推送
      */
     void topicAdviseInfo();
+
+    void downloadAdvise(String url, String newVer);
 }
