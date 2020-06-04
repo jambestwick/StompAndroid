@@ -35,6 +35,9 @@ public class AppInfo extends BaseModel implements Serializable {
     @Column(name = "force_update")
     private boolean forceUpdate;
 
+    public AppInfo() {
+    }
+
     public AppInfo(UUID uuid, String appVersion, Date createTime, String url, String filePath, boolean forceUpdate) {
         this.uuid = uuid;
         this.appVersion = appVersion;

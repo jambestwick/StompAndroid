@@ -56,27 +56,16 @@ public interface IdeaApiService {
 //    @POST("/webUILogin")
 //    Observable<UserLoginResp> login(@Body UserLoginReq user);
 
-    /**
-     * 查询广告版本文件
-     **/
-    @POST("/queryAdvVersion")
-    Observable<ApiResponse> queryAdvVersion();
-
 
     /**
-     * 查询应用信息
-     */
-    @POST("/queryAppInfo")
-    Observable<ApiResponse> queryAppInfo();
-
-
-    /**
-     /**
+     * /**
+     * @param url 下载地址
      * 大文件官方建议用 @Streaming 来进行注解，不然会出现IO异常，小文件可以忽略不注入
      */
     @Streaming
     @GET
     Observable<ResponseBody> download(@NonNull @Url String url);
+
 //
 //    @Multipart
 //    @POST("/efss/attendance/uploadUserCheck")

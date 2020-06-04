@@ -11,11 +11,11 @@ import java.util.TimerTask;
 
 public interface IDeviceInfoPresenter {
 
-    void bindDevice(BaseActivity activity, LifecycleProvider lifecycleProvider, String sixCode);
+    void bindDevice(BaseActivity activity,  String sixCode);
 
-    void uploadBoxState(String boxId, String boxState);
+    void uploadBoxState(int boxState);
 
-    void openBox(String password);
+    void openBox(String sixCode);
 
 
     void patrolBoxState(Timer timer, TimerTask timerTask);

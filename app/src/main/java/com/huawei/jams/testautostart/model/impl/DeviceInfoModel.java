@@ -2,62 +2,54 @@ package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.huawei.jams.testautostart.BaseApp;
-import com.huawei.jams.testautostart.api.ApiResponse;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.api.RetrofitHelper;
 import com.huawei.jams.testautostart.entity.DeviceInfo;
-import com.huawei.jams.testautostart.entity.vo.AlarmPropVO;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
+import com.huawei.jams.testautostart.entity.vo.BoxStateVO;
+import com.huawei.jams.testautostart.entity.vo.OpenBoxVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
+import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.StompUtil;
-import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
 import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
-import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
-import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 import io.reactivex.subscribers.DisposableSubscriber;
 import ua.naiksoftware.stomp.dto.StompMessage;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class DeviceInfoModel implements IDeviceInfoModel {
     private static final String TAG = DeviceInfoModel.class.getName();
     private BaseActivity activity;
-    private LifecycleProvider lifecycleProvider;
 
-    public DeviceInfoModel(BaseActivity activity, LifecycleProvider lifecycleProvider) {
+    public DeviceInfoModel(BaseActivity activity) {
         this.activity = activity;
-        this.lifecycleProvider = lifecycleProvider;
     }
 
     /**
      * http请求方式
      **/
     @Override
-    public void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack callBack) {
-        HttpManager httpManager = new HttpManager(baseActivity);
+    public void bindDevice( String sixCode, HttpCallBack callBack) {
+        HttpManager httpManager = new HttpManager(activity);
         httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(sixCode),
                 new DefaultObserver<BindDeviceVO>() {
                     @Override
                     public void onSuccess(BindDeviceVO response) {
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",bindDevice onSuccess:" + response);
                         if (response == null) {
-                            callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                            callBack.onCallBack(EnumResponseCode.COMMON_BIZ_ERROR.getKey(), EnumResponseCode.COMMON_BIZ_ERROR.getValue(), null);
                             return;
                         }
                         if (response.getErrcode() == 1) {
@@ -74,7 +66,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                     public void onError(Throwable e) {
                         super.onError(e);
                         LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onError:" + Log.getStackTraceString(e));
-                        callBack.onCallBack(ErrorCode.RESPONSE_FAILED, e.toString(), null);
+                        callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), e);
 
                     }
 
@@ -98,13 +90,20 @@ public class DeviceInfoModel implements IDeviceInfoModel {
      * 上传设备状态
      */
     @Override
-    public void uploadBoxState(String deviceUuid, String deviceType, String boxId, String boxState, StompCallBack callBack) {
+    public void uploadBoxState(int boxState, StompCallBack stompCallBack) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("deviceUuid", deviceUuid);
-        jsonObject.addProperty("deviceType", deviceType);
-        jsonObject.addProperty("boxId", boxId);
         jsonObject.addProperty("boxState", boxState);
-        StompUtil.getInstance().sendStomp(activity, lifecycleProvider, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString());
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString(), new StompSendBack() {
+            @Override
+            public void onSendSuccess() {
+                stompCallBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), null);
+            }
+
+            @Override
+            public void onSendError(Throwable throwable) {
+                stompCallBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), throwable);
+            }
+        });
 
     }
 
@@ -112,7 +111,17 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     public void openBox(String sixCode, StompCallBack callBack) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("openBoxCode", sixCode);
-        StompUtil.getInstance().sendStomp(activity, lifecycleProvider, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString());
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString(), new StompSendBack() {
+            @Override
+            public void onSendSuccess() {
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), null);
+            }
+
+            @Override
+            public void onSendError(Throwable throwable) {
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), throwable);
+            }
+        });
 
     }
 
@@ -122,17 +131,15 @@ public class DeviceInfoModel implements IDeviceInfoModel {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeBoxState onNext:" + stompMessage.toString());
-                ApiResponse<Boolean> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                if (apiResponse == null) {
+                BoxStateVO boxStateVO = new GsonBuilder().create().fromJson(stompMessage.getPayload(), BoxStateVO.class);
+                if (boxStateVO == null) {
                     callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                    return;
                 }
-                switch (EnumResponseCode.getEnumByKey(apiResponse.getCode())) {
-                    case SUCCESS:
-                        callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
-                        break;
-                    default:
-                        callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                        break;
+                if (null != DeviceInfo.EnumBoxState.getEnumByKey(boxStateVO.getEventcode())) {
+                    callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), boxStateVO);
+                } else {
+                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), boxStateVO);
                 }
             }
 
@@ -155,23 +162,22 @@ public class DeviceInfoModel implements IDeviceInfoModel {
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeOpenBox onNext:" + stompMessage);
                 //返回开箱编号
-                ApiResponse<String> apiResponse = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ApiResponse.class);
-                if (apiResponse == null) {
+                OpenBoxVO openBoxVO = new GsonBuilder().create().fromJson(stompMessage.getPayload(), OpenBoxVO.class);
+                if (openBoxVO == null) {
                     callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                    return;
                 }
-                switch (EnumResponseCode.getEnumByKey(apiResponse.getCode())) {
-                    case SUCCESS:
-                        callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), apiResponse.getData());
-                        break;
-                    default:
-                        callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
-                        break;
+                if (StrUtil.isNotBlank(openBoxVO.getBoxNumber())) {
+                    callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), openBoxVO.getBoxNumber());
+                } else {
+                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
                 }
             }
 
             @Override
             public void onError(Throwable t) {
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeOpenBox onError:" + Log.getStackTraceString(t));
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t);
             }
 
             @Override

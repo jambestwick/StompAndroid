@@ -2,7 +2,7 @@ package com.huawei.jams.testautostart.entity.vo;
 
 import java.io.Serializable;
 
-public class AppVO implements Serializable {
+public class AppVO extends ErrorCode implements Serializable {
     private static final long serialVersionUID = -6517202888601037493L;
     private String version;
     private String downloadUrl;

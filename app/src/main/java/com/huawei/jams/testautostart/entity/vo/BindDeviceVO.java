@@ -10,11 +10,10 @@ import java.io.Serializable;
  * <p>版本号：${VERSION}<p>
  * <p>邮箱：jambestwick@126.com<p>
  */
-public class BindDeviceVO implements Serializable {
+public class BindDeviceVO extends ErrorCode implements Serializable {
     private static final long serialVersionUID = 2884491148162865166L;
-    private int errcode ;
-    private String  cabinetNumber ;
-    private String  cabinetPassword ;
+    private String cabinetNumber;
+    private String cabinetPassword;
 
     public int getErrcode() {
         return errcode;

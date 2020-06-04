@@ -1,7 +1,7 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
 import com.huawei.jams.testautostart.BaseApp;
-import com.huawei.jams.testautostart.api.ApiResponse;
+import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
@@ -12,13 +12,9 @@ import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
-import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
-import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,15 +24,15 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
 
-    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity, LifecycleProvider lifecycleProvider) {
-        this.mDeviceInfoModel = new DeviceInfoModel(activity, lifecycleProvider);
+    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity) {
+        this.mDeviceInfoModel = new DeviceInfoModel(activity);
         this.deviceInfoView = deviceInfoView;
     }
 
     @Override
-    public void bindDevice(BaseActivity activity, LifecycleProvider lifecycleProvider, String sixCode) {
-        mDeviceInfoModel.bindDevice(activity, lifecycleProvider, sixCode, (HttpCallBack<BindDeviceVO>) (errorCode, msg, data) -> {
-            if (errorCode == ApiResponse.SUCCESS) {
+    public void bindDevice(BaseActivity activity, String sixCode) {
+        mDeviceInfoModel.bindDevice(sixCode, (HttpCallBack<BindDeviceVO>) (errorCode, msg, data) -> {
+            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
                 deviceInfoView.onBindDeviceSuccess(data.getCabinetNumber(), data.getCabinetPassword());
             } else {
                 deviceInfoView.onBindDeviceFail(msg);
@@ -46,27 +42,29 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     @Override
-    public void uploadBoxState(String boxId, String boxState) {
-        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-        mDeviceInfoModel.uploadBoxState(deviceUuid, "deviceType", boxId, boxState, new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case ApiResponse.SUCCESS:
-                        deviceInfoView.onUploadBoxStateSuccess();
-                        break;
-                    default:
-                        deviceInfoView.onUploadBoxStateFail(msg);
-                        break;
-                }
+    public void uploadBoxState(int boxState) {
+        mDeviceInfoModel.uploadBoxState(boxState, (errorCode, msg, data) -> {
+            switch (errorCode) {
+                case 0://EnumResponseCode.SUCCESS.getKey()
+                    deviceInfoView.onUploadBoxStateSuccess();
+                    break;
+                default:
+                    deviceInfoView.onUploadBoxStateFail(msg);
+                    break;
             }
         });
 
     }
 
     @Override
-    public void openBox(String password) {
-        deviceInfoView.onOpenBoxFail(password);
+    public void openBox(String sixCode) {
+        mDeviceInfoModel.openBox(sixCode, new StompCallBack() {
+            @Override
+            public void onCallBack(int errorCode, String msg, Object data) {
+
+            }
+        });
+        deviceInfoView.onOpenBoxFail(sixCode);
 //        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
 //        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
 //        mDeviceInfoModel.openBox(deviceUuid, password, token, (errorCode, msg, data) -> {
@@ -168,17 +166,14 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void topicOpenBox() {
-        mDeviceInfoModel.subscribeOpenBox(new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case ApiResponse.SUCCESS:
-                        deviceInfoView.onOpenBoxSuccess((String) data);
-                        break;
-                    default:
-                        deviceInfoView.onOpenBoxFail(msg);
-                        break;
-                }
+        mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, data) -> {
+            switch (errorCode) {
+                case 0://EnumResponseCode.SUCCESS.getKey()
+                    deviceInfoView.onOpenBoxSuccess(data);
+                    break;
+                default:
+                    deviceInfoView.onOpenBoxFail(msg);
+                    break;
             }
         });
     }
@@ -189,7 +184,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             @Override
             public void onCallBack(int errorCode, String msg, Object data) {
                 switch (errorCode) {
-                    case ApiResponse.SUCCESS:
+                    case 0://EnumResponseCode.SUCCESS.getKey()
                         deviceInfoView.onUploadBoxStateSuccess();
                         break;
                     default:

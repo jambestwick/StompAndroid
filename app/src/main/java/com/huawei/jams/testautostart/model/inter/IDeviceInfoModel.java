@@ -2,6 +2,7 @@ package com.huawei.jams.testautostart.model.inter;
 
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
+import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 
@@ -13,17 +14,16 @@ public interface IDeviceInfoModel<E> {
      *
      * @param sixCode 设备sixCode
      **/
-    <T> void bindDevice(BaseActivity baseActivity, LifecycleProvider lifecycleProvider, String sixCode, HttpCallBack<T> callBack);
+    <T> void bindDevice(String sixCode, HttpCallBack<T> callBack);
 
 
     /**
      * 上传柜门状态
      *
-     * @param deviceUuid 设备uuid
-     * @param boxId      箱子编号
-     * @param boxState   箱子状态
+     * @param boxState 箱子状态
+     *                 事件代码 0：开⻔ 1：关⻔
      ***/
-    <T> void uploadBoxState(String deviceUuid, String deviceType, String boxId, String boxState, StompCallBack<T> callBack);
+    <T> void uploadBoxState(int boxState, StompCallBack<T> callBack);
 
 
     /**
@@ -31,12 +31,12 @@ public interface IDeviceInfoModel<E> {
      *
      * @param sixCode openBoxCode
      ***/
-    <T>  void openBox(String sixCode, StompCallBack<T> callBack);
+    <T> void openBox(String sixCode, StompCallBack<T> callBack);
 
     /**
      * 订阅柜门状态
      */
-    <T>  void subscribeBoxState(StompCallBack<T> callBack);
+    <T> void subscribeBoxState(StompCallBack<T> callBack);
 
     /**
      * 订阅打开柜门

@@ -46,7 +46,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     }
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -61,7 +61,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                     break;
                 case R.id.wel_code_ok_tv:
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.bindDevice(this, this, inputCode);
+                        deviceInfoPresenter.bindDevice(this, inputCode);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
@@ -76,19 +76,19 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
 
 
     private void setData() {
-        if (!StrUtil.isEmpty(hintMessage)) {
+        if (StrUtil.isNotBlank(hintMessage)) {
             binding.welHintTv.setVisibility(View.VISIBLE);
             binding.setHint(hintMessage);
         } else {
             binding.welHintTv.setVisibility(View.GONE);
         }
-        if (!StrUtil.isEmpty(btnMessage)) {
+        if (StrUtil.isNotBlank(btnMessage)) {
             binding.welConfirmBtn.setVisibility(View.VISIBLE);
             binding.setButton(btnMessage);
         } else {
             binding.welConfirmBtn.setVisibility(View.GONE);
         }
-        if (!StrUtil.isEmpty(cancelMessage)) {
+        if (StrUtil.isNotBlank(cancelMessage)) {
             binding.welCancelBtn.setVisibility(View.VISIBLE);
             binding.setCancel(cancelMessage);
         } else {
@@ -119,7 +119,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
         if (step == EnumDeviceCheck.STEP_3.key) {
             String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
-            if (!StrUtil.isEmpty(account) && !StrUtil.isEmpty(password)) {//不是空说明已经注册过
+            if (StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password)) {//不是空说明已经注册过
                 StompUtil.getInstance().createStompClient(this, account, password, this);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
                 return;

@@ -80,21 +80,21 @@ public class DeviceInfo implements Serializable {
     }
 
     public enum EnumBoxState {
-        OPEN("1", "打开"),
-        CLOSE("2", "关闭");
-        private String key;
+        OPEN(0, "打开"),
+        CLOSE(1, "关闭");
+        private int key;
         private String value;
 
-        EnumBoxState(String key, String value) {
+        EnumBoxState(int key, String value) {
             this.key = key;
             this.value = value;
         }
 
-        public String getKey() {
+        public int getKey() {
             return key;
         }
 
-        public void setKey(String key) {
+        public void setKey(int key) {
             this.key = key;
         }
 
@@ -106,13 +106,10 @@ public class DeviceInfo implements Serializable {
             this.value = value;
         }
 
-        public static EnumBoxState getEnumByKey(String key) {
-            if (key == null || key.equals("")) {
-                return null;
-            }
+        public static EnumBoxState getEnumByKey(int key) {
 
             for (EnumBoxState enumBoxState : EnumBoxState.values()) {
-                if (enumBoxState.getKey().equals(key)) {
+                if (enumBoxState.getKey()==key) {
                     return enumBoxState;
                 }
             }

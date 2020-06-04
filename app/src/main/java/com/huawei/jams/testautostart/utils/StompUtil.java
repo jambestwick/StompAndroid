@@ -6,7 +6,10 @@ import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
+import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
+import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
 import com.trello.rxlifecycle2.LifecycleProvider;
+import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
 import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
@@ -136,13 +139,15 @@ public class StompUtil {
      * 发送信息
      ***/
     @SuppressLint("CheckResult")
-    public void sendStomp(BaseActivity activity, LifecycleProvider lifecycleProvider, String destPath, String jsonMsg) {
+    public void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
             mStompClient.send(destPath, jsonMsg)
-                    .compose(applySchedulers(activity, lifecycleProvider))
+                    .compose(applySchedulers(activity))
                     .subscribe(() -> {
+                        sendBack.onSendSuccess();
                         Log.d(TAG, "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
                     }, throwable -> {
+                        sendBack.onSendError(throwable);
                         Log.e(TAG, "Error send STOMP " + destPath + ",data:" + jsonMsg, throwable);
                     });
         }
@@ -188,9 +193,9 @@ public class StompUtil {
                 });
     }
 
-    private CompletableTransformer applySchedulers(Activity activity, LifecycleProvider lifecycleProvider) {
+    private CompletableTransformer applySchedulers(BaseActivity activity) {
         return upstream -> upstream
-                .compose(lifecycleProvider.bindToLifecycle())
+                .compose(activity.bindUntilEvent(ActivityEvent.DESTROY))
                 .compose(ProgressUtils.applyProgressBarStomp1(activity))
                 .unsubscribeOn(Schedulers.newThread())
                 .subscribeOn(Schedulers.io())

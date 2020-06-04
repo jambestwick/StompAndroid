@@ -25,9 +25,12 @@ import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -60,9 +63,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
-        advisePresenter = new AdvisePresenter(this);
+        advisePresenter = new AdvisePresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.main_code_delete_tv://删除前一位
@@ -170,24 +173,38 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     @Override
-    public void onDownloadSuccess() {
+    public void onDownloadAppSuccess(String filePath) {
+        //自动替换安装
+        PackageUtils.installApk(this, filePath);
+    }
+
+    @Override
+    public void onDownloadAppFail(String reason) {
 
     }
 
     @Override
-    public void onDownloadFail(String reason) {
-
-    }
-
-    @Override
-    public void onTopicAdviseSuccess(String url,String newVer) {
-        advisePresenter.downloadAdvise(url,newVer);
+    public void onTopicAdviseSuccess(String url, String newVer) {
+        advisePresenter.downloadAdvise(url, newVer);
         //订阅的广告推送过来下载广告,数据库存储，并替换
         //Advise.Builder.anAdvise().advDate(new Date()).build().save
     }
 
     @Override
     public void onTopicAdviseFail(String reason) {
+
+    }
+
+    @Override
+    public void onDownloadAdviseSuccess(String filePath) {
+        //解压并播放
+        binding.mainAdviseVideo.setVideoPath(filePath);
+        binding.mainAdviseVideo.start();//播放
+
+    }
+
+    @Override
+    public void onDownloadAdviseFail(String reason) {
 
     }
 
@@ -239,7 +256,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 } else {//打开成功,上传状态
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
-                    deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.OPEN.getKey());
+                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
                 }
@@ -247,7 +264,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             case QUERY_BATCH:
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
-                    deviceInfoPresenter.uploadBoxState(boxId[0], DeviceInfo.EnumBoxState.CLOSE.getKey());
+                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeCountTask.cancel();
                     playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
                 }

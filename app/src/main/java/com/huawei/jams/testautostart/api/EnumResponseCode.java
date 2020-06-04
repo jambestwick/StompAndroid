@@ -5,7 +5,8 @@ public enum EnumResponseCode {
     COMMON_BIZ_ERROR(1, "COMMON_BIZ_ERROR"),
     TIMEOUT_ERROR(2, "TIMEOUT_ERROR"),
     PERMISSION_DENIED(3, "PERMISSION_DENIED"),
-    FAILED(4, "FAILED");
+    FAILED(4, "FAILED"),
+    EXCEPTION(5, "EXCEPTION");
     private int key;
     private String value;
 

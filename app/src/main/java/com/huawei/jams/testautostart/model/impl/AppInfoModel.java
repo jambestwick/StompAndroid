@@ -48,7 +48,7 @@ public class AppInfoModel implements IAppInfoModel {
             public void onError(Throwable t) {
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeVersion onError:" + Log.getStackTraceString(t));
                 //错误异常
-                callBack.onCallBack(ErrorCode.PARSE_JSON_ERROR, t.toString(), null);
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t);
             }
 
             @Override

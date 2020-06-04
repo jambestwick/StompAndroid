@@ -43,6 +43,18 @@ public class Advise extends BaseModel implements Serializable {
     @Column(name = "modify_time")
     private Date modifyTime;
 
+    public Advise() {
+    }
+
+    public Advise(UUID uuid, String advVersion, Date advDate, String filePath, String fileName, Date createTime) {
+        this.uuid = uuid;
+        this.advVersion = advVersion;
+        this.advDate = advDate;
+        this.filePath = filePath;
+        this.fileName = fileName;
+        this.createTime = createTime;
+    }
+
     public UUID getUuid() {
         return uuid;
     }
