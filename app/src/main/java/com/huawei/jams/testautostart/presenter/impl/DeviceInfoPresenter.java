@@ -24,13 +24,13 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
 
-    public DeviceInfoPresenter(IDeviceInfoView deviceInfoView, BaseActivity activity) {
+    public DeviceInfoPresenter(BaseActivity activity, IDeviceInfoView deviceInfoView) {
         this.mDeviceInfoModel = new DeviceInfoModel(activity);
         this.deviceInfoView = deviceInfoView;
     }
 
     @Override
-    public void bindDevice(BaseActivity activity, String sixCode) {
+    public void bindDevice(String sixCode) {
         mDeviceInfoModel.bindDevice(sixCode, (HttpCallBack<BindDeviceVO>) (errorCode, msg, data) -> {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
                 deviceInfoView.onBindDeviceSuccess(data.getCabinetNumber(), data.getCabinetPassword());
@@ -44,13 +44,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     @Override
     public void uploadBoxState(int boxState) {
         mDeviceInfoModel.uploadBoxState(boxState, (errorCode, msg, data) -> {
-            switch (errorCode) {
-                case 0://EnumResponseCode.SUCCESS.getKey()
-                    deviceInfoView.onUploadBoxStateSuccess();
-                    break;
-                default:
-                    deviceInfoView.onUploadBoxStateFail(msg);
-                    break;
+            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
+                deviceInfoView.onUploadBoxStateSuccess();
+            } else {
+                deviceInfoView.onUploadBoxStateFail(msg);
             }
         });
 
@@ -58,27 +55,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void openBox(String sixCode) {
-        mDeviceInfoModel.openBox(sixCode, new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-
+        mDeviceInfoModel.openBox(sixCode, (StompCallBack<String>) (errorCode, msg, data) -> {
+            if (errorCode != EnumResponseCode.SUCCESS.getKey()) {
+                deviceInfoView.onOpenBoxFail(msg);
             }
         });
-        deviceInfoView.onOpenBoxFail(sixCode);
-//        String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-//        String token = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.TOKEN);
-//        mDeviceInfoModel.openBox(deviceUuid, password, token, (errorCode, msg, data) -> {
-//            switch (errorCode) {
-//                case ApiResponse.SUCCESS:
-//                    deviceInfoView.onOpenBoxSuccess((String) data);
-//                    break;
-//                default:
-//                    deviceInfoView.onOpenBoxFail(msg);
-//                    break;
-//            }
-//        });
-
-
     }
 
     @Override
@@ -166,31 +147,22 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     @Override
     public void topicOpenBox() {
-        mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, data) -> {
-            switch (errorCode) {
-                case 0://EnumResponseCode.SUCCESS.getKey()
-                    deviceInfoView.onOpenBoxSuccess(data);
-                    break;
-                default:
-                    deviceInfoView.onOpenBoxFail(msg);
-                    break;
+        mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, sixCode) -> {
+            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
+                deviceInfoView.onOpenBoxSuccess(sixCode);
+            }else {
+                deviceInfoView.onOpenBoxFail(msg);
             }
         });
     }
 
     @Override
     public void topicUploadBoxState() {
-        mDeviceInfoModel.subscribeBoxState(new StompCallBack() {
-            @Override
-            public void onCallBack(int errorCode, String msg, Object data) {
-                switch (errorCode) {
-                    case 0://EnumResponseCode.SUCCESS.getKey()
-                        deviceInfoView.onUploadBoxStateSuccess();
-                        break;
-                    default:
-                        deviceInfoView.onUploadBoxStateFail(msg);
-                        break;
-                }
+        mDeviceInfoModel.subscribeBoxState((StompCallBack<Integer>) (errorCode, msg, eventCode) -> {
+            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
+                deviceInfoView.onUploadBoxStateSuccess();
+            } else {
+                deviceInfoView.onUploadBoxStateFail(msg);
             }
         });
 

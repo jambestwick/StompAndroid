@@ -61,7 +61,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                     break;
                 case R.id.wel_code_ok_tv:
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.bindDevice(this, inputCode);
+                        deviceInfoPresenter.bindDevice(inputCode);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));

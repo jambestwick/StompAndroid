@@ -13,7 +13,20 @@ import android.widget.Toast;
 
 import com.yxytech.parkingcloud.baselibrary.R;
 
-public class ToastUtil {
+/**
+ * <pre>
+ *     author: Blankj
+ *     blog  : http://blankj.com
+ *     time  : 2016/09/29
+ *     desc  : utils about toast
+ * </pre>
+ */
+public final class ToastUtil {
+
+    private ToastUtil() {
+        throw new UnsupportedOperationException("u can't instantiate me...");
+    }
+
     /**
      * 上下文.
      */
@@ -62,7 +75,7 @@ public class ToastUtil {
      */
     public static void showToast(Context context, String text) {
         mContext = context;
-        if (!StrUtil.isEmpty(text)) {
+        if (!StrUtil.isSpace(text)) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         }
 

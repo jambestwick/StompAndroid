@@ -41,7 +41,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
      * http请求方式
      **/
     @Override
-    public void bindDevice( String sixCode, HttpCallBack callBack) {
+    public void bindDevice(String sixCode, HttpCallBack callBack) {
         HttpManager httpManager = new HttpManager(activity);
         httpManager.doHttpDeal(RetrofitHelper.getApiService().bindDevice(sixCode),
                 new DefaultObserver<BindDeviceVO>() {
@@ -96,7 +96,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {
-                stompCallBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), null);
+                stompCallBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), boxState);
             }
 
             @Override
@@ -114,12 +114,12 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {
-                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), null);
+                callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), sixCode);
             }
 
             @Override
             public void onSendError(Throwable throwable) {
-                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), throwable);
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), throwable.getMessage());
             }
         });
 
@@ -137,15 +137,16 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                     return;
                 }
                 if (null != DeviceInfo.EnumBoxState.getEnumByKey(boxStateVO.getEventcode())) {
-                    callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), boxStateVO);
+                    callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), boxStateVO.getEventcode());
                 } else {
-                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), boxStateVO);
+                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
                 }
             }
 
             @Override
             public void onError(Throwable t) {
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeBoxState onError:" + Log.getStackTraceString(t));
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), null);
             }
 
             @Override
@@ -177,7 +178,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
             @Override
             public void onError(Throwable t) {
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeOpenBox onError:" + Log.getStackTraceString(t));
-                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t);
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t.getMessage());
             }
 
             @Override

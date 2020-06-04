@@ -15,13 +15,6 @@ import java.util.regex.Pattern;
 
 public class StrUtil {
 
-    public static final String YEAR = "yyyy";
-    public static final String YEAR_MONTH = "yyyy-MM";
-    public static final String DATE = "yyyy-MM-dd";
-    public static final String TIME = "yyyy-MM-dd HH:mm:ss";
-    public static final String MILLI_TIME = "yyyy-MM-dd HH:mm:ss SSS";
-    public static final String HOUR_TIME = "HH:mm:ss";
-
     /**
      * 描述：将null转化为“”.
      *
@@ -35,20 +28,6 @@ public class StrUtil {
         return str.trim();
     }
 
-    /**
-     * 描述：判断一个字符串是否为null或空值.
-     *
-     * @param str 指定的字符串
-     * @return true or false
-     */
-    public static boolean isEmpty(String str) {
-        return str == null || str.trim().length() == 0;
-    }
-
-    public static boolean isNotEmpty(String str) {
-        return !isEmpty(str);
-    }
-
     public static boolean isBlank(String str) {
         int strLen;
         if (str != null && (strLen = str.length()) != 0) {
@@ -57,7 +36,6 @@ public class StrUtil {
                     return false;
                 }
             }
-
             return true;
         } else {
             return true;
@@ -108,7 +86,7 @@ public class StrUtil {
         int valueLength = 0;
         String chinese = "[\u0391-\uFFE5]";
         /* 获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1 */
-        if (!isEmpty(str)) {
+        if (!isSpace(str)) {
             for (int i = 0; i < str.length(); i++) {
                 /* 获取一个字符 */
                 String temp = str.substring(i, i + 1);
@@ -130,7 +108,7 @@ public class StrUtil {
     public static int strLength(String str) {
         int valueLength = 0;
         String chinese = "[\u0391-\uFFE5]";
-        if (!isEmpty(str)) {
+        if (!isSpace(str)) {
             //获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1
             for (int i = 0; i < str.length(); i++) {
                 //获取一个字符
@@ -281,7 +259,7 @@ public class StrUtil {
     public static Boolean isChinese(String str) {
         Boolean isChinese = true;
         String chinese = "[\u0391-\uFFE5]";
-        if (!isEmpty(str)) {
+        if (!isSpace(str)) {
             //获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1
             for (int i = 0; i < str.length(); i++) {
                 //获取一个字符
@@ -305,7 +283,7 @@ public class StrUtil {
     public static Boolean isContainChinese(String str) {
         Boolean isChinese = false;
         String chinese = "[\u0391-\uFFE5]";
-        if (!isEmpty(str)) {
+        if (!isSpace(str)) {
             //获取字段值的长度，如果含中文字符，则每个中文字符长度为2，否则为1
             for (int i = 0; i < str.length(); i++) {
                 //获取一个字符
@@ -391,7 +369,7 @@ public class StrUtil {
     public static String dateTimeFormat(String dateTime) {
         StringBuilder sb = new StringBuilder();
         try {
-            if (isEmpty(dateTime)) {
+            if (isSpace(dateTime)) {
                 return null;
             }
             String[] dateAndTime = dateTime.split(" ");
@@ -496,7 +474,7 @@ public class StrUtil {
      * @return 截取后的字符串
      */
     public static String cutStringFromChar(String str1, String str2, int offset) {
-        if (isEmpty(str1)) {
+        if (isSpace(str1)) {
             return "";
         }
         int start = str1.indexOf(str2);
@@ -573,6 +551,7 @@ public class StrUtil {
 //    public static void main(String[] args) {
 //        System.out.println(dateTimeFormat("2012-3-2 12:2:20"));
 //    }
+
     /**
      * @param ver1 大于ver2 @return true
      **/

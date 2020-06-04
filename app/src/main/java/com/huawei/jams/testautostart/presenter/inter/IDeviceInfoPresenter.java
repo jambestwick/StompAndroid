@@ -11,7 +11,7 @@ import java.util.TimerTask;
 
 public interface IDeviceInfoPresenter {
 
-    void bindDevice(BaseActivity activity,  String sixCode);
+    void bindDevice(String sixCode);
 
     void uploadBoxState(int boxState);
 
