@@ -168,7 +168,7 @@
             </LinearLayout>
         </LinearLayout>
         <!--广告播放-->
-        <VideoView
+        <com.huawei.jams.testautostart.view.widget.CustomerVideoView
             android:id="@+id/main_advise_video"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
