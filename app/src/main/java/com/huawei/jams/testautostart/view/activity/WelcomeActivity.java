@@ -350,6 +350,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
         if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
             startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            finish();
         } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
             switch (deviceBindState) {
                 case NEW:

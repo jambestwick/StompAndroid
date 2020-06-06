@@ -20,7 +20,7 @@ public class Constants {
     public static final long ONE_MILL_SECOND = 1000L;
     public static final long PATROL_INTERVAL_MILL_SECOND = 5 * ONE_MILL_SECOND;//巡检间隔时间
     public static final long DELAY_ADVISE_MILL_SECOND = 2 * ONE_MILL_SECOND;//延时播放广告
-    public static final long ANIMA_DURATION_MILL_SECOND = 5 * ONE_MILL_SECOND;//动画播放时间
+    public static final long ANIMA_DURATION_MILL_SECOND =  ONE_MILL_SECOND;//动画播放时间
 
     public static final String APP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "app";
     public static final String ADVISE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "advise";

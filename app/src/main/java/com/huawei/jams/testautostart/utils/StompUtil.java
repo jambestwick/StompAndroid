@@ -1,26 +1,15 @@
 package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.util.Log;
-
-import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
-import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
-import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.reactivex.CompletableTransformer;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -31,6 +20,10 @@ import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 
@@ -91,12 +84,13 @@ public class StompUtil {
 
     @SuppressLint("CheckResult")
     private void connect(BaseActivity activity, String userName, String password, StompConnectListener connectListener) throws IOException {
-        SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
-        OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
+        //SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
+        OkHttpClient okHttpClient = RetrofitService.getNewHttpClient();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
         mStompClient.lifecycle()
-                .compose(ProgressUtils.applyProgressBarStomp(activity))
+                //.compose(ProgressUtils.applyProgressBarStomp(activity))
+                //.compose(ProgressUtils.applyProgressBarStomp(activity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(lifecycleEvent -> {
@@ -142,7 +136,8 @@ public class StompUtil {
     public void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
             mStompClient.send(destPath, jsonMsg)
-                    .compose(applySchedulers(activity))
+                    //.compose(applySchedulers(activity))
+                    //.compose((CompletableTransformer) RxLoading.create())
                     .subscribe(() -> {
                         sendBack.onSendSuccess();
                         Log.d(TAG, "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
