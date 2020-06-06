@@ -20,6 +20,7 @@ import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
@@ -79,14 +80,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
                     //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
                     if (inputCode.length() == 6) {
-                        if (inputCode.equals("999999")) {
-                            //
-                            ToastUtil.showInCenter(this, this.getString(R.string.back_server_password_invalid_retry));
-                            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-
-                        } else {
-                            deviceInfoPresenter.openBox(inputCode);
-                        }
+                        deviceInfoPresenter.openBox(inputCode);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
@@ -99,19 +93,21 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
         });
 
-        binding.mainVideoRl.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                binding.mainVideoRl.setVisibility(View.GONE);
-                if (binding.mainAdviseVideo.isPlaying()) {
-                    binding.mainAdviseVideo.pause();
-                }
-                return false;
+        binding.mainVideoRl.setOnTouchListener((v, event) -> {
+            binding.mainVideoRl.setVisibility(View.GONE);
+            if (binding.mainAdviseVideo.isPlaying()) {
+                binding.mainAdviseVideo.pause();
             }
+            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+            return false;
         });
     }
 
     private void initNetData() {
+        StompUtil.getInstance().setConnectListener(enumConnectState -> {
+            LogUtil.d(TAG, "stomp Connect response" + enumConnectState);
+
+        });
         appInfoPresenter.topicAppInfo();
         advisePresenter.topicAdviseInfo();
         deviceInfoPresenter.topicOpenBox();
@@ -213,39 +209,47 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     }
 
+    @Override
+    public void onSendOpenBoxSuccess() {
+
+    }
 
     @Override
-    public void onOpenBoxSuccess(String boxId) {
+    public void onSendOpenBoxFail(String reason) {
+        startAnim(R.mipmap.bg_hint_net_work_error);
+    }
+
+    @Override
+    public void onReceiveOpenBoxSuccess(String boxId) {
         KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, this);
     }
 
     @Override
-    public void onOpenBoxFail(String reason) {//密码错误，请重新输入，确定 提示框（非全屏）
+    public void onReceiveOpenBoxFail(String reason) {
         //后台返回打开失败
         ToastUtil.showInCenter(this, this.getString(R.string.back_server_password_invalid_retry));
         deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
         //startAnim(R.mipmap.bg_hint_net_work_error);
     }
 
-
     @Override
-    public void onUploadBoxStateSuccess() {
-    }
-
-    @Override
-    public void onUploadBoxStateFail(String reason) {
-
+    public void onSendBoxStateSuccess() {
 
     }
 
     @Override
-    public void onBindDeviceSuccess(String account, String password) {
+    public void onSendBoxStateFail(String reason) {
+        startAnim(R.mipmap.bg_hint_net_work_error);
+    }
+
+    @Override
+    public void onReceiveBoxStateSuccess(int state) {
 
     }
 
     @Override
-    public void onBindDeviceFail(String reason) {
-
+    public void onReceiveBoxStateFail(String reason) {
+        ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_state_invalid));
     }
 
 

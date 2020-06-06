@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart;
 
 import android.os.Environment;
+import android.util.Log;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -8,6 +9,8 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import io.reactivex.plugins.RxJavaPlugins;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +32,10 @@ public class BaseApp extends BaseApplication {
         super.onCreate();
         FlowManager.init(this);//初始化dbflow
         ExceptionHelper.getInstance().init();//初始化未知异常捕获
+        RxJavaPlugins.setErrorHandler(throwable -> {
+            //异常处理
+            LogUtil.e(this.getClass().getName(), "setErrorHandler:" + Log.getStackTraceString(throwable));
+        });
         initVideo();
     }
 
@@ -38,8 +45,8 @@ public class BaseApp extends BaseApplication {
     }
 
     private void initVideo() {
-        List adviseList = SQLite.select().from(Advise.class).queryList();
-        if (adviseList == null || adviseList.size() <= 0) {
+        List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
+        if (adviseList.size() <= 0) {
             Advise advise = new Advise();
             advise.setAdvNo("1");
             advise.setAdvDate(new Date());
@@ -50,7 +57,8 @@ public class BaseApp extends BaseApplication {
             advise.setFilePath(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test01.mp4");
             advise.save();
         }
-
+//        PreferencesManager.getInstance(this).put(Constants.PASSWORD,"abcsdccc");
+//        PreferencesManager.getInstance(this).put(Constants.ACCOUNT,"888");
     }
 
 

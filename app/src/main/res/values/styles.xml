@@ -300,6 +300,19 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">120dp</item>
     </style>
+    <!--竖向间隔160dp-->
+    <style name="style_space_160_dp_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">160dp</item>
+    </style>
+    <style name="style_space_240_dp_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">240dp</item>
+    </style>
+    <style name="style_space_280_dp_vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">280dp</item>
+    </style>
     <!--横向间隔10dp-->
     <style name="style_space_10_dp_horizon">
         <item name="android:layout_width">10dp</item>

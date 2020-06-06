@@ -29,25 +29,15 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         this.deviceInfoView = deviceInfoView;
     }
 
-    @Override
-    public void bindDevice(String sixCode) {
-        mDeviceInfoModel.bindDevice(sixCode, (HttpCallBack<BindDeviceVO>) (errorCode, msg, data) -> {
-            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
-                deviceInfoView.onBindDeviceSuccess(data.getCabinetNumber(), data.getCabinetPassword());
-            } else {
-                deviceInfoView.onBindDeviceFail(msg);
-            }
-        });
 
-    }
 
     @Override
     public void uploadBoxState(int boxState) {
         mDeviceInfoModel.uploadBoxState(boxState, (errorCode, msg, data) -> {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
-                deviceInfoView.onUploadBoxStateSuccess();
+                deviceInfoView.onSendBoxStateSuccess();
             } else {
-                deviceInfoView.onUploadBoxStateFail(msg);
+                deviceInfoView.onSendBoxStateFail(data.toString());
             }
         });
 
@@ -56,8 +46,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     @Override
     public void openBox(String sixCode) {
         mDeviceInfoModel.openBox(sixCode, (StompCallBack<String>) (errorCode, msg, data) -> {
-            if (errorCode != EnumResponseCode.SUCCESS.getKey()) {
-                deviceInfoView.onOpenBoxFail(msg);
+            if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
+                deviceInfoView.onSendOpenBoxSuccess();
+            } else {
+                deviceInfoView.onSendOpenBoxFail(data);
             }
         });
     }
@@ -101,57 +93,15 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         }
     }
 
-    @Override
-    public void refreshWelcomeCode2View(ActivityWelcomeBinding binding, String inputCode) {
-        binding.welSixCode1Tv.setText("");
-        binding.welSixCode2Tv.setText("");
-        binding.welSixCode3Tv.setText("");
-        binding.welSixCode4Tv.setText("");
-        binding.welSixCode5Tv.setText("");
-        binding.welSixCode6Tv.setText("");
-        for (int i = 0; i < inputCode.length(); i++) {
-            switch (i) {
-                case 0:
-                    binding.welSixCode1Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 1:
-                    binding.welSixCode2Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 2:
-                    binding.welSixCode3Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 3:
-                    binding.welSixCode4Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 4:
-                    binding.welSixCode5Tv.setText("" + inputCode.charAt(i));
-                    break;
-                case 5:
-                    binding.welSixCode6Tv.setText("" + inputCode.charAt(i));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 
-    @Override
-    public boolean boxListAllClose(boolean[] isOpens) {
-        for (int i = 0; i < isOpens.length; i++) {
-            if (isOpens[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     @Override
     public void topicOpenBox() {
-        mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, sixCode) -> {
+        mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, boxId) -> {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
-                deviceInfoView.onOpenBoxSuccess(sixCode);
-            }else {
-                deviceInfoView.onOpenBoxFail(msg);
+                deviceInfoView.onReceiveOpenBoxSuccess(boxId);
+            } else {
+                deviceInfoView.onReceiveOpenBoxFail(msg);
             }
         });
     }
@@ -160,9 +110,9 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public void topicUploadBoxState() {
         mDeviceInfoModel.subscribeBoxState((StompCallBack<Integer>) (errorCode, msg, eventCode) -> {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
-                deviceInfoView.onUploadBoxStateSuccess();
+                deviceInfoView.onReceiveBoxStateSuccess(errorCode);
             } else {
-                deviceInfoView.onUploadBoxStateFail(msg);
+                deviceInfoView.onReceiveBoxStateFail(msg);
             }
         });
 

@@ -9,15 +9,22 @@ package com.huawei.jams.testautostart.view.inter;
  * <p>邮箱：jambestwick@126.com<p>
  */
 public interface IDeviceInfoView {
-    void onOpenBoxSuccess(String boxId);
 
-    void onOpenBoxFail(String reason);
+    void onSendOpenBoxSuccess();
 
-    void onUploadBoxStateSuccess();
+    void onSendOpenBoxFail(String reason);
 
-    void onUploadBoxStateFail(String reason);
+    void onReceiveOpenBoxSuccess(String boxId);
 
-    void onBindDeviceSuccess(String account, String password);
+    void onReceiveOpenBoxFail(String reason);
 
-    void onBindDeviceFail(String reason);
+    void onSendBoxStateSuccess();
+
+    void onSendBoxStateFail(String reason);
+
+    void onReceiveBoxStateSuccess(int state);
+
+    void onReceiveBoxStateFail(String reason);
+
+
 }

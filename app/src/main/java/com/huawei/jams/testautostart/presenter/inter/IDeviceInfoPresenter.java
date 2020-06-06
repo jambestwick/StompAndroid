@@ -11,7 +11,6 @@ import java.util.TimerTask;
 
 public interface IDeviceInfoPresenter {
 
-    void bindDevice(String sixCode);
 
     void uploadBoxState(int boxState);
 
@@ -24,16 +23,6 @@ public interface IDeviceInfoPresenter {
      * 刷新主页6位码
      **/
     void refreshMainCode2View(ActivityMainBinding binding, String inputCode);
-
-    /**
-     * 刷新欢迎页6位码
-     **/
-    void refreshWelcomeCode2View(ActivityWelcomeBinding binding, String inputCode);
-
-    /**
-     * 判断是否全关
-     **/
-    boolean boxListAllClose(boolean[] isOpens);
 
     /**
      * 订阅打开柜门
