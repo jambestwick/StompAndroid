@@ -289,7 +289,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainDialogAnimIv.setVisibility(View.VISIBLE);
         binding.mainDialogAnimIv.setBackgroundResource(resId);
         ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);//设置属性值
-        setAnima(animator);
+        setAnim(animator);
     }
 
     /**
@@ -297,7 +297,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      **/
     private void closeAnim() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
-        setAnima(animator);
+        setAnim(animator);
         binding.mainDialogAnimIv.setBackgroundResource(0);
         binding.mainDialogAnimIv.setVisibility(View.GONE);
     }
@@ -324,7 +324,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         });
     }
 
-    private void setAnima(ValueAnimator animator) {
+    private void setAnim(ValueAnimator animator) {
         animator.setTarget(binding.mainDialogAnimIv);//设置操作对象
         animator.setDuration(Constants.ANIMA_DURATION_MILL_SECOND).start();//动画开始
         animator.addUpdateListener(animation -> {
