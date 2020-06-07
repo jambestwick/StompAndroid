@@ -111,17 +111,17 @@ public class RetrofitService {
         specs.add(ConnectionSpec.CLEARTEXT);
 
 
-        OkHttpClient okHttpClient = RetrofitService
-                .getOkHttpClientBuilder()
-                .followRedirects(true)
-                .followSslRedirects(true)
-                .retryOnConnectionFailure(true)
-                .cache(null)
-                //.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
-                //.sslSocketFactory(new SSLSocketFactoryCompat(trustAllManager),trustAllManager)
-                .sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()))
-                .connectionSpecs(specs)
-                .build();
+//        OkHttpClient okHttpClient = RetrofitService
+//                .getOkHttpClientBuilder()
+//                .followRedirects(true)
+//                .followSslRedirects(true)
+//                .retryOnConnectionFailure(true)
+//                .cache(null)
+//                //.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager)
+//                //.sslSocketFactory(new SSLSocketFactoryCompat(trustAllManager),trustAllManager)
+//                .sslSocketFactory(new Tls12SocketFactory(sc.getSocketFactory()))
+//                .connectionSpecs(specs)
+//                .build();
 
 
         return new Retrofit.Builder()
@@ -188,7 +188,7 @@ public class RetrofitService {
         return client;
     }
 
-    private static OkHttpClient getNewHttpClient() {
+    public static OkHttpClient getNewHttpClient() {
         OkHttpClient.Builder client = new OkHttpClient.Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)

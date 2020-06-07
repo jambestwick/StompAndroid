@@ -52,8 +52,11 @@ public class DialogUtils {
      * 取消ProgressDialog
      */
     public void dismissProgress() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
+        if (null != mProgressDialog ) {
+            if(mProgressDialog.isShowing()){
+                mProgressDialog.dismiss();
+            }
+
         }
     }
 }
