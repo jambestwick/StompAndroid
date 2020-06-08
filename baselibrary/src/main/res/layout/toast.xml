@@ -17,6 +17,6 @@
         android:paddingRight="12dp"
         android:paddingTop="5dp"
         android:textColor="@android:color/white"
-        android:textSize="@dimen/toast_textsize" />
+        android:textSize="@dimen/sp_48" />
 
 </RelativeLayout>

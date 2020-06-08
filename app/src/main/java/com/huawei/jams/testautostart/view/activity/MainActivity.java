@@ -4,9 +4,9 @@ import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -20,17 +20,14 @@ import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.*;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -58,7 +55,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initViews();
         initNetData();
         initData();
-
     }
 
 
@@ -96,16 +92,22 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             }
 
         });
-        binding.mainAdviseVideo.setOnTouchListener((v, event) -> {//点击就暂停并消失
+
+        binding.mainVideoRl.setOnTouchListener((v, event) -> {
+            binding.mainVideoRl.setVisibility(View.GONE);
             if (binding.mainAdviseVideo.isPlaying()) {
                 binding.mainAdviseVideo.pause();
-                binding.mainAdviseVideo.setVisibility(View.GONE);
             }
+            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
             return false;
         });
     }
 
     private void initNetData() {
+        StompUtil.getInstance().setConnectListener(enumConnectState -> {
+            LogUtil.d(TAG, "stomp Connect response" + enumConnectState);
+
+        });
         appInfoPresenter.topicAppInfo();
         advisePresenter.topicAdviseInfo();
         deviceInfoPresenter.topicOpenBox();
@@ -119,10 +121,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
-            binding.mainAdviseVideo.setVisibility(View.VISIBLE);
+            binding.mainVideoRl.setVisibility(View.VISIBLE);
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
-            binding.mainAdviseVideo.setOnPreparedListener(mp -> mp.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING));
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 binding.mainAdviseVideo.setVideoPath(path);
                 //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
@@ -208,39 +209,47 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     }
 
+    @Override
+    public void onSendOpenBoxSuccess() {
+
+    }
 
     @Override
-    public void onOpenBoxSuccess(String boxId) {
+    public void onSendOpenBoxFail(String reason) {
+        startAnim(R.mipmap.bg_hint_net_work_error);
+    }
+
+    @Override
+    public void onReceiveOpenBoxSuccess(String boxId) {
         KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, this);
     }
 
     @Override
-    public void onOpenBoxFail(String reason) {//密码错误，请重新输入，确定 提示框（非全屏）
+    public void onReceiveOpenBoxFail(String reason) {
         //后台返回打开失败
-        ToastUtil.showInCenter(this, this.getString(R.string.back_server_exception_retry));
+        ToastUtil.showInCenter(this, this.getString(R.string.back_server_password_invalid_retry));
         deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+        //startAnim(R.mipmap.bg_hint_net_work_error);
+    }
+
+    @Override
+    public void onSendBoxStateSuccess() {
+
+    }
+
+    @Override
+    public void onSendBoxStateFail(String reason) {
         startAnim(R.mipmap.bg_hint_net_work_error);
     }
 
-
     @Override
-    public void onUploadBoxStateSuccess() {
-    }
-
-    @Override
-    public void onUploadBoxStateFail(String reason) {
-
+    public void onReceiveBoxStateSuccess(int state) {
 
     }
 
     @Override
-    public void onBindDeviceSuccess(String account, String password) {
-
-    }
-
-    @Override
-    public void onBindDeviceFail(String reason) {
-
+    public void onReceiveBoxStateFail(String reason) {
+        ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_state_invalid));
     }
 
 
@@ -280,9 +289,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainDialogAnimIv.setVisibility(View.VISIBLE);
         binding.mainDialogAnimIv.setBackgroundResource(resId);
         ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);//设置属性值
-        setAnima(animator);
-        closeAnim();
-
+        setAnim(animator);
     }
 
     /**
@@ -290,7 +297,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      **/
     private void closeAnim() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
-        setAnima(animator);
+        setAnim(animator);
         binding.mainDialogAnimIv.setBackgroundResource(0);
         binding.mainDialogAnimIv.setVisibility(View.GONE);
     }
@@ -309,7 +316,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     @Override
                     public void run() {
                         closeAnim();
-                        binding.mainAdviseVideo.setVisibility(View.VISIBLE);
+                        binding.mainVideoRl.setVisibility(View.VISIBLE);
                         binding.mainAdviseVideo.start();
                     }
                 }, Constants.DELAY_ADVISE_MILL_SECOND);
@@ -317,7 +324,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         });
     }
 
-    private void setAnima(ValueAnimator animator) {
+    private void setAnim(ValueAnimator animator) {
         animator.setTarget(binding.mainDialogAnimIv);//设置操作对象
         animator.setDuration(Constants.ANIMA_DURATION_MILL_SECOND).start();//动画开始
         animator.addUpdateListener(animation -> {

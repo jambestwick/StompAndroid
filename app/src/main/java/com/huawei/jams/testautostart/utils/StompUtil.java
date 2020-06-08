@@ -1,27 +1,21 @@
 package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.util.Log;
-
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
-import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
-import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.android.ActivityEvent;
+import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
 import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableTransformer;
+import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -29,8 +23,13 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
+import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 
@@ -64,10 +63,22 @@ public class StompUtil {
         return instance;
     }
 
+    private List<StompConnectListener> connectListeners = new ArrayList<>();
+
+    public void setConnectListener(StompConnectListener stompConnectListener) {
+        connectListeners.add(stompConnectListener);
+    }
+
+    public boolean removeConnectListener(StompConnectListener stompConnectListener) {
+        return connectListeners.remove(stompConnectListener);
+    }
+
+
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
-    public void createStompClient(BaseActivity activity, String userName, String password, StompConnectListener connectListener) {
+
+    public void createStompClient(BaseActivity activity, String userName, String password) {
         try {
-            connect(activity, userName, password, connectListener);
+            connect(activity, userName, password);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,13 +101,23 @@ public class StompUtil {
 
 
     @SuppressLint("CheckResult")
-    private void connect(BaseActivity activity, String userName, String password, StompConnectListener connectListener) throws IOException {
+    private void connect(BaseActivity activity, String userName, String password) throws IOException {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
-        mStompClient.lifecycle()
-                .compose(ProgressUtils.applyProgressBarStomp(activity))
+        List<StompHeader> _headers = new ArrayList<>();
+        _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
+
+        DialogUtils dialogUtils = new DialogUtils();
+        dialogUtils.showProgress(activity);
+        mStompClient.connect(_headers);
+        Flowable<LifecycleEvent> flowable = mStompClient.lifecycle();
+//        if (null != activity) {
+//            flowable.compose(ProgressUtils.applyProgressBarStomp(activity));
+//        }
+        flowable
+                //.compose(ProgressUtils.applyProgressBarStomp(activity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(lifecycleEvent -> {
@@ -105,18 +126,31 @@ public class StompUtil {
                                 case OPENED:
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
-                                    connectListener.onConnectState(EnumConnectState.CONNECT);
+                                    for (StompConnectListener connectListener : connectListeners) {
+                                        connectListener.onConnectState(EnumConnectState.CONNECT);
+                                    }
+                                    if (null != dialogUtils) {
+                                        dialogUtils.dismissProgress();
+                                    }
                                     //topicMessage();
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
                                     LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
-                                    connectListener.onConnectState(EnumConnectState.CLOSE);
+//                                    for (StompConnectListener connectListener : connectListeners) {
+//                                        connectListener.onConnectState(EnumConnectState.ERROR);
+//                                    }
                                     break;
                                 case CLOSED:
                                     mNeedConnect = true;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
-                                    connectListener.onConnectState(EnumConnectState.CLOSE);
+                                    for (StompConnectListener connectListener : connectListeners) {
+                                        connectListener.onConnectState(EnumConnectState.CLOSE);
+                                    }
+                                    if (null != dialogUtils) {
+                                        dialogUtils.dismissProgress();
+                                    }
+                                    //mStompClient.connect(_headers);
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");
@@ -125,9 +159,8 @@ public class StompUtil {
                             }
                         }, throwable -> LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connect Throwable:" + Log.getStackTraceString(throwable))
                 );
-        List<StompHeader> _headers = new ArrayList<>();
-        _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
-        mStompClient.connect(_headers);
+
+
     }
 
 
@@ -141,14 +174,40 @@ public class StompUtil {
     @SuppressLint("CheckResult")
     public void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
+            DialogUtils dialogUtils = new DialogUtils();
+            dialogUtils.showProgress(activity);
             mStompClient.send(destPath, jsonMsg)
-                    .compose(applySchedulers(activity))
-                    .subscribe(() -> {
-                        sendBack.onSendSuccess();
-                        Log.d(TAG, "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
-                    }, throwable -> {
-                        sendBack.onSendError(throwable);
-                        Log.e(TAG, "Error send STOMP " + destPath + ",data:" + jsonMsg, throwable);
+                    .retry(2)
+                    .unsubscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnSubscribe(disposable -> {
+                        LogUtil.d(TAG, "doOnSubscribe");
+                    })
+                    .subscribe(new CompletableObserver() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            sendBack.onSendSuccess();
+                            LogUtil.d(TAG, Thread.currentThread() + "STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
+                            if (null != dialogUtils) {
+                                dialogUtils.dismissProgress();
+                            }
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            LogUtil.d(TAG, "onComplete");
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            sendBack.onSendError(throwable);
+                            LogUtil.e(TAG, "Error send STOMP " + destPath + ",data:" + jsonMsg + throwable);
+                            if (null != dialogUtils) {
+                                dialogUtils.dismissProgress();
+                            }
+                        }
+
                     });
         }
 
@@ -195,11 +254,11 @@ public class StompUtil {
 
     private CompletableTransformer applySchedulers(BaseActivity activity) {
         return upstream -> upstream
-                .compose(activity.bindUntilEvent(ActivityEvent.DESTROY))
-                .compose(ProgressUtils.applyProgressBarStomp1(activity))
                 .unsubscribeOn(Schedulers.newThread())
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                .observeOn(AndroidSchedulers.mainThread())
+                .compose(activity.bindUntilEvent(ActivityEvent.DESTROY))
+                .compose(ProgressUtils.applyProgressBarStomp1(activity));
     }
 
     public interface StompConnectListener {
@@ -207,7 +266,7 @@ public class StompUtil {
     }
 
     public enum EnumConnectState {
-        CONNECT, CLOSE
+        CONNECT, CLOSE, ERROR
     }
 
 

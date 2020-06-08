@@ -7,7 +7,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         packagingOptions {
             //解决编译时com.android.builder.merge.DuplicateRelativeFileException: More than one file was found with OS independent path 'META-INF/rxjava.properties'这个错误
@@ -52,6 +52,5 @@ dependencies {
     api "com.github.Raizlabs.DBFlow:dbflow-rx:$dbflow_version"
     api "com.github.Raizlabs.DBFlow:dbflow:$dbflow_version"
     api 'com.github.NaikSoftware:StompProtocolAndroid:1.6.4'
-
 
 }

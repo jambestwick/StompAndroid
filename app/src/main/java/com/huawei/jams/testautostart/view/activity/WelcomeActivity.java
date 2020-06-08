@@ -5,16 +5,15 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
-import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
-import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
+import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
+import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
-import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
+import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
@@ -22,7 +21,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.*;
 import java.util.Objects;
 
 
-public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, StompUtil.StompConnectListener {
+public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, KeyCabinetReceiver.BoxStateListener {
     private static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";//提示语
@@ -33,7 +32,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     private int openBoxIndex = 0;//逐个打开柜门到第几个
     /***输入6位开箱码**/
     private String inputCode = "";//6未输入码
-    private IDeviceInfoPresenter deviceInfoPresenter;
+    private IDeviceCheckPresenter deviceCheckPresenter;
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
 
 
@@ -46,7 +45,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     }
 
     private void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
+        deviceCheckPresenter = new DeviceCheckPresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -61,7 +60,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                     break;
                 case R.id.wel_code_ok_tv:
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.bindDevice(inputCode);
+                        deviceCheckPresenter.bindDevice(inputCode);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
@@ -72,6 +71,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                     break;
             }
         });
+
+        StompUtil.getInstance().setConnectListener(connectListener);
     }
 
 
@@ -120,7 +121,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
             String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
             if (StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password)) {//不是空说明已经注册过
-                StompUtil.getInstance().createStompClient(this, account, password, this);//重绑
+                StompUtil.getInstance().createStompClient(this,account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
                 return;
             }
@@ -135,10 +136,9 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
             judgeBoxAllClose();
         }
         if (step == EnumDeviceCheck.STEP_7.key) {
-            StompUtil.getInstance().createStompClient(this
-                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
-                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD)
-                    , this);
+            StompUtil.getInstance().createStompClient(this,
+                    PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
+                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
         }
 
 
@@ -173,30 +173,10 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     }
 
     @Override
-    public void onOpenBoxSuccess(String boxId) {
-
-    }
-
-    @Override
-    public void onOpenBoxFail(String reason) {
-
-    }
-
-    @Override
-    public void onUploadBoxStateSuccess() {
-
-    }
-
-    @Override
-    public void onUploadBoxStateFail(String reason) {
-
-    }
-
-    @Override
     public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
         turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
-        StompUtil.getInstance().createStompClient(this, account, password, this);
+        StompUtil.getInstance().createStompClient(this,account, password);
     }
 
     @Override
@@ -209,7 +189,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                 .showCancelButton(false)
                 .setConfirmClickListener(sDialog -> {
                     inputCode = "";
-                    deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+                    deviceCheckPresenter.refreshWelcomeCode2View(binding, inputCode);
                     binding.welSixCodeLl.setVisibility(View.VISIBLE);
                     binding.welKeyboardLl.setVisibility(View.VISIBLE);
                     sDialog.cancel();
@@ -270,7 +250,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     private void addInputCode(String addCode) {
         if (inputCode.length() < 6) {
             inputCode = inputCode + addCode;
-            deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+            deviceCheckPresenter.refreshWelcomeCode2View(binding, inputCode);
         }
 
     }
@@ -281,7 +261,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
     private void decreaseInputCode() {
         if (inputCode.length() > 0) {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
-            deviceInfoPresenter.refreshWelcomeCode2View(binding, inputCode);
+            deviceCheckPresenter.refreshWelcomeCode2View(binding, inputCode);
         }
     }
 
@@ -307,7 +287,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
             case QUERY_BATCH:
                 switch (Objects.requireNonNull(EnumDeviceCheck.getEnumByKey(step))) {
                     case STEP_4:
-                        if (deviceInfoPresenter.boxListAllClose(isOpen)) {
+                        if (deviceCheckPresenter.boxListAllClose(isOpen)) {
                             intervalOpenBox();
                         } else {
                             if (queryBoxStateTimes >= 2) {
@@ -319,7 +299,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
                         }
                         break;
                     case STEP_5:
-                        if (deviceInfoPresenter.boxListAllClose(isOpen)) {
+                        if (deviceCheckPresenter.boxListAllClose(isOpen)) {
                             turnStep(EnumDeviceCheck.STEP_6, this.getString(R.string.input_six_code_bind_device), null, null);
                             binding.welKeyboardLl.setVisibility(View.VISIBLE);
                             binding.welSixCodeLl.setVisibility(View.VISIBLE);
@@ -343,32 +323,33 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
         }
     }
 
-    /**
-     * 长连接结果
-     */
-    @Override
-    public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
-        if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
-            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-        } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
-            switch (deviceBindState) {
-                case NEW:
-                    turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", this.getString(R.string.retry), null);
-                    binding.welKeyboardLl.setVisibility(View.GONE);
-                    binding.welSixCodeLl.setVisibility(View.GONE);
-                    break;
-                case OLD:
-                    turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
-                    binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                    binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                    deviceBindState = EnumDeviceBindState.NEW;
-                    break;
-                default:
-                    break;
+
+    private StompUtil.StompConnectListener connectListener = new StompUtil.StompConnectListener() {
+        @Override
+        public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
+            if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
+                startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+                StompUtil.getInstance().removeConnectListener(connectListener);
+                finish();
+            } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
+                switch (deviceBindState) {
+                    case NEW:
+                        turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", WelcomeActivity.this.getString(R.string.retry), null);
+                        binding.welKeyboardLl.setVisibility(View.GONE);
+                        binding.welSixCodeLl.setVisibility(View.GONE);
+                        break;
+                    case OLD:
+                        turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
+                        binding.welKeyboardLl.setVisibility(View.VISIBLE);
+                        binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                        deviceBindState = EnumDeviceBindState.NEW;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
-
-    }
+    };
 
 
     enum EnumDeviceCheck {
@@ -422,8 +403,12 @@ public class WelcomeActivity extends BaseActivity implements IDeviceInfoView, Ke
         this.hintMessage = hintMessage;
         this.btnMessage = btnMessage;
         this.cancelMessage = cancelMessage;
+
         this.setData();
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

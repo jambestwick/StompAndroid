@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import com.yxytech.parkingcloud.baselibrary.R;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import io.reactivex.*;
 import io.reactivex.functions.Action;
 import org.reactivestreams.Subscription;
@@ -67,19 +68,29 @@ public class ProgressUtils {
         final WeakReference<Activity> activityWeakReference = new WeakReference<>(activity);
         final DialogUtils dialogUtils = new DialogUtils();
         dialogUtils.showProgress(activityWeakReference.get(), msg);
-        return upstream -> upstream.doOnSubscribe(disposable -> {
-        }).doOnTerminate(() -> {//订阅被终止
-            Activity context = activityWeakReference.get();
-            if (context != null
-                    && !context.isFinishing()) {
-                dialogUtils.dismissProgress();
-            }
-        }).doFinally(() -> {
+        return upstream -> upstream
+                .doOnSubscribe(disposable -> {
+                })
+                .doOnTerminate(() -> {//订阅被终止
+                    LogUtil.d("======", "doOnTerminate");
+                    Activity context = activityWeakReference.get();
+                    if (context != null
+                            && !context.isFinishing()) {
+                        dialogUtils.dismissProgress();
+                    }
+                }).doFinally(() -> {
+                            LogUtil.d("======", "doFinally");
 //            Activity context = activityWeakReference.get();
 //            if (null != context && !context.isFinishing()) {
 //                dialogUtils.dismissProgress();
 //            }
-        });
+                        })
+                .doOnComplete(new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        LogUtil.d("======", "doOnComplete");
+                    }
+                });
     }
 
     public static <T> ObservableTransformer<T, T> applyProgressBar(

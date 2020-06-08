@@ -58,7 +58,7 @@ public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
         LogUtil.e(TAG, "全局异常捕获:" + "当前线程:" + t + ",异常信息:" + Log.getStackTraceString(e));
         if (handleException(e)) {
             // 已经处理,APP重启
-            restartApp();
+            //restartApp();
         } else {
             // 如果不处理,则调用系统默认处理异常,弹出系统强制关闭的对话框
             if (mDefaultHandler != null) {
