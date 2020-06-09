@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAdvisePresenter advisePresenter;
     private Timer patrolTimer = new Timer();//巡检柜门状态任务Timer
     private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
+    private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;
 
     //网络超时8秒
 
@@ -77,7 +78,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         advisePresenter = new AdvisePresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
-                case R.id.main_video_rl:
+                case R.id.main_video_rl://进入输入6位码界面，30秒未操作返回广告
+                    //timeAdviseTask = new TimerTask();
                     binding.mainVideoRl.setVisibility(View.GONE);
                     if (binding.mainAdviseVideo.isPlaying()) {
                         binding.mainAdviseVideo.pause();
@@ -112,12 +114,18 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             switch (enumConnectState) {
                 case CLOSE:
                     if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
+                        if (binding.mainAdviseVideo.isPlaying()) {
+                            binding.mainAdviseVideo.pause();
+                        }
                         startAnim(R.mipmap.bg_hint_net_work_error);
                     }
                     break;
                 case CONNECT:
                     if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
                         closeAnim();
+                        if (!binding.mainAdviseVideo.isPlaying()) {
+                            binding.mainAdviseVideo.start();
+                        }
                     }
                     initTopic();
                     break;
@@ -350,12 +358,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         });
     }
 
-
     private void initTopic() {
         appInfoPresenter.topicAppInfo();
         advisePresenter.topicAdviseInfo();
         deviceInfoPresenter.topicOpenBox();
         deviceInfoPresenter.topicUploadBoxState();
     }
+
 
 }

@@ -47,7 +47,7 @@ public class AdviseModel implements IAdviseModel {
             @Override
             public void onError(Throwable t) {
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeVersion onError:" + Log.getStackTraceString(t));
-                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t);
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), null);
             }
 
             @Override

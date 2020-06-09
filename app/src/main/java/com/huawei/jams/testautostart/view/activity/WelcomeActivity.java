@@ -13,6 +13,7 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
@@ -57,9 +58,11 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     initDevice();
                     break;
                 case R.id.wel_code_delete_tv://删除前一位
+                    SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     decreaseInputCode();
                     break;
                 case R.id.wel_code_ok_tv:
+                    SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
                         deviceCheckPresenter.bindDevice(inputCode);
                     } else {
@@ -249,6 +252,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 输入6位密码
      **/
     private void addInputCode(String addCode) {
+        SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
         if (inputCode.length() < 6) {
             inputCode = inputCode + addCode;
             deviceCheckPresenter.refreshWelcomeCode2View(binding, inputCode);

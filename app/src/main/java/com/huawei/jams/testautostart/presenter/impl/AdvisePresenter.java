@@ -45,7 +45,7 @@ public class AdvisePresenter implements IAdvisePresenter {
                         if (null == currentAdv) {
                             adviseView.onTopicAdviseSuccess(data.getDownloadUrl(), data.getVersion());
                         } else {
-                            if (StrUtil.compareVerName(data.getVersion(), currentAdv.getAdvVersion())) {
+                            if (StrUtil.compareVerName(data.getVersion(), currentAdv.getAdvVersion())) {//新版本比旧版本大则下载，否则不下载
                                 adviseView.onTopicAdviseSuccess(data.getDownloadUrl(), data.getVersion());
                             }
                         }

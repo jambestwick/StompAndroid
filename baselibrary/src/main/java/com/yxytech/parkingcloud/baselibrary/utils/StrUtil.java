@@ -556,16 +556,24 @@ public class StrUtil {
      * @param ver1 大于ver2 @return true
      **/
     public static boolean compareVerName(String ver1, String ver2) {
+        boolean agtb = false;
         if (!TextUtils.isEmpty(ver1) && !TextUtils.isEmpty(ver2)) {
-            String verStr1 = ver1.replaceAll(".", "");
-            String verStr2 = ver2.replaceAll(".", "");
-            if (TextUtils.isDigitsOnly(verStr1) && TextUtils.isDigitsOnly(verStr2)) {
-                int verInt1 = Integer.parseInt(ver1);
-                int verInt2 = Integer.parseInt(ver2);
-                return verInt1 > verInt2;
+            String[] verStr1 = ver1.split(".");
+            String[] verStr2 = ver2.split(".");
+            for (int i = 0; i < ver1.length(); i++) {
+                if (TextUtils.isDigitsOnly(verStr1[i]) && TextUtils.isDigitsOnly(verStr2[i])) {
+                    if (Integer.parseInt(verStr1[i]) > Integer.parseInt(verStr2[i])) {
+                        agtb = true;
+                        break;
+                    } else if (Integer.parseInt(verStr1[i]) < Integer.parseInt(verStr2[i])) {
+                        agtb = false;
+                        break;
+                    }
+                }
+
             }
         }
-        return false;
+        return agtb;
     }
 
 

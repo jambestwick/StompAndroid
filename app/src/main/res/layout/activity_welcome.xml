@@ -83,7 +83,7 @@
         <LinearLayout
             android:id="@+id/wel_keyboard_ll"
             style="@style/style_layout_number_total_linear"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <LinearLayout style="@style/style_layout_number_linear">
 

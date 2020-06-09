@@ -36,7 +36,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
                 if (null != data) {
                     String versionName = PackageUtils.getVersionName(BaseApp.getAppContext());
-                    if (StrUtil.compareVerName(data.getVersion(), versionName)) {
+                    if (StrUtil.compareVerName(data.getVersion(), versionName)) {//新版本比旧版本大则下载，否则不下载
                         appInfoView.onTopicAppInfoSuccess(data.getDownloadUrl(), data.getVersion());
                     }
                 }

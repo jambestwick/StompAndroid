@@ -133,6 +133,17 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         }
     }
+    /**
+     *
+     * **/
+    public class TimeAdviseCountDownTask extends TimerTask{
+
+
+        @Override
+        public void run() {
+
+        }
+    }
 }
 
 
