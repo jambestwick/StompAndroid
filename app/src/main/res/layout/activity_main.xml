@@ -184,12 +184,12 @@
 
             <ImageView
                 android:id="@+id/main_open_click_iv"
-                android:layout_width="300dp"
-                android:layout_height="80dp"
+                android:layout_width="600dp"
+                android:layout_height="200dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginBottom="70dp"
-                android:layout_marginEnd="92dp" />
+                android:layout_marginBottom="120dp"
+                android:layout_marginEnd="80dp" />
         </RelativeLayout>
         <!--开柜门、谢谢使用、动画播放-->
         <ImageView

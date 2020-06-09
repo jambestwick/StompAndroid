@@ -30,7 +30,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
 
-
     @Override
     public void uploadBoxState(int boxState) {
         mDeviceInfoModel.uploadBoxState(boxState, (errorCode, msg, data) -> {
@@ -94,7 +93,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
 
-
     @Override
     public void topicOpenBox() {
         mDeviceInfoModel.subscribeOpenBox((StompCallBack<String>) (errorCode, msg, boxId) -> {
@@ -133,16 +131,33 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         }
     }
+
     /**
      *
-     * **/
-    public class TimeAdviseCountDownTask extends TimerTask{
+     **/
+    public static class TimeAdviseCountDownTask extends TimerTask {
+        private long startTime;
+        private TimeOperator timeOperator;
 
+        public TimeAdviseCountDownTask(long startTime, TimeOperator timeOperator) {
+            this.startTime = startTime;
+            this.timeOperator = timeOperator;
+        }
+
+        public void setStartTime(long startTime) {
+            this.startTime = startTime;
+        }
 
         @Override
-        public void run() {
-
+        public void run() {//Constants.NOT_CLICK_DELAY_SECOND30秒没操作就回到播放广告
+            if (System.currentTimeMillis() - startTime > Constants.NOT_CLICK_DELAY_SECOND) {
+                timeOperator.timeOut();
+            }
         }
+    }
+
+    public interface TimeOperator {
+        void timeOut();
     }
 }
 
