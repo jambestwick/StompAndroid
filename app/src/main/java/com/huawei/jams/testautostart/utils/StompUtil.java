@@ -1,7 +1,9 @@
 package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.util.Log;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
@@ -13,6 +15,8 @@ import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
+
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableTransformer;
 import io.reactivex.Flowable;
@@ -30,6 +34,8 @@ import ua.naiksoftware.stomp.dto.StompMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 
@@ -46,10 +52,12 @@ public class StompUtil {
     private static final String TAG = StompUtil.class.getName();
     private StompClient mStompClient;
     private boolean mNeedConnect;
-    private static final long RECONNECT_TIME_INTERVAL = 5 * 1000;
+    private static final long RECONNECT_TIME_INTERVAL = 30 * 1000;
+    private static final long RECONNECT_TIME_DELY = 5 * 1000;
     private static final int HEART_BEAT = 1000;
 
     private static StompUtil instance;
+    private Context context;
     private static final Object lock = new Object();
 
     public static StompUtil getInstance() {
@@ -73,50 +81,53 @@ public class StompUtil {
         return connectListeners.remove(stompConnectListener);
     }
 
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
 
-    public void createStompClient(BaseActivity activity, String userName, String password) {
+    public void createStompClient(String userName, String password) {
         try {
-            connect(activity, userName, password);
+            connect(userName, password);
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        new Timer().schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug in timer ======================");
-//                if (mNeedConnect && NetworkUtils.isConnected()) {
-//                    mStompClient = null;
-//                    try {
-//                        connect(userName, password);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI");
-//                }
-//            }
-//        }, RECONNECT_TIME_INTERVAL, RECONNECT_TIME_INTERVAL);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.d(TAG, Thread.currentThread().getName() + ", debug in timer ======================");
+                if (mNeedConnect && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
+                    mStompClient = null;
+                    try {
+                        connect(userName, password);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
+                }
+            }
+        }, RECONNECT_TIME_DELY, RECONNECT_TIME_INTERVAL);
     }
 
 
     @SuppressLint("CheckResult")
-    private void connect(BaseActivity activity, String userName, String password) throws IOException {
+    private void connect(String userName, String password) throws IOException {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
         List<StompHeader> _headers = new ArrayList<>();
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
-
-        DialogUtils dialogUtils = new DialogUtils();
-        dialogUtils.showProgress(activity);
+        DialogUtils dialogUtils = null;
+        if (null != this.context) {
+            dialogUtils = new DialogUtils();
+            dialogUtils.showProgress(context);
+        }
         mStompClient.connect(_headers);
-        Flowable<LifecycleEvent> flowable = mStompClient.lifecycle();
-//        if (null != activity) {
-//            flowable.compose(ProgressUtils.applyProgressBarStomp(activity));
-//        }
-        flowable
+        DialogUtils finalDialogUtils = dialogUtils;
+        mStompClient.lifecycle()
                 //.compose(ProgressUtils.applyProgressBarStomp(activity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -129,8 +140,8 @@ public class StompUtil {
                                     for (StompConnectListener connectListener : connectListeners) {
                                         connectListener.onConnectState(EnumConnectState.CONNECT);
                                     }
-                                    if (null != dialogUtils) {
-                                        dialogUtils.dismissProgress();
+                                    if (null != finalDialogUtils) {
+                                        finalDialogUtils.dismissProgress();
                                     }
                                     //topicMessage();
                                     break;
@@ -147,10 +158,9 @@ public class StompUtil {
                                     for (StompConnectListener connectListener : connectListeners) {
                                         connectListener.onConnectState(EnumConnectState.CLOSE);
                                     }
-                                    if (null != dialogUtils) {
-                                        dialogUtils.dismissProgress();
+                                    if (null != finalDialogUtils) {
+                                        finalDialogUtils.dismissProgress();
                                     }
-                                    //mStompClient.connect(_headers);
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp fail server heartbeat");

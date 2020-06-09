@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
@@ -121,7 +122,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
             if (StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password)) {//不是空说明已经注册过
-                StompUtil.getInstance().createStompClient(this,account, password);//重绑
+                StompUtil.getInstance().createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
                 return;
             }
@@ -136,7 +137,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             judgeBoxAllClose();
         }
         if (step == EnumDeviceCheck.STEP_7.key) {
-            StompUtil.getInstance().createStompClient(this,
+            StompUtil.getInstance().createStompClient(
                     PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
                     , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
         }
@@ -176,7 +177,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
         turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
-        StompUtil.getInstance().createStompClient(this,account, password);
+        StompUtil.getInstance().createStompClient(account, password);
     }
 
     @Override

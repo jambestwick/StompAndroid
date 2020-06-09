@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -20,6 +23,7 @@ import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
@@ -57,28 +61,33 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initData();
     }
 
-
+    //用户在广告界面点击任意键，则退出广告，输入（小程序下发）6位数字码，
+    //输入完成-->
+    //1.发送6位码Stomp-->后台
+    //后台-->结果：
+    //1.1、成功返回，boxId，根据boxid开柜-->查询柜门状态-->开柜结果
+    //1.1.1 成功，同步播放‘开门成功’,和弹出全屏‘动画开柜成功’,发送stomp柜门boxid状态开启，轮巡读取柜门状态
+    //1.1.2 失败，同步播放‘设备故障’,和弹出全屏‘动画设备故障’,
+    //1.2 返回异常或超时，重发送6位码Stomp-->后台 3次，如果有成功，break；，否则，，同步播放‘网络故障’,和弹出全屏‘动画网络故障 界面含有重试按键关闭网络故障界面’,用户点击重试-->清空当前6位码-->1
+    //1.3 密码错误,提示框（非全屏）:'密码错误(确定按钮)' 点击确定关闭窗口 清空当前6位码-->1
+    //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
     private void initViews() {
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
+                case R.id.main_video_rl:
+                    binding.mainVideoRl.setVisibility(View.GONE);
+                    if (binding.mainAdviseVideo.isPlaying()) {
+                        binding.mainAdviseVideo.pause();
+                    }
+                    deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                 case R.id.main_code_delete_tv://删除前一位
                     decreaseInputCode();
                     break;
                 case R.id.main_code_ok_tv:
-                    //用户在广告界面点击任意键，则退出广告，输入（小程序下发）6位数字码，
-                    //输入完成-->
-                    //1.发送6位码Stomp-->后台
-                    //后台-->结果：
-                    //1.1、成功返回，boxId，根据boxid开柜-->查询柜门状态-->开柜结果
-                    //1.1.1 成功，同步播放‘开门成功’,和弹出全屏‘动画开柜成功’,发送stomp柜门boxid状态开启，轮巡读取柜门状态
-                    //1.1.2 失败，同步播放‘设备故障’,和弹出全屏‘动画设备故障’,
-                    //1.2 返回异常或超时，重发送6位码Stomp-->后台 3次，如果有成功，break；，否则，，同步播放‘网络故障’,和弹出全屏‘动画网络故障 界面含有重试按键关闭网络故障界面’,用户点击重试-->清空当前6位码-->1
-                    //1.3 密码错误,提示框（非全屏）:'密码错误(确定按钮)' 点击确定关闭窗口 清空当前6位码-->1
-
-                    //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
+                    SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
                         deviceInfoPresenter.openBox(inputCode);
                     } else {
@@ -92,26 +101,29 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             }
 
         });
+        Glide.with(this).load(R.mipmap.gif_open_box).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(binding.mainOpenClickIv);
 
-        binding.mainVideoRl.setOnTouchListener((v, event) -> {
-            binding.mainVideoRl.setVisibility(View.GONE);
-            if (binding.mainAdviseVideo.isPlaying()) {
-                binding.mainAdviseVideo.pause();
-            }
-            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-            return false;
-        });
     }
 
     private void initNetData() {
+        StompUtil.getInstance().setContext(this);
         StompUtil.getInstance().setConnectListener(enumConnectState -> {
             LogUtil.d(TAG, "stomp Connect response" + enumConnectState);
-
+            switch (enumConnectState) {
+                case CLOSE:
+                    if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
+                        startAnim(R.mipmap.bg_hint_net_work_error);
+                    }
+                    break;
+                case CONNECT:
+                    if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
+                        closeAnim();
+                    }
+                    initTopic();
+                    break;
+            }
         });
-        appInfoPresenter.topicAppInfo();
-        advisePresenter.topicAdviseInfo();
-        deviceInfoPresenter.topicOpenBox();
-        deviceInfoPresenter.topicUploadBoxState();
+        initTopic();
     }
 
     /**
@@ -136,6 +148,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      * 输入6位密码
      **/
     private void addInputCode(String addCode) {
+        SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
         if (inputCode.length() < 6) {
             inputCode = inputCode + addCode;
             deviceInfoPresenter.refreshMainCode2View(binding, inputCode);
@@ -147,6 +160,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      * 删除6位密码一位
      **/
     private void decreaseInputCode() {
+        SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
         if (inputCode.length() > 0) {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
             deviceInfoPresenter.refreshMainCode2View(binding, inputCode);
@@ -304,6 +318,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     /**
      * 播放音乐
+     * 如果柜门已关闭，延迟Constants#DELAY_ADVISE_MILL_SECOND 关闭顶部图片，展示并播放广告
      */
     private void playMusic(int rawId, DeviceInfo.EnumBoxState enumBoxState) {
         //直接创建，不需要设置setDataSource
@@ -315,9 +330,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 patrolTimer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        closeAnim();
-                        binding.mainVideoRl.setVisibility(View.VISIBLE);
-                        binding.mainAdviseVideo.start();
+                        runOnUiThread(() -> {
+                            closeAnim();
+                            binding.mainVideoRl.setVisibility(View.VISIBLE);
+                            binding.mainAdviseVideo.start();
+                        });
                     }
                 }, Constants.DELAY_ADVISE_MILL_SECOND);
             }
@@ -331,6 +348,14 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             binding.mainDialogAnimIv.setScaleY((Float) animation.getAnimatedValue());//设置Y轴上的变化
             binding.mainDialogAnimIv.setScaleX((Float) animation.getAnimatedValue());//设置X轴上的变化
         });
+    }
+
+
+    private void initTopic() {
+        appInfoPresenter.topicAppInfo();
+        advisePresenter.topicAdviseInfo();
+        deviceInfoPresenter.topicOpenBox();
+        deviceInfoPresenter.topicUploadBoxState();
     }
 
 }
