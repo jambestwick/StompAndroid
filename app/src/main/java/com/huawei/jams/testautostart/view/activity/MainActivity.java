@@ -99,7 +99,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case R.id.main_code_ok_tv:
                     SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.openBox(inputCode);
+                        //deviceInfoPresenter.openBox(inputCode);
+                        String [] box=new String[1];
+                        box[0]="Z0"+inputCode.charAt(5);
+                        KeyCabinetReceiver.openBatchBox(this,box,this);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
@@ -150,18 +153,18 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      * 初始化广告播放
      */
     private void initData() {
-        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
-        if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
-            String path = lastAdvise.getFilePath();//广告路径
-            binding.mainVideoRl.setVisibility(View.VISIBLE);
-            binding.mainAdviseVideo.setVideoPath(path);
-            binding.mainAdviseVideo.start();//播放
-            binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
-                binding.mainAdviseVideo.setVideoPath(path);
-                //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
-                binding.mainAdviseVideo.start();
-            });
-        }
+//        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
+//        if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
+//            String path = lastAdvise.getFilePath();//广告路径
+//            binding.mainVideoRl.setVisibility(View.VISIBLE);
+//            binding.mainAdviseVideo.setVideoPath(path);
+//            binding.mainAdviseVideo.start();//播放
+//            binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
+//                binding.mainAdviseVideo.setVideoPath(path);
+//                //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
+//                binding.mainAdviseVideo.start();
+//            });
+//        }
     }
 
     /**
@@ -318,17 +321,18 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 } else {//打开成功,上传状态
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
-                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
-                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
+                    //deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
+                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId, this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
                 }
                 break;
             case QUERY_BATCH:
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
-                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
+                    //deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeCountTask.cancel();
                     playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
+                    deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                 }
 
                 break;
@@ -351,8 +355,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private void closeAnim() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
         setAnim(animator);
-        binding.mainDialogAnimIv.setBackgroundResource(0);
-        binding.mainDialogAnimIv.setVisibility(View.GONE);
+        //binding.mainDialogAnimIv.setBackgroundResource(0);
+        //binding.mainDialogAnimIv.setVisibility(View.GONE);
     }
 
     /**
@@ -371,8 +375,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     public void run() {
                         runOnUiThread(() -> {
                             closeAnim();
-                            binding.mainVideoRl.setVisibility(View.VISIBLE);
-                            binding.mainAdviseVideo.start();
+//                            binding.mainVideoRl.setVisibility(View.VISIBLE);
+//                            binding.mainAdviseVideo.start();
                         });
                     }
                 }, Constants.DELAY_ADVISE_MILL_SECOND);

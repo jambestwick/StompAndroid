@@ -36,10 +36,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBoxState(Context context, String boxId, BoxStateListener listener) {
-        if (dialogUtils == null) {
-            dialogUtils = new DialogUtils();
-        }
-        dialogUtils.showProgress(context);
+//        if (dialogUtils == null) {
+//            dialogUtils = new DialogUtils();
+//        }
+//        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
@@ -51,10 +51,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
-        if (dialogUtils == null) {
-            dialogUtils = new DialogUtils();
-        }
-        dialogUtils.showProgress(context);
+//        if (dialogUtils == null) {
+//            dialogUtils = new DialogUtils();
+//        }
+//        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         intent.putExtra("batchboxid", boxIds);
         context.sendBroadcast(intent);

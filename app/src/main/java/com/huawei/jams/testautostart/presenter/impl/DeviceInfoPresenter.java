@@ -117,17 +117,17 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     public static class TimeCountTask extends TimerTask {
-        private String boxId;
+        private String[] boxId;
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeCountTask(String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
-            this.boxId = boxId;
+        public TimeCountTask(String[] boxIds, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+            this.boxId = boxIds;
             this.boxStateListener = boxStateListener;
         }
 
         @Override
         public void run() {
-            KeyCabinetReceiver.queryBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
+            KeyCabinetReceiver.queryBatchBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
 
         }
     }
