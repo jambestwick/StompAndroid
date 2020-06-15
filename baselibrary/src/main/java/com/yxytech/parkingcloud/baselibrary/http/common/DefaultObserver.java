@@ -51,7 +51,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
     @Override
     public void onError(Throwable e) {
         if (e != null) {
-            LogUtil.e(TAG, "onError" + Log.getStackTraceString(e));
+            LogUtil.e(TAG, Thread.currentThread().getName() + "onError" + Log.getStackTraceString(e));
             if (e instanceof HttpException) {     //   HTTP错误
                 onException(ExceptionReason.BAD_NETWORK);
             } else if (e instanceof ConnectException
@@ -92,7 +92,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
      * 服务器返回数据，但响应码不为1000
      */
     public void onFail(int errorCode, String cause) {
-        LogUtil.d(TAG, "onFail---------------" + cause);
+        LogUtil.d(TAG, Thread.currentThread().getName() + "onFail---------------" + cause);
 //        if (errorCode == ErrorCode.TOKEN_PAST) {
 //            try {
 //                Intent intent = new Intent(context, Class.forName("com.huawei.jams.testautostart.view.activity.WelcomeActivity"));

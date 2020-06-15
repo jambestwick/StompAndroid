@@ -24,8 +24,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
 
-    public DeviceInfoPresenter(BaseActivity activity, IDeviceInfoView deviceInfoView) {
-        this.mDeviceInfoModel = new DeviceInfoModel(activity);
+    public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
+        this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
         this.deviceInfoView = deviceInfoView;
     }
 
@@ -117,18 +117,17 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     public static class TimeCountTask extends TimerTask {
-        private String boxId;
+        private String boxId[];
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeCountTask(String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeCountTask(String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
             this.boxId = boxId;
             this.boxStateListener = boxStateListener;
         }
 
         @Override
         public void run() {
-            KeyCabinetReceiver.queryBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
-
+            KeyCabinetReceiver.queryBatchBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
         }
     }
 

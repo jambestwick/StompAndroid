@@ -36,10 +36,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBoxState(Context context, String boxId, BoxStateListener listener) {
-        if (dialogUtils == null) {
-            dialogUtils = new DialogUtils();
-        }
-        dialogUtils.showProgress(context);
+//        if (dialogUtils == null) {
+//            dialogUtils = new DialogUtils();
+//        }
+//        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
@@ -51,10 +51,10 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     }
 
     public static void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
-        if (dialogUtils == null) {
-            dialogUtils = new DialogUtils();
-        }
-        dialogUtils.showProgress(context);
+//        if (dialogUtils == null) {
+//            dialogUtils = new DialogUtils();
+//        }
+//        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         intent.putExtra("batchboxid", boxIds);
         context.sendBroadcast(intent);
@@ -76,13 +76,15 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
                 boolean isOpened = intent.getExtras().getBoolean("isopened");
                 boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
                 LogUtil.d(TAG, "箱门:" + boxId + ",查询操作广播返回isOpened:" + isOpened + ",isStoraged:" + isStoraged);
-                if (boxStateListener != null) boxStateListener.onBoxStateBack(enumActionType,new String[]{boxId}, new boolean[]{isOpened});
+                if (boxStateListener != null)
+                    boxStateListener.onBoxStateBack(enumActionType, new String[]{boxId}, new boolean[]{isOpened});
             }
             if ("android.intent.action.hal.iocontroller.batchopen.result".equals(intent.getAction())) {
                 String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
                 boolean[] opened = intent.getExtras().getBooleanArray("opened");
                 LogUtil.d(TAG, "箱门:" + Arrays.toString(batchboxid) + ",操作广播返回opened:" + Arrays.toString(opened));
-                if (boxStateListener != null) boxStateListener.onBoxStateBack(enumActionType, batchboxid, opened);
+                if (boxStateListener != null)
+                    boxStateListener.onBoxStateBack(enumActionType, batchboxid, opened);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -198,7 +198,7 @@ public class PackageUtils {
                         break;
                 }
             } catch (NumberFormatException e) {
-                LogUtil.d(TAG, "pm get-install-location error!!!  NumberFormatException :" + Log.getStackTraceString(e));
+                LogUtil.d(TAG, Thread.currentThread().getName() + "pm get-install-location error!!!  NumberFormatException :" + Log.getStackTraceString(e));
             }
         }
         return APP_INSTALL_AUTO;
@@ -213,13 +213,13 @@ public class PackageUtils {
      */
     private static void installSilent(String filePath, String pmParams) {
         if (filePath == null || filePath.length() == 0) {
-            LogUtil.i(TAG, "installSilent: error path");
+            LogUtil.i(TAG, Thread.currentThread().getName() + "installSilent: error path");
             return;
         }
 
         File file = new File(filePath);
         if (file.length() <= 0 || !file.exists() || !file.isFile()) {
-            LogUtil.i(TAG, "installSilent:  error file");
+            LogUtil.i(TAG, Thread.currentThread().getName() + "installSilent:  error file");
             return;
         }
         //LD_LIBRARY_PATH 指定链接库位置 指定安装命令
@@ -231,7 +231,7 @@ public class PackageUtils {
         ShellUtils.CommandResult result = ShellUtils.execCmd(command, true, true);
         if (result.successMsg != null
                 && (result.successMsg.contains("Success") || result.successMsg.contains("success"))) {
-            LogUtil.i(TAG, "installSilent: success");
+            LogUtil.i(TAG, Thread.currentThread().getName() + "installSilent: success");
         }
     }
 
@@ -243,7 +243,7 @@ public class PackageUtils {
      */
     public static void uninstallSilent(String packageName, boolean isKeepData) {
         if (packageName == null) {
-            LogUtil.i(TAG, "uninstallSilent: error package");
+            LogUtil.i(TAG, Thread.currentThread().getName() + "uninstallSilent: error package");
             return;
         }
         String command = "LD_LIBRARY_PATH=/vendor/lib:/system/lib pm uninstall" +
@@ -252,7 +252,7 @@ public class PackageUtils {
         ShellUtils.CommandResult result = ShellUtils.execCmd(command, true, true);
         if (result.successMsg != null
                 && (result.successMsg.contains("Success") || result.successMsg.contains("success"))) {
-            LogUtil.i(TAG, "uninstallSilent: success");
+            LogUtil.i(TAG, Thread.currentThread().getName() + "uninstallSilent: success");
         }
     }
 

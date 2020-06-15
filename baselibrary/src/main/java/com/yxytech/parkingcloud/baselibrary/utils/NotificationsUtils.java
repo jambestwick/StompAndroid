@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
 /**
  * <p>文件描述：<p>
@@ -61,7 +62,7 @@ public class NotificationsUtils {
             localIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.e(TAG, "打开权限设置,异常:" + e.toString());
+            LogUtil.e(TAG, Thread.currentThread().getName() + "打开权限设置,异常:" + Log.getStackTraceString(e));
         }
     }
 }

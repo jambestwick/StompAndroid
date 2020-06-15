@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.R;
@@ -118,7 +119,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private void initNetData() {
         StompUtil.getInstance().setContext(this);
         stompConnectListener = enumConnectState -> {
-            LogUtil.d(TAG, "stomp Connect response" + enumConnectState);
+            LogUtil.d(TAG, Thread.currentThread().getName() + "stomp Connect response" + enumConnectState);
             switch (enumConnectState) {
                 case CLOSE:
                     if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
@@ -319,7 +320,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
-                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId[0], this);
+                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId, this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
                 }
                 break;
@@ -330,7 +331,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     timeCountTask.cancel();
                     playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
                 }
-
                 break;
         }
     }
@@ -351,8 +351,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private void closeAnim() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
         setAnim(animator);
-        binding.mainDialogAnimIv.setBackgroundResource(0);
-        binding.mainDialogAnimIv.setVisibility(View.GONE);
     }
 
     /**
@@ -363,6 +361,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         //直接创建，不需要设置setDataSource
         MediaPlayer mMediaPlayer = MediaPlayer.create(this, rawId);
         mMediaPlayer.start();
+        closeAnim();
         mMediaPlayer.setOnCompletionListener(mp -> {
             mp.release();
             if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
@@ -370,7 +369,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     @Override
                     public void run() {
                         runOnUiThread(() -> {
-                            closeAnim();
                             binding.mainVideoRl.setVisibility(View.VISIBLE);
                             binding.mainAdviseVideo.start();
                         });

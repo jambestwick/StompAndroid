@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.support.annotation.RequiresPermission;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
@@ -72,7 +73,7 @@ public class LocationUtils {
         String locationProvider = locationManager.getBestProvider(criteria, true);
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            LogUtil.d(TAG, "位置: 没有权限 ");
+            LogUtil.d(TAG, Thread.currentThread().getName() + "位置: 没有权限 ");
             ToastUtil.showInCenter(context, "请打开位置权限");
             return;
         }
@@ -80,14 +81,14 @@ public class LocationUtils {
         Geocoder geocoder = new Geocoder(context);
         List<Address> addressList = null;
         if (location != null) {
-            LogUtil.d(TAG, "当前的位置: location" + location);
+            LogUtil.d(TAG, Thread.currentThread().getName() + "当前的位置: location" + location);
             longitude = location.getLongitude();
             latitude = location.getLatitude();
             try {
                 addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
             } catch (IOException e) {
                 e.printStackTrace();
-                LogUtil.e(TAG, "location Geo error:" + e.toString());
+                LogUtil.e(TAG, Thread.currentThread().getName() + "location Geo error:" + e.toString());
             }
             if (addressList != null && addressList.size() > 0) {
                 Address ad = addressList.get(0);
@@ -99,7 +100,7 @@ public class LocationUtils {
             // 当坐标改变时触发此函数，如果Provider传进相同的坐标，它就不会被触发
             @Override
             public void onLocationChanged(Location location) {
-                LogUtil.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
+                LogUtil.d(TAG, Thread.currentThread().getName() + "onLocationChanged: ");
                 //如果位置发生变化,重新显示
                 latitude = location.getLatitude(); // 经度
                 longitude = location.getLongitude(); // 纬度
@@ -108,11 +109,11 @@ public class LocationUtils {
                     addressList1 = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    LogUtil.e(TAG, "location Geo error:" + e.toString());
+                    LogUtil.e(TAG, Thread.currentThread().getName() + "location Geo error:" + Log.getStackTraceString(e));
                 }
                 if (addressList1 != null && addressList1.size() > 0) {
                     Address ad = addressList1.get(0);
-                    LogUtil.d(TAG, "current location address:" + ad.toString());
+                    LogUtil.d(TAG, Thread.currentThread().getName() + "current location address:" + ad.toString());
                     address = ad.getCountryName() + ad.getAdminArea() + ad.getLocality() + ad.getSubLocality() + ad.getFeatureName();//拿到城市
                 }
             }
@@ -120,22 +121,23 @@ public class LocationUtils {
             // Provider的状态在可用、暂时不可用和无服务三个状态直接切换时触发此函数
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-                LogUtil.d(TAG, "onStatusChanged: " + provider + ",status:" + status + ",Bundle:" + extras + ".." + Thread.currentThread().getName());
+                LogUtil.d(TAG, Thread.currentThread().getName() + "onStatusChanged: " + provider + ",status:" + status + ",Bundle:" + extras);
 
             }
 
             // Provider被enable时触发此函数，比如GPS被打开
             @Override
             public void onProviderEnabled(String provider) {
-                LogUtil.d(TAG, "onProviderEnabled: " + provider + ".." + Thread.currentThread().getName());
+                LogUtil.d(TAG, Thread.currentThread().getName() + "onProviderEnabled: " + provider);
             }
 
             // Provider被disable时触发此函数，比如GPS被关闭
             @Override
             public void onProviderDisabled(String provider) {
-                LogUtil.d(TAG, "onProviderDisabled: " + provider + ".." + Thread.currentThread().getName());
+                LogUtil.d(TAG, Thread.currentThread().getName() + "onProviderDisabled: " + provider);
             }
         };
         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
     }
+
 }

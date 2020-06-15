@@ -8,8 +8,10 @@ import com.yxytech.parkingcloud.baselibrary.R;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+
 import io.reactivex.*;
 import io.reactivex.functions.Action;
+
 import org.reactivestreams.Subscription;
 
 import java.lang.ref.WeakReference;
@@ -22,6 +24,8 @@ import io.reactivex.functions.Consumer;
  */
 
 public class ProgressUtils {
+    private static final String TAG = ProgressUtils.class.getName();
+
     public static <T> ObservableTransformer<T, T> applyProgressBar(
             @NonNull final Activity activity, String msg) {
         final WeakReference<Activity> activityWeakReference = new WeakReference<>(activity);
@@ -72,23 +76,23 @@ public class ProgressUtils {
                 .doOnSubscribe(disposable -> {
                 })
                 .doOnTerminate(() -> {//订阅被终止
-                    LogUtil.d("======", "doOnTerminate");
+                    LogUtil.d(TAG, Thread.currentThread().getName() + "doOnTerminate");
                     Activity context = activityWeakReference.get();
                     if (context != null
                             && !context.isFinishing()) {
                         dialogUtils.dismissProgress();
                     }
                 }).doFinally(() -> {
-                            LogUtil.d("======", "doFinally");
+                    LogUtil.d(TAG, Thread.currentThread().getName() + "doFinally");
 //            Activity context = activityWeakReference.get();
 //            if (null != context && !context.isFinishing()) {
 //                dialogUtils.dismissProgress();
 //            }
-                        })
+                })
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        LogUtil.d("======", "doOnComplete");
+                        LogUtil.d(TAG, Thread.currentThread().getName() + "doOnComplete");
                     }
                 });
     }

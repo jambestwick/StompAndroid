@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -282,7 +283,7 @@ public class BitmapUtils {
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
-            LogUtil.e(BitmapUtils.class.getName(), e.toString());
+            LogUtil.e(BitmapUtils.class.getName(), Thread.currentThread().getName() + Log.getStackTraceString(e));
             return null;
         } finally {
             try {

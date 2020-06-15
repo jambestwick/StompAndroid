@@ -138,7 +138,7 @@ public class RetrofitService {
             sc.init(null, null, null);
             sSLSocketFactory = sc.getSocketFactory();
         } catch (Exception e) {
-            LogUtil.e(TAG, "createSSLSocketFactory: " + e.getMessage());
+            LogUtil.e(TAG, Thread.currentThread().getName() + "createSSLSocketFactory: " + Log.getStackTraceString(e));
         }
 
         return sSLSocketFactory;
