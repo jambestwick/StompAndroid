@@ -361,7 +361,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         //直接创建，不需要设置setDataSource
         MediaPlayer mMediaPlayer = MediaPlayer.create(this, rawId);
         mMediaPlayer.start();
-        closeAnim();
+
         mMediaPlayer.setOnCompletionListener(mp -> {
             mp.release();
             if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
@@ -369,6 +369,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     @Override
                     public void run() {
                         runOnUiThread(() -> {
+                            closeAnim();
+                            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                             binding.mainVideoRl.setVisibility(View.VISIBLE);
                             binding.mainAdviseVideo.start();
                         });
