@@ -38,6 +38,16 @@ public class AppManager {
         activityStack.add(activity);
     }
 
+    // 将当前Activity移出栈中
+    public void removeActivity(Activity activity) {
+        if (activity != null) {
+            if (activityStack == null) {
+                activityStack = new Stack<Activity>();
+            }
+            activityStack.remove(activity);
+        }
+    }
+
     /**
      * 获取当前Activity（堆栈中最后一个压入的）
      */
@@ -113,8 +123,10 @@ public class AppManager {
         }
         return null;
     }
+
     /**
      * 判断Activity是否Destroy
+     *
      * @param mActivity
      * @return true:已销毁
      */

@@ -121,8 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
     @CallSuper
     protected void onDestroy() {
         lifecycleSubject.onNext(ActivityEvent.DESTROY);
-        AppManager.getAppManager().finishActivity(this);
         super.onDestroy();
-
+        AppManager.getAppManager().removeActivity(this);
     }
 }
