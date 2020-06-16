@@ -18,13 +18,17 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.*;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Objects;
 
 
 public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, KeyCabinetReceiver.BoxStateListener {
-    private static final String TAG = WelcomeActivity.class.getName();
+    public static final String TAG = WelcomeActivity.class.getName();
     private ActivityWelcomeBinding binding;
     private String hintMessage = "";//提示语
     private String btnMessage = "";//确认按钮
@@ -58,7 +62,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     initDevice();
                     break;
                 case R.id.wel_code_delete_tv://删除前一位
-                    SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     decreaseInputCode();
                     break;
                 case R.id.wel_code_ok_tv:
@@ -75,31 +78,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     break;
             }
         });
-
         StompUtil.getInstance().setConnectListener(connectListener);
-    }
-
-
-    private void setData() {
-        if (StrUtil.isNotBlank(hintMessage)) {
-            binding.welHintTv.setVisibility(View.VISIBLE);
-            binding.setHint(hintMessage);
-        } else {
-            binding.welHintTv.setVisibility(View.GONE);
-        }
-        if (StrUtil.isNotBlank(btnMessage)) {
-            binding.welConfirmBtn.setVisibility(View.VISIBLE);
-            binding.setButton(btnMessage);
-        } else {
-            binding.welConfirmBtn.setVisibility(View.GONE);
-        }
-        if (StrUtil.isNotBlank(cancelMessage)) {
-            binding.welCancelBtn.setVisibility(View.VISIBLE);
-            binding.setCancel(cancelMessage);
-        } else {
-            binding.welCancelBtn.setVisibility(View.GONE);
-        }
-
     }
 
     private void initDevice() {
@@ -135,6 +114,9 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         }
         if (step == EnumDeviceCheck.STEP_4.key) {
             readBoxAllClose();
+            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+            StompUtil.getInstance().removeConnectListener(connectListener);
+            finish();
         }
         if (step == EnumDeviceCheck.STEP_5.key) {
             judgeBoxAllClose();
@@ -264,6 +246,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 删除6位密码一位
      **/
     private void decreaseInputCode() {
+        SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
         if (inputCode.length() > 0) {
             inputCode = inputCode.substring(0, inputCode.length() - 1);
             deviceCheckPresenter.refreshWelcomeCode2View(binding, inputCode);
@@ -399,18 +382,43 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
 
     }
 
+
     enum EnumDeviceBindState {
         NEW, OLD
     }
 
+    /**
+     * 转换步骤并刷新提示控件内容
+     **/
     private void turnStep(EnumDeviceCheck enumDeviceCheck, String hintMessage, String btnMessage, String cancelMessage) {
         this.step = enumDeviceCheck.key;
         this.hintMessage = hintMessage;
         this.btnMessage = btnMessage;
         this.cancelMessage = cancelMessage;
-
         this.setData();
     }
+
+    private void setData() {
+        if (StrUtil.isNotBlank(hintMessage)) {
+            binding.welHintTv.setVisibility(View.VISIBLE);
+            binding.setHint(hintMessage);
+        } else {
+            binding.welHintTv.setVisibility(View.GONE);
+        }
+        if (StrUtil.isNotBlank(btnMessage)) {
+            binding.welConfirmBtn.setVisibility(View.VISIBLE);
+            binding.setButton(btnMessage);
+        } else {
+            binding.welConfirmBtn.setVisibility(View.GONE);
+        }
+        if (StrUtil.isNotBlank(cancelMessage)) {
+            binding.welCancelBtn.setVisibility(View.VISIBLE);
+            binding.setCancel(cancelMessage);
+        } else {
+            binding.welCancelBtn.setVisibility(View.GONE);
+        }
+    }
+
 
     @Override
     protected void onDestroy() {

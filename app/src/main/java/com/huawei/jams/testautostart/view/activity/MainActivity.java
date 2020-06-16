@@ -2,7 +2,6 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -50,9 +49,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAppInfoPresenter appInfoPresenter;
 
     private IAdvisePresenter advisePresenter;
-    private Timer patrolTimer = new Timer();//巡检柜门状态任务Timer
+    private Timer patrolTimer = new Timer();//巡检柜门状态任务Timer，和巡检超时未操作返回广告的timer
     private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
-    private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;
+    private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//超时未操作返回广告
     private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
@@ -112,12 +111,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             }
 
         });
-        Glide.with(this).load(R.mipmap.gif_open_box).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(binding.mainOpenClickIv);
+        Glide.with(this).load(R.mipmap.gif_open_box).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(binding.mainOpenClickIv);//加载gif动画
 
     }
 
     private void initNetData() {
-        StompUtil.getInstance().setContext(this);
         stompConnectListener = enumConnectState -> {
             LogUtil.d(TAG, Thread.currentThread().getName() + "stomp Connect response" + enumConnectState);
             switch (enumConnectState) {
@@ -313,13 +311,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onBoxStateBack(KeyCabinetReceiver.EnumActionType enumActionType, String[] boxId, boolean[] isOpen) {
         switch (enumActionType) {
             case OPEN_BATCH:
-                if (!isOpen[0]) {//打开失败
+                if (!isOpen[0]) {//打开柜门失败
                     StompUtil.getInstance().removeConnectListener(stompConnectListener);
                     startAnim(R.mipmap.bg_hint_device_error);
-                } else {//打开成功,上传状态
+                } else {//打开柜门成功,上传状态
+                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
-                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId, this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
                 }
@@ -328,7 +326,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
-                    timeCountTask.cancel();
+                    timeCountTask.cancel();//关闭查询状态的轮巡
                     playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
                 }
                 break;
@@ -355,29 +353,27 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     /**
      * 播放音乐
-     * 如果柜门已关闭，延迟Constants#DELAY_ADVISE_MILL_SECOND 关闭顶部图片，展示并播放广告
+     *
+     * @param rawId        资源ID
+     * @param enumBoxState 如果柜门已关闭，
+     *                     延迟Constants#DELAY_ADVISE_MILL_SECOND 关闭顶部图片，展示并播放广告
      */
     private void playMusic(int rawId, DeviceInfo.EnumBoxState enumBoxState) {
         //直接创建，不需要设置setDataSource
-        MediaPlayer mMediaPlayer = MediaPlayer.create(this, rawId);
-        mMediaPlayer.start();
-
-        mMediaPlayer.setOnCompletionListener(mp -> {
-            mp.release();
-            if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
-                patrolTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        runOnUiThread(() -> {
-                            closeAnim();
-                            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                            binding.mainVideoRl.setVisibility(View.VISIBLE);
-                            binding.mainAdviseVideo.start();
-                        });
-                    }
-                }, Constants.DELAY_ADVISE_MILL_SECOND);
-            }
-        });
+        SoundPoolUtil.getInstance().play(this, rawId);
+        if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
+            patrolTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(() -> {
+                        closeAnim();
+                        deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+                        binding.mainVideoRl.setVisibility(View.VISIBLE);
+                        binding.mainAdviseVideo.start();
+                    });
+                }
+            }, Constants.DELAY_ADVISE_MILL_SECOND);
+        }
     }
 
     private void setAnim(ValueAnimator animator) {
@@ -400,17 +396,14 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void timeOut() {//超时界面没人操作，则进入广告
         timeAdviseTask.cancel();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                closeAnim();
-                if (null != dialogUtils) {
-                    dialogUtils.dismissProgress();
-                }
-                deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                binding.mainVideoRl.setVisibility(View.VISIBLE);
-                binding.mainAdviseVideo.start();
+        runOnUiThread(() -> {
+            if (null != dialogUtils) {
+                dialogUtils.dismissProgress();
             }
+            closeAnim();
+            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+            binding.mainVideoRl.setVisibility(View.VISIBLE);
+            binding.mainAdviseVideo.start();
         });
     }
 

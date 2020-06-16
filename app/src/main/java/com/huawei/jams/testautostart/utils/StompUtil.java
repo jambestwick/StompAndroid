@@ -2,7 +2,10 @@ package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -57,7 +60,6 @@ public class StompUtil {
     private static final int HEART_BEAT = 1000;
 
     private static StompUtil instance;
-    private Context context;
     private static final Object lock = new Object();
 
     public static StompUtil getInstance() {
@@ -81,10 +83,6 @@ public class StompUtil {
         return connectListeners.remove(stompConnectListener);
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
 
@@ -97,14 +95,16 @@ public class StompUtil {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                Log.d(TAG, Thread.currentThread().getName() + ", debug in timer ======================");
+                Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
                 if (mNeedConnect && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
                     mStompClient = null;
-                    try {
-                        connect(userName, password);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        try {
+                            connect(userName, password);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
                     Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
             }
@@ -120,13 +120,7 @@ public class StompUtil {
         mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
         List<StompHeader> _headers = new ArrayList<>();
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
-        DialogUtils dialogUtils = null;
-        if (null != this.context) {
-            dialogUtils = new DialogUtils();
-            dialogUtils.showProgress(context);
-        }
         mStompClient.connect(_headers);
-        DialogUtils finalDialogUtils = dialogUtils;
         mStompClient.lifecycle()
                 //.compose(ProgressUtils.applyProgressBarStomp(activity))
                 .subscribeOn(Schedulers.io())
@@ -138,10 +132,8 @@ public class StompUtil {
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
                                     for (StompConnectListener connectListener : connectListeners) {
+
                                         connectListener.onConnectState(EnumConnectState.CONNECT);
-                                    }
-                                    if (null != finalDialogUtils) {
-                                        finalDialogUtils.dismissProgress();
                                     }
                                     //topicMessage();
                                     break;
@@ -157,9 +149,6 @@ public class StompUtil {
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
                                     for (StompConnectListener connectListener : connectListeners) {
                                         connectListener.onConnectState(EnumConnectState.CLOSE);
-                                    }
-                                    if (null != finalDialogUtils) {
-                                        finalDialogUtils.dismissProgress();
                                     }
                                     break;
                                 case FAILED_SERVER_HEARTBEAT:

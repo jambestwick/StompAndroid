@@ -1,6 +1,5 @@
 package com.huawei.jams.testautostart;
 
-import android.os.Environment;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -14,13 +13,12 @@ import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
 import com.yxytech.parkingcloud.baselibrary.utils.FileUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
-import io.reactivex.plugins.RxJavaPlugins;
-
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import io.reactivex.plugins.RxJavaPlugins;
 
 /**
  * <p>文件描述：<p>
@@ -64,7 +62,7 @@ public class BaseApp extends BaseApplication {
             advise.setCreateTime(new Date());
             advise.setFileName("adv000");
             List<File> fileList = FileUtils.listFilesInDirWithFilter(Constants.ADVISE_DIR, ".mp4");
-            if (fileList.size() > 0) {
+            if (null != fileList && fileList.size() > 0) {
                 advise.setFilePath(fileList.get(0).getAbsolutePath());
                 advise.save();
             }
