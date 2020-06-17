@@ -78,7 +78,7 @@ public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
         pw.close();
         String result = writer.toString();
         // 打印出错误日志
-        LogUtil.e(TAG, Thread.currentThread().getName() + result);
+        LogUtil.e(TAG, Thread.currentThread().getName() + "," + result);
         return true;
     }
 

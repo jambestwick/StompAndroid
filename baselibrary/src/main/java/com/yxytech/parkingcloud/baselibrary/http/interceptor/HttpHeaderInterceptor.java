@@ -22,7 +22,7 @@ public class HttpHeaderInterceptor implements Interceptor {
         String tokenType = "tokenType";
 //        String cookie = PreferencesManager.getInstance(Utils.getContext()).get("cookie");
         String token = PreferencesManager.getInstance(BaseApplication.getAppContext()).get("token");
-        LogUtil.d("HttpHeaderInterceptor", Thread.currentThread().getName() + "Cookie: " + token);
+        LogUtil.d("HttpHeaderInterceptor", Thread.currentThread().getName() + ",Cookie: " + token);
         Request request = chain.request().newBuilder()
                 //.header("app_key", "appId")
                // .header("Authorization", tokenType + " " + accessToken)

@@ -108,7 +108,7 @@ public class AppManager {
             android.os.Process.killProcess(android.os.Process.myPid());
 
         } catch (Exception e) {
-            LogUtil.e(AppManager.class.getName(), Thread.currentThread().getName() + Log.getStackTraceString(e));
+            LogUtil.e(AppManager.class.getName(), Thread.currentThread().getName() + "AppExit:" + Log.getStackTraceString(e));
         }
     }
 

@@ -1,10 +1,11 @@
 package com.yxytech.parkingcloud.baselibrary.http.https;
 
 import android.os.Build;
-import android.util.Log;
 
-import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -14,11 +15,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * <p>文件描述：<p>

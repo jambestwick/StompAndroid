@@ -283,7 +283,7 @@ public class BitmapUtils {
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
-            LogUtil.e(BitmapUtils.class.getName(), Thread.currentThread().getName() + Log.getStackTraceString(e));
+            LogUtil.e(BitmapUtils.class.getName(), Thread.currentThread().getName() +",saveBitmapToPath:"+ Log.getStackTraceString(e));
             return null;
         } finally {
             try {

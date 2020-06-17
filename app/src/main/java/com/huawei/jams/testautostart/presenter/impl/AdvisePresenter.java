@@ -77,7 +77,7 @@ public class AdvisePresenter implements IAdvisePresenter {
 
             @Override
             public void onDownLoadFail(Throwable throwable) {
-                LogUtil.e(TAG, "downloadAdvise onDownLoadFail:" + Log.getStackTraceString(throwable));
+                LogUtil.e(TAG, Thread.currentThread().getName()+",downloadAdvise onDownLoadFail:" + Log.getStackTraceString(throwable));
                 adviseView.onDownloadAdviseFail(throwable.getMessage());
             }
 

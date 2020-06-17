@@ -23,7 +23,7 @@ public class HttpCacheInterceptor implements Interceptor {
             request = request.newBuilder()
                     .cacheControl(CacheControl.FORCE_CACHE)
                     .build();
-            LogUtil.d("HttpCacheInterceptor", Thread.currentThread().getName() + "no network");
+            LogUtil.d("HttpCacheInterceptor", Thread.currentThread().getName() + ",no network");
         }
 
         Response originalResponse = chain.proceed(request);

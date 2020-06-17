@@ -190,7 +190,7 @@ public class StompUtil {
                         @Override
                         public void onSubscribe(Disposable d) {
                             sendBack.onSendSuccess();
-                            LogUtil.d(TAG, Thread.currentThread() + ",STOMP send" + destPath + ",data:" + jsonMsg + ",successfully");
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",STOMP send:" + destPath + ",data:" + jsonMsg + ",successfully");
                             if (null != dialogUtils) {
                                 dialogUtils.dismissProgress();
                             }
@@ -204,7 +204,7 @@ public class StompUtil {
                         @Override
                         public void onError(Throwable throwable) {
                             sendBack.onSendError(throwable);
-                            LogUtil.e(TAG, Thread.currentThread().getName() + ",Error send STOMP " + destPath + ",data:" + jsonMsg + throwable);
+                            LogUtil.e(TAG, Thread.currentThread().getName() + ",Error send STOMP: " + destPath + ",data:" + jsonMsg + "," + throwable);
                             if (null != dialogUtils) {
                                 dialogUtils.dismissProgress();
                             }
@@ -236,9 +236,9 @@ public class StompUtil {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(topicMessage -> {
-                    Log.d(TAG, Thread.currentThread().getName() + ",Received " + topicMessage.getPayload());
+                    Log.d(TAG, Thread.currentThread().getName() + ",Received: " + topicMessage.getPayload());
                 }, throwable -> {
-                    Log.e(TAG, Thread.currentThread().getName() + ",Error on subscribe topic", throwable);
+                    Log.e(TAG, Thread.currentThread().getName() + ",Error on subscribe topic:", throwable);
                 });
         Disposable dispTopic2 = mStompClient.topic("/user/queue/receive-transaction")
                 .subscribeOn(Schedulers.io())

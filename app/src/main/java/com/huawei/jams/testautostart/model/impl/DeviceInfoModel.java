@@ -80,7 +80,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                     @Override
                     public void onFail(int errorCode, String cause) {
                         super.onFail(errorCode, cause);
-                        LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onFail,errorCode" + errorCode + ",cause" + cause);
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onFail,errorCode:" + errorCode + ",cause:" + cause);
                         callBack.onCallBack(errorCode, cause, null);
                     }
                 });

@@ -62,7 +62,7 @@ public class NotificationsUtils {
             localIntent.putExtra("com.android.settings.ApplicationPkgName", context.getPackageName());
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.e(TAG, Thread.currentThread().getName() + "打开权限设置,异常:" + Log.getStackTraceString(e));
+            LogUtil.e(TAG, Thread.currentThread().getName() + ",打开权限设置,异常:" + Log.getStackTraceString(e));
         }
     }
 }

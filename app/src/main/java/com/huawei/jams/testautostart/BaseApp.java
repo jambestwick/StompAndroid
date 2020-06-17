@@ -38,7 +38,7 @@ public class BaseApp extends BaseApplication {
         ExceptionHelper.getInstance().init();//初始化未知异常捕获
         RxJavaPlugins.setErrorHandler(throwable -> {
             //异常处理
-            LogUtil.e(this.getClass().getName(), "setErrorHandler:" + Log.getStackTraceString(throwable));
+            LogUtil.e(this.getClass().getName(), Thread.currentThread().getName() + ",setErrorHandler:" + Log.getStackTraceString(throwable));
         });
         initVideo();
     }

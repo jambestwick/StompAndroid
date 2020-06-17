@@ -33,13 +33,13 @@ public class SoundPoolUtil {
 
     @SuppressLint("NewApi")//这里初始化SoundPool的方法是安卓5.0以后提供的新方式
     private SoundPoolUtil() {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT > 21) {
             SoundPool.Builder builder = new SoundPool.Builder();
             //传入最多播放音频数量,
             builder.setMaxStreams(1);
             //AudioAttributes是一个封装音频各种属性的方法
             AudioAttributes.Builder attrBuilder = new AudioAttributes.Builder();
-            //设置音频流的合适的属性
+            //设置音频流的合适的属性BufferQueue
             attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC);
             //加载一个AudioAttributes
             builder.setAudioAttributes(attrBuilder.build());

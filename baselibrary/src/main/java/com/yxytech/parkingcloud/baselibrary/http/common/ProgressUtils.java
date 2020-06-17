@@ -2,22 +2,16 @@ package com.yxytech.parkingcloud.baselibrary.http.common;
 
 import android.app.Activity;
 import android.support.annotation.NonNull;
-
-
-import com.yxytech.parkingcloud.baselibrary.R;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
-
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-
-import io.reactivex.*;
+import io.reactivex.CompletableTransformer;
+import io.reactivex.FlowableTransformer;
+import io.reactivex.ObservableTransformer;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
-
-import org.reactivestreams.Subscription;
+import io.reactivex.functions.Consumer;
 
 import java.lang.ref.WeakReference;
-
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by zhpan on 2018/3/22.
@@ -76,14 +70,14 @@ public class ProgressUtils {
                 .doOnSubscribe(disposable -> {
                 })
                 .doOnTerminate(() -> {//订阅被终止
-                    LogUtil.d(TAG, Thread.currentThread().getName() + "doOnTerminate");
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",doOnTerminate");
                     Activity context = activityWeakReference.get();
                     if (context != null
                             && !context.isFinishing()) {
                         dialogUtils.dismissProgress();
                     }
                 }).doFinally(() -> {
-                    LogUtil.d(TAG, Thread.currentThread().getName() + "doFinally");
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",doFinally");
 //            Activity context = activityWeakReference.get();
 //            if (null != context && !context.isFinishing()) {
 //                dialogUtils.dismissProgress();
@@ -92,7 +86,7 @@ public class ProgressUtils {
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        LogUtil.d(TAG, Thread.currentThread().getName() + "doOnComplete");
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",doOnComplete");
                     }
                 });
     }
