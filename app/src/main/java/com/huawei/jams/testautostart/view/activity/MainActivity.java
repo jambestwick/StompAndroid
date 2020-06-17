@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     if (inputCode.length() == 6) {
                         //deviceInfoPresenter.openBox(inputCode);
                         String [] box=new String[1];
-                        box[0]="Z0"+inputCode.charAt(5);
+                        box[0]="Z99";
                         KeyCabinetReceiver.openBatchBox(this,box,this);
                     } else {
                         //提示码位数不够
