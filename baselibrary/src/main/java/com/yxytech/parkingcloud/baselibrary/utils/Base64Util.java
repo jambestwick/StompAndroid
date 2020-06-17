@@ -281,7 +281,7 @@ public class Base64Util {
         String credentialsString = username + ":" + password;
         byte[] encodedBytes = Base64.encode(credentialsString.getBytes(charset), 0);
         String s = new String(encodedBytes, charset);
-        //String newStr = s.replaceAll("\r|\n", "");
-        return s;
+        String newStr = s.replaceAll("\r|\n", "");
+        return newStr;
     }
 }
