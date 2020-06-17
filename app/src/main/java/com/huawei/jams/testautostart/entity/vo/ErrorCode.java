@@ -14,4 +14,5 @@ abstract class ErrorCode implements Serializable {
     private static final long serialVersionUID = 4323909445005751246L;
     protected int errcode;
 
+
 }

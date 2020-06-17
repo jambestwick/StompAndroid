@@ -31,7 +31,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
         intent.putExtra("batchboxid", boxIdList);
         context.sendBroadcast(intent);
-        LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIdList) + ",打开操作广播发出");
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + Arrays.toString(boxIdList) + ",打开操作广播发出");
         boxStateListener = listListener;
         enumActionType = EnumActionType.OPEN_BATCH;
     }
@@ -45,7 +45,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
         context.sendBroadcast(intent);
-        LogUtil.d(TAG, "箱门:" + boxId + ",查询操作广播发出");
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + boxId + ",查询操作广播发出");
         boxStateListener = listener;
         enumActionType = EnumActionType.QUERY;
 
@@ -59,7 +59,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         intent.putExtra("batchboxid", boxIds);
         context.sendBroadcast(intent);
-        LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIds) + ",批量查询操作广播发出");
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + Arrays.toString(boxIds) + ",批量查询操作广播发出");
         boxStateListener = listener;
         enumActionType = EnumActionType.QUERY_BATCH;
 
@@ -76,20 +76,20 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
                 String boxId = intent.getExtras().getString("boxid");
                 boolean isOpened = intent.getExtras().getBoolean("isopened");
                 boolean isStoraged = intent.getExtras().getBoolean("isstoraged");
-                LogUtil.d(TAG, "箱门:" + boxId + ",查询操作广播返回isOpened:" + isOpened + ",isStoraged:" + isStoraged);
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + boxId + ",查询操作广播返回isOpened:" + isOpened + ",isStoraged:" + isStoraged);
                 if (boxStateListener != null)
                     boxStateListener.onBoxStateBack(enumActionType, new String[]{boxId}, new boolean[]{isOpened});
             }
             if ("android.intent.action.hal.iocontroller.batchopen.result".equals(intent.getAction())) {
                 String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
                 boolean[] opened = intent.getExtras().getBooleanArray("opened");
-                LogUtil.d(TAG, "箱门:" + Arrays.toString(batchboxid) + ",操作广播返回opened:" + Arrays.toString(opened));
+                LogUtil.d(TAG, Thread.currentThread().getName() + ".箱门:" + Arrays.toString(batchboxid) + ",操作广播返回opened:" + Arrays.toString(opened));
                 if (boxStateListener != null)
                     boxStateListener.onBoxStateBack(enumActionType, batchboxid, opened);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.e(TAG, "onReceive:Intent" + intent + ",操作广播返回异常:" + Log.getStackTraceString(e));
+            LogUtil.e(TAG, Thread.currentThread().getName() + ",onReceive:Intent" + intent + ",操作广播返回异常:" + Log.getStackTraceString(e));
         }
     }
 

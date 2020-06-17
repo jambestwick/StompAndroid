@@ -92,7 +92,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     @Override
     public void uploadBoxState(int boxState, StompCallBack stompCallBack) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("boxState", boxState);
+        jsonObject.addProperty("eventcode", boxState);
         StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {
@@ -110,7 +110,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     @Override
     public void openBox(String sixCode, StompCallBack callBack) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("openBoxCode", sixCode);
+        jsonObject.addProperty("openBoxCode", Integer.parseInt(sixCode));
         StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {

@@ -117,7 +117,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private void initNetData() {
         stompConnectListener = enumConnectState -> {
-            LogUtil.d(TAG, Thread.currentThread().getName() + "stomp Connect response" + enumConnectState);
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
             switch (enumConnectState) {
                 case CLOSE:
                     if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
@@ -258,7 +258,14 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (null != dialogUtils) {
             dialogUtils.dismissProgress();
         }
-        KeyCabinetReceiver.openBatchBox(this, new String[]{boxId}, this);
+        DeviceInfoPresenter.EnumBoxConvert enumBoxConvert = DeviceInfoPresenter.EnumBoxConvert.getEnumByKey(boxId);
+        if (null != enumBoxConvert) {
+            KeyCabinetReceiver.openBatchBox(this, new String[]{enumBoxConvert.getValue()}, this);
+        } else {
+            ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_num_error));
+            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+        }
+
     }
 
     @Override

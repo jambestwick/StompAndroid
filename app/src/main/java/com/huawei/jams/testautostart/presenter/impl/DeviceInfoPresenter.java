@@ -69,22 +69,22 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         for (int i = 0; i < inputCode.length(); i++) {
             switch (i) {
                 case 0:
-                    binding.mainSixCode1Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode1Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 1:
-                    binding.mainSixCode2Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode2Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 2:
-                    binding.mainSixCode3Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode3Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 3:
-                    binding.mainSixCode4Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode4Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 4:
-                    binding.mainSixCode5Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode5Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 5:
-                    binding.mainSixCode6Tv.setText(inputCode.charAt(i)+"");
+                    binding.mainSixCode6Tv.setText(inputCode.charAt(i) + "");
                     break;
                 default:
                     break;
@@ -157,6 +157,70 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     public interface TimeOperator {
         void timeOut();
+    }
+
+    public enum EnumBoxConvert {
+        BOX1("1", "Z01"),
+        BOX2("2", "Z02"),
+        BOX3("3", "Z03"),
+        BOX4("4", "Z04"),
+        BOX5("5", "Z05"),
+        BOX6("6", "Z06"),
+        BOX7("7", "Z07"),
+        BOX8("8", "Z99");
+        private String key;
+        private String value;
+
+        EnumBoxConvert(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public static EnumBoxConvert getEnumByKey(String key) {
+            if (key == null || key.equals("")) {
+                return null;
+            }
+
+            for (EnumBoxConvert enumResponseCode : EnumBoxConvert.values()) {
+                if (enumResponseCode.getKey().equals(key)) {
+                    return enumResponseCode;
+                }
+            }
+
+            return null;
+        }
+
+        public static EnumBoxConvert getEnumByValue(String value) {
+            if (value == null || value.equals("")) {
+                return null;
+            }
+
+            for (EnumBoxConvert enumBoxState : EnumBoxConvert.values()) {
+                if (enumBoxState.getValue().equals(value)) {
+                    return enumBoxState;
+                }
+            }
+
+            return null;
+        }
+
+
     }
 }
 

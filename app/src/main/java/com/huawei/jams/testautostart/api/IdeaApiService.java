@@ -21,6 +21,8 @@ public interface IdeaApiService {
     String SERVER_HOST = "https://www.metalcar.cn";
 
     String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
+    //String WS_URI = "ws://121.40.165.18:8800";
+    //String WS_URI = "wss://openhw.work.weixin.qq.com:443";
 
 
     String APP_QUERY_VERSION = "/user/queue/apk";
