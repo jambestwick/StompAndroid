@@ -100,9 +100,16 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
                         //deviceInfoPresenter.openBox(inputCode);
-                        String [] box=new String[1];
-                        box[0]="Z99";
-                        KeyCabinetReceiver.openBatchBox(this,box,this);
+                        String[] box = new String[1];
+                        if (inputCode.charAt(5) == '9' || inputCode.charAt(5) == '0') {
+                            ToastUtil.showToast(this, "末尾输入有误，请输入1-8之间");
+                            break;
+                        } else if (inputCode.charAt(5) == '8') {
+                            box[0] = "Z99";
+                        } else {
+                            box[0] = "Z0" + inputCode.charAt(5);
+                        }
+                        KeyCabinetReceiver.openBatchBox(this, box, this);
                     } else {
                         //提示码位数不够
                         ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
