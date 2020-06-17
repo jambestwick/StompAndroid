@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.view.activity;
 
+import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -76,7 +77,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     //1.2 返回异常或超时，重发送6位码Stomp-->后台 3次，如果有成功，break；，否则，，同步播放‘网络故障’,和弹出全屏‘动画网络故障 界面含有重试按键关闭网络故障界面’,用户点击重试-->清空当前6位码-->1
     //1.3 密码错误,提示框（非全屏）:'密码错误(确定按钮)' 点击确定关闭窗口 清空当前6位码-->1
     //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
-    private void initViews() {
+
+    @Override
+    protected void initViews() {
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
@@ -85,14 +88,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 timeAdviseTask.setStartTime(System.currentTimeMillis());
             }
             switch (v.getId()) {
-                case R.id.main_video_rl://进入输入6位码界面，30秒未操作返回广告
+                case R.id.main_video_rl://进入输入6位码界面，倒计时30秒未操作返回广告
+                    deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                     timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
                     patrolTimer.schedule(timeAdviseTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
-                    binding.mainVideoRl.setVisibility(View.GONE);
-                    if (binding.mainAdviseVideo.isPlaying()) {
-                        binding.mainAdviseVideo.pause();
-                    }
-                    deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+                    hideAdvise();
                 case R.id.main_code_delete_tv://删除前一位
                     decreaseInputCode();
                     break;
@@ -121,9 +121,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             switch (enumConnectState) {
                 case CLOSE:
                     if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
-                        if (binding.mainAdviseVideo.isPlaying()) {
-                            binding.mainAdviseVideo.pause();
+                        if (null != dialogUtils) {
+                            dialogUtils.dismissProgress();
                         }
+                        hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
                     }
                     break;
@@ -132,10 +133,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         dialogUtils.dismissProgress();
                     }
                     if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
-                        closeAnim();
-                        if (!binding.mainAdviseVideo.isPlaying()) {
-                            binding.mainAdviseVideo.start();
-                        }
+                        showAdvise();
                     }
                     initTopic();
                     break;
@@ -156,7 +154,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
-                binding.mainAdviseVideo.setVideoPath(path);
+                //binding.mainAdviseVideo.setVideoPath(path);
                 //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
                 binding.mainAdviseVideo.start();
             });
@@ -340,7 +338,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainDialogAnimIv.setVisibility(View.VISIBLE);
         binding.mainDialogAnimIv.setBackgroundResource(resId);
         ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);//设置属性值
-        setAnim(animator);
+        setAnim(animator, View.VISIBLE);
     }
 
     /**
@@ -348,7 +346,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      **/
     private void closeAnim() {
         ValueAnimator animator = ValueAnimator.ofFloat(1.0f, 0.0f);//设置属性值
-        setAnim(animator);
+        setAnim(animator, View.GONE);
     }
 
     /**
@@ -365,24 +363,44 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             patrolTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    runOnUiThread(() -> {
-                        closeAnim();
-                        deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                        binding.mainVideoRl.setVisibility(View.VISIBLE);
-                        binding.mainAdviseVideo.start();
-                    });
+                    runOnUiThread(() -> showAdvise());
                 }
             }, Constants.DELAY_ADVISE_MILL_SECOND);
         }
     }
 
-    private void setAnim(ValueAnimator animator) {
+    private void setAnim(ValueAnimator animator, int visible) {
         animator.setTarget(binding.mainDialogAnimIv);//设置操作对象
         animator.setDuration(Constants.ANIMA_DURATION_MILL_SECOND).start();//动画开始
         animator.addUpdateListener(animation -> {
             binding.mainDialogAnimIv.setScaleY((Float) animation.getAnimatedValue());//设置Y轴上的变化
             binding.mainDialogAnimIv.setScaleX((Float) animation.getAnimatedValue());//设置X轴上的变化
         });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (visible == View.GONE) {
+                    binding.mainDialogAnimIv.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+
     }
 
     private void initTopic() {
@@ -394,17 +412,25 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
 
     @Override
-    public void timeOut() {//超时界面没人操作，则进入广告
+    public void timeOut() {//超时界面没人操作，则回到广告
         timeAdviseTask.cancel();
         runOnUiThread(() -> {
             if (null != dialogUtils) {
                 dialogUtils.dismissProgress();
             }
-            closeAnim();
-            deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-            binding.mainVideoRl.setVisibility(View.VISIBLE);
-            binding.mainAdviseVideo.start();
+            showAdvise();
         });
+    }
+
+    private void showAdvise() {
+        closeAnim();
+        binding.mainVideoRl.setVisibility(View.VISIBLE);
+        binding.mainAdviseVideo.start();
+    }
+
+    private void hideAdvise() {
+        binding.mainVideoRl.setVisibility(View.GONE);
+        binding.mainAdviseVideo.pause();
     }
 
 }

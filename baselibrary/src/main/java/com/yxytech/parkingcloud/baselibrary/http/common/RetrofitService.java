@@ -181,7 +181,7 @@ public class RetrofitService {
 
                 client.connectionSpecs(specs);
             } catch (Exception exc) {
-                Log.e("OkHttpTLSCompat", "Error while setting TLS 1.2", exc);
+                LogUtil.e(TAG, "Error while setting TLS 1.2" + Log.getStackTraceString(exc));
             }
         }
 

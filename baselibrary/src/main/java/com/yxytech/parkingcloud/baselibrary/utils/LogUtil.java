@@ -1,6 +1,5 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
-import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
@@ -22,12 +21,11 @@ public class LogUtil {
     private static Boolean MYLOG_SWITCH = true; // 日志文件总开关
     private static Boolean MYLOG_WRITE_TO_FILE = true;// 日志写入文件开关
     private static char MYLOG_TYPE = 'v';// 输入日志类型，w代表只输出告警信息等，v代表输出所有信息
-    private static String MYLOG_PATH_SDCARD_DIR = File.separator + "sdcard" + File.separator + "log";// 日志文件在sdcard中的路径
+    private static String MYLOG_PATH_SDCARD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "log";// 日志文件在sdcard中的路径
     private static int SDCARD_LOG_FILE_SAVE_DAYS = 0;// sd卡中日志文件的最多保存天数
     private static String MYLOGFILEName = "Log.txt";// 本类输出的日志文件名称
-    private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd");// 日志的输出格式
+    private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");// 日志的输出格式
     private static SimpleDateFormat logfile = new SimpleDateFormat("yyyy-MM-dd");// 日志文件格式
-    public Context context;
 
     public static void w(String tag, Object msg) { // 警告信息
         log(tag, msg.toString(), 'w');
@@ -84,7 +82,7 @@ public class LogUtil {
                 Log.w(tag, msg);
             } else if ('d' == level && ('d' == MYLOG_TYPE || 'v' == MYLOG_TYPE)) {
                 Log.d(tag, msg);
-            } else if ('i' == level && ('d' == MYLOG_TYPE || 'v' == MYLOG_TYPE)) {
+            } else if ('i' == level && ('i' == MYLOG_TYPE || 'v' == MYLOG_TYPE)) {
                 Log.i(tag, msg);
             } else {
                 Log.v(tag, msg);

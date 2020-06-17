@@ -33,11 +33,11 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private String hintMessage = "";//提示语
     private String btnMessage = "";//确认按钮
     private String cancelMessage = "";//取消按钮
-    private int step = EnumDeviceCheck.STEP_1.key;
+    private int step = EnumDeviceCheck.STEP_1.key;//进行步驟
     private int queryBoxStateTimes = 1;//查询柜门已关闭次数
     private int openBoxIndex = 0;//逐个打开柜门到第几个
     /***输入6位开箱码**/
-    private String inputCode = "";//6未输入码
+    private String inputCode = "";//6位输入码
     private IDeviceCheckPresenter deviceCheckPresenter;
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
 
@@ -50,7 +50,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         initDevice();
     }
 
-    private void initViews() {
+    @Override
+    protected void initViews() {
         deviceCheckPresenter = new DeviceCheckPresenter(this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
@@ -101,15 +102,15 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         }
 
         if (step == EnumDeviceCheck.STEP_3.key) {
-            String account = PreferencesManager.getInstance(this).get(Constants.ACCOUNT);
-            String password = PreferencesManager.getInstance(this).get(Constants.PASSWORD);
-            if (StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password)) {//不是空说明已经注册过
+            String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
+            String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
+            if (deviceCheckPresenter.hasAccountPassword(account, password)) {
                 StompUtil.getInstance().createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
-                return;
+            } else {
+                step = EnumDeviceCheck.STEP_4.key;
+                initDevice();
             }
-            step = EnumDeviceCheck.STEP_4.key;
-            initDevice();
             return;
         }
         if (step == EnumDeviceCheck.STEP_4.key) {

@@ -59,7 +59,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         intent.putExtra("batchboxid", boxIds);
         context.sendBroadcast(intent);
-        LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIds) + ",查询操作广播发出");
+        LogUtil.d(TAG, "箱门:" + Arrays.toString(boxIds) + ",批量查询操作广播发出");
         boxStateListener = listener;
         enumActionType = EnumActionType.QUERY_BATCH;
 

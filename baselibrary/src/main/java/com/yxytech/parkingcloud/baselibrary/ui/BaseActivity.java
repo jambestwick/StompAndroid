@@ -55,7 +55,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                     WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
-
     }
 
     /**
@@ -124,4 +123,6 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
         super.onDestroy();
         AppManager.getAppManager().removeActivity(this);
     }
+
+   protected abstract void initViews();
 }

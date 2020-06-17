@@ -12,4 +12,9 @@ public interface IDeviceCheckPresenter {
      * 判断是否全关
      **/
     boolean boxListAllClose(boolean[] isOpens);
+
+    /**
+     * 判断是否存在账号密码信息
+     * **/
+    boolean hasAccountPassword(String account,String password);
 }

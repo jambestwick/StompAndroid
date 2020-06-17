@@ -66,7 +66,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                     public void onError(Throwable e) {
                         super.onError(e);
                         LogUtil.e(TAG, Thread.currentThread().getName() + ",bindDevice onError:" + Log.getStackTraceString(e));
-                        callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), e);
+                        callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), null);
 
                     }
 

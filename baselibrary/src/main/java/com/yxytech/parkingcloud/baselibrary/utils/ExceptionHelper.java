@@ -23,22 +23,22 @@ import java.io.Writer;
  */
 public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
     private final static String TAG = ExceptionHelper.class.getName();
-    private static volatile ExceptionHelper INSTANCE;
+    private static volatile ExceptionHelper instance;
 
     private ExceptionHelper() {
     }
 
     public static ExceptionHelper getInstance() {
-        if (INSTANCE == null) {
+        if (instance == null) {
             synchronized (ExceptionHelper.class) {
-                if (INSTANCE == null) {
+                if (instance == null) {
                     synchronized (ExceptionHelper.class) {
-                        INSTANCE = new ExceptionHelper();
+                        instance = new ExceptionHelper();
                     }
                 }
             }
         }
-        return INSTANCE;
+        return instance;
     }
 
     private Thread.UncaughtExceptionHandler mDefaultHandler;

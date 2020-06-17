@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
+import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
@@ -7,8 +8,13 @@ import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
+import com.huawei.jams.testautostart.utils.Constants;
+import com.huawei.jams.testautostart.utils.StompUtil;
+import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 public class DeviceCheckPresenter implements IDeviceCheckPresenter {
 
@@ -19,7 +25,6 @@ public class DeviceCheckPresenter implements IDeviceCheckPresenter {
         this.mDeviceInfoModel = new DeviceInfoModel(activity);
         this.deviceCheckView = deviceCheckView;
     }
-
 
 
     /******
@@ -37,6 +42,7 @@ public class DeviceCheckPresenter implements IDeviceCheckPresenter {
         });
 
     }
+
     @Override
     public void refreshWelcomeCode2View(ActivityWelcomeBinding binding, String inputCode) {
         binding.welSixCode1Tv.setText("");
@@ -48,22 +54,22 @@ public class DeviceCheckPresenter implements IDeviceCheckPresenter {
         for (int i = 0; i < inputCode.length(); i++) {
             switch (i) {
                 case 0:
-                    binding.welSixCode1Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode1Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 1:
-                    binding.welSixCode2Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode2Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 2:
-                    binding.welSixCode3Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode3Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 3:
-                    binding.welSixCode4Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode4Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 4:
-                    binding.welSixCode5Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode5Tv.setText(inputCode.charAt(i) + "");
                     break;
                 case 5:
-                    binding.welSixCode6Tv.setText("" + inputCode.charAt(i));
+                    binding.welSixCode6Tv.setText(inputCode.charAt(i) + "");
                     break;
                 default:
                     break;
@@ -79,5 +85,10 @@ public class DeviceCheckPresenter implements IDeviceCheckPresenter {
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean hasAccountPassword(String account, String password) {
+        return StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password);
     }
 }

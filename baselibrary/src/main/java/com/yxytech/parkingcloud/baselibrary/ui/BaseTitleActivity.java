@@ -44,7 +44,7 @@ public class BaseTitleActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_base_title);
         initTitle();
-        initView();
+        initViews();
         setStatusBarHeight();
     }
 
@@ -85,7 +85,8 @@ public class BaseTitleActivity extends BaseActivity {
     /**
      * 实例化控件
      */
-    private void initView() {
+    @Override
+    protected void initViews() {
         line1 = findViewById(R.id.title_line1);
         line2 = findViewById(R.id.title_line2);
         line3 = findViewById(R.id.title_line3);
