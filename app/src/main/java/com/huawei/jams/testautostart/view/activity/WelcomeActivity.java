@@ -115,9 +115,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         }
         if (step == EnumDeviceCheck.STEP_4.key) {
             readBoxAllClose();
-            startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-            StompUtil.getInstance().removeConnectListener(connectListener);
-            finish();
         }
         if (step == EnumDeviceCheck.STEP_5.key) {
             judgeBoxAllClose();
