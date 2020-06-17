@@ -37,6 +37,17 @@ public class AppManager {
     }
 
     /**
+     * 删除已经finish的activity
+     *
+     * @param activity
+     */
+    public void removeActivity(final Activity activity) {
+        if (activity != null) {
+            activityStack.remove(activity);
+        }
+    }
+
+    /**
      * 获取当前Activity（堆栈中最后一个压入的）
      */
     public Activity currentActivity() {

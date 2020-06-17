@@ -64,7 +64,7 @@ public class BaseApp extends BaseApplication {
             advise.setCreateTime(new Date());
             advise.setFileName("adv000");
             List<File> fileList = FileUtils.listFilesInDirWithFilter(Constants.ADVISE_DIR, ".mp4");
-            if (fileList.size() > 0) {
+            if (null != fileList && fileList.size() > 0) {
                 advise.setFilePath(fileList.get(0).getAbsolutePath());
                 advise.save();
             }
