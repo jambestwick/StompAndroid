@@ -188,8 +188,8 @@
                 android:layout_height="200dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginBottom="120dp"
-                android:layout_marginEnd="80dp" />
+                android:layout_marginBottom="16dp"
+                android:layout_marginEnd="20dp" />
         </RelativeLayout>
         <!--开柜门、谢谢使用、动画播放-->
         <ImageView
