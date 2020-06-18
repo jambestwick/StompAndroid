@@ -24,7 +24,7 @@
                 android:layout_weight="6">
 
                 <LinearLayout style="@style/style_layout_six_input_linear"
-                    android:layout_marginLeft="20dp">
+                    android:layout_marginLeft="80dp">
 
                     <TextView
                         android:id="@+id/main_six_code_1_tv"
@@ -57,7 +57,7 @@
 
                 <TextView
                     android:id="@+id/main_prompt_six_code_tv"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="80dp"
                     style="@style/style_six_input_dialog_number" />
 
                 <View style="@style/style_space_280_dp_vertical" />
@@ -65,7 +65,7 @@
                 <TextView
                     android:id="@+id/main_customer_service_phone_tv"
                     style="@style/style_service_phone"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="80dp"/>
             </LinearLayout>
 
             <LinearLayout
@@ -73,7 +73,7 @@
                 android:layout_weight="5">
 
                 <LinearLayout style="@style/style_layout_number_total_linear"
-                    android:layout_marginRight="20dp">
+                    android:layout_marginRight="80dp">
 
                     <LinearLayout style="@style/style_layout_number_linear">
 

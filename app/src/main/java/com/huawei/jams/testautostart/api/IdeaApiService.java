@@ -61,8 +61,9 @@ public interface IdeaApiService {
 
     /**
      * /**
+     *
      * @param url 下载地址
-     * 大文件官方建议用 @Streaming 来进行注解，不然会出现IO异常，小文件可以忽略不注入
+     *            大文件官方建议用 @Streaming 来进行注解，不然会出现IO异常，小文件可以忽略不注入
      */
     @Streaming
     @GET
