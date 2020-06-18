@@ -65,7 +65,7 @@
         <LinearLayout style="@style/style_layout_device_check_linear"
                        >
 
-            <TextView
+            <Button
                 android:id="@+id/wel_confirm_btn"
                 style="@style/style_device_check_btn"
                 android:onClick="@{click}"
@@ -73,7 +73,7 @@
 
             <View style="@style/style_space_40_dp_horizon" />
 
-            <TextView
+            <Button
                 android:id="@+id/wel_cancel_btn"
                 style="@style/style_device_check_btn"
                 android:onClick="@{click}"
