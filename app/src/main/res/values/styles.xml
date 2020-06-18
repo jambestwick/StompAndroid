@@ -250,7 +250,7 @@
     </style>
     <!-- 客服电话的textView-->
     <style name="style_service_phone">
-        <item name="android:layout_width">448dp</item>
+        <item name="android:layout_width">372dp</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:gravity">center</item>
         <item name="android:text">@string/customer_service_telephone</item>
