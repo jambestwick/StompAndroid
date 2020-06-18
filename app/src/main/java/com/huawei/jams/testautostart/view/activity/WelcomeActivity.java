@@ -3,6 +3,7 @@ package com.huawei.jams.testautostart.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -18,6 +19,7 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
@@ -100,7 +102,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             initDevice();
             return;
         }
-
         if (step == EnumDeviceCheck.STEP_3.key) {
             String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
@@ -422,4 +423,18 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     protected void onDestroy() {
         super.onDestroy();
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            AppManager.getAppManager().AppExit();
+            return true;
+        }
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+            AppManager.getAppManager().AppExit();
+            return true;
+        }
+        return false;
+    }
+
 }

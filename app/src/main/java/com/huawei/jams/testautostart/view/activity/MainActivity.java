@@ -3,6 +3,7 @@ package com.huawei.jams.testautostart.view.activity;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -151,7 +152,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainVideoRl.setVisibility(View.VISIBLE);
-            binding.mainAdviseVideo.setVideoPath(path);
+            if(lastAdvise.getAdvNo().equals("1")){
+                binding.mainAdviseVideo.setVideoURI(Uri.parse(path));
+            }else {
+                binding.mainAdviseVideo.setVideoPath(path);
+            }
             binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 //binding.mainAdviseVideo.setVideoPath(path);

@@ -305,10 +305,12 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">160dp</item>
     </style>
+
     <style name="style_space_240_dp_vertical">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">240dp</item>
     </style>
+
     <style name="style_space_280_dp_vertical">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">280dp</item>
@@ -341,7 +343,7 @@
 
 
     <!--工人设备自检按键-->
-    <style name="style_device_check_btn" parent="android:Widget.Button">
+    <style name="style_device_check_btn">
         <item name="android:layout_width">192dp</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:textSize">30sp</item>

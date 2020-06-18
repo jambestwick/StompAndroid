@@ -29,4 +29,8 @@
     <string name="back_server_password_invalid_retry">密码错误,请重新输入</string>
     <string name="back_server_box_state_invalid">设备柜门状态未知</string>
     <string name="back_server_box_num_error">返回柜门编号有误</string>
+    <string name="checking">检测中… …</string>
+    <string name="network">网络</string>
+    <string name="back_server">后台服务</string>
+
 </resources>

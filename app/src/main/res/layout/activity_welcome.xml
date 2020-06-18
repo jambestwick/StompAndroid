@@ -62,9 +62,10 @@
 
         <View style="@style/style_space_20_dp_vertical" />
 
-        <LinearLayout style="@style/style_layout_device_check_linear">
+        <LinearLayout style="@style/style_layout_device_check_linear"
+                       >
 
-            <Button
+            <TextView
                 android:id="@+id/wel_confirm_btn"
                 style="@style/style_device_check_btn"
                 android:onClick="@{click}"
@@ -72,7 +73,7 @@
 
             <View style="@style/style_space_40_dp_horizon" />
 
-            <Button
+            <TextView
                 android:id="@+id/wel_cancel_btn"
                 style="@style/style_device_check_btn"
                 android:onClick="@{click}"

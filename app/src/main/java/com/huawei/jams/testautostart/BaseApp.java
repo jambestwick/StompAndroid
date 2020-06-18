@@ -4,16 +4,13 @@ import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
-import com.huawei.jams.testautostart.utils.Constants;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
-import com.yxytech.parkingcloud.baselibrary.utils.FileUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,15 +58,11 @@ public class BaseApp extends BaseApplication {
             advise.setUuid(UUID.randomUUID());
             advise.setCreateTime(new Date());
             advise.setFileName("adv000");
-            List<File> fileList = FileUtils.listFilesInDirWithFilter(Constants.ADVISE_DIR, ".mp4");
-            if (null != fileList && fileList.size() > 0) {
-                advise.setFilePath(fileList.get(0).getAbsolutePath());
-                advise.save();
-            }
+            String uri = "android.resource://" + getPackageName() + "/" + R.raw.first_advise;
+            advise.setFilePath(uri);
+            advise.save();
 
         }
-//        PreferencesManager.getInstance(this).put(Constants.PASSWORD,"abcsdccc");
-//        PreferencesManager.getInstance(this).put(Constants.ACCOUNT,"888");
     }
 
 
