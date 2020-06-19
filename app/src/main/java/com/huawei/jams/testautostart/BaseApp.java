@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -68,15 +69,15 @@ public class BaseApp extends BaseApplication {
 
         }
     }
-    public static void main(String[] a){
-        String  cc ="1";
-        int b= 2;
-        if(cc.equals(null)){
-            LogUtil.d("CC","DDDDDDDDDDDDD");
-        }else {
-            LogUtil.d("CC","DDDDDDDDDDDDD");
-        }
-
-    }
+//    public static void main(String[] a){
+//        String  cc =Build.VERSION.RELEASE;
+//        int b= 2;
+//        if(cc.equals(null)){
+//            LogUtil.d("CC","DDDDDDDDDDDDD");
+//        }else {
+//            LogUtil.d("CC","DDDDDDDDDDDDD");
+//        }
+//
+//    }
 
 }

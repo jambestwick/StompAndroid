@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.db;
 
 
+import com.raizlabs.android.dbflow.BuildConfig;
 import com.raizlabs.android.dbflow.annotation.Database;
 
 // 使用注解声明数据库名和版本号
@@ -8,7 +9,7 @@ import com.raizlabs.android.dbflow.annotation.Database;
 @Database(name = AppDataBase.NAME, version = AppDataBase.VERSION)
 public class AppDataBase {
     public static final String NAME = "AppDataBase";
-    public static final int VERSION = 1;
+    public static final int VERSION = BuildConfig.VERSION_CODE;
 
     /**
      *

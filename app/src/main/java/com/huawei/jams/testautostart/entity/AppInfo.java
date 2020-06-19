@@ -38,8 +38,9 @@ public class AppInfo extends BaseModel implements Serializable {
     public AppInfo() {
     }
 
-    public AppInfo(UUID uuid, String appVersion, Date createTime, String url, String filePath, boolean forceUpdate) {
+    public AppInfo(UUID uuid, String appName, String appVersion, Date createTime, String url, String filePath, boolean forceUpdate) {
         this.uuid = uuid;
+        this.appName = appName;
         this.appVersion = appVersion;
         this.createTime = createTime;
         this.url = url;

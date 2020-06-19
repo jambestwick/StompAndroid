@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
+
 @Table(database = AppDataBase.class, name = "tb_advise")
 public class Advise extends BaseModel implements Serializable {
     private static final long serialVersionUID = -2039105766997712648L;
@@ -42,17 +43,21 @@ public class Advise extends BaseModel implements Serializable {
     private String modifyUser;
     @Column(name = "modify_time")
     private Date modifyTime;
+    @Column(name = "url")
+    private String url;
 
     public Advise() {
     }
 
-    public Advise(UUID uuid, String advVersion, Date advDate, String filePath, String fileName, Date createTime) {
+    public Advise(UUID uuid, String advVersion, Date advDate, String filePath, String fileName, boolean valid, Date createTime,String url) {
         this.uuid = uuid;
         this.advVersion = advVersion;
         this.advDate = advDate;
         this.filePath = filePath;
         this.fileName = fileName;
+        this.valid = valid;
         this.createTime = createTime;
+        this.url = url;
     }
 
     public UUID getUuid() {
@@ -143,6 +148,14 @@ public class Advise extends BaseModel implements Serializable {
         this.modifyTime = modifyTime;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     @Override
     public String toString() {
         return "Advise{" +
@@ -157,7 +170,7 @@ public class Advise extends BaseModel implements Serializable {
                 ", createTime=" + createTime +
                 ", modifyUser='" + modifyUser + '\'' +
                 ", modifyTime=" + modifyTime +
+                ", url='" + url + '\'' +
                 '}';
     }
-
 }

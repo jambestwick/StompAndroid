@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.model.impl;
 
 import android.util.Log;
+
 import com.google.gson.GsonBuilder;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -16,6 +17,7 @@ import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
 import com.yxytech.parkingcloud.baselibrary.http.common.FileDownLoadObserver;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+
 import io.reactivex.functions.Function;
 import io.reactivex.subscribers.DisposableSubscriber;
 import okhttp3.ResponseBody;
@@ -66,6 +68,7 @@ public class AppInfoModel implements IAppInfoModel {
         FileDownLoadObserver<File> fileFileDownLoadObserver = new FileDownLoadObserver<File>() {
             @Override
             public void onDownLoadSuccess(File file) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",downloadApp onDownLoadSuccess:" + file);
                 callBack.onDownLoadSuccess(file);
 
             }

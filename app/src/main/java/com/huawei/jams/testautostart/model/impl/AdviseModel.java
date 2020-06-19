@@ -63,6 +63,7 @@ public class AdviseModel implements IAdviseModel {
         FileDownLoadObserver<File> fileFileDownLoadObserver = new FileDownLoadObserver<File>() {
             @Override
             public void onDownLoadSuccess(File file) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",downloadAdvise onDownLoadSuccess:" + file);
                 callBack.onDownLoadSuccess(file);
 
             }

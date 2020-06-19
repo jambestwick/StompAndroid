@@ -71,12 +71,13 @@ public class AdvisePresenter implements IAdvisePresenter {
                         Date currentDate = new Date();
                         String unFilePath = unZipFiles.get(0).getAbsolutePath();
                         String unFileName = unZipFiles.get(0).getName();
-                        Advise advise = new Advise(UUID.randomUUID(), newVer, currentDate, unFilePath, unFileName, currentDate);
+                        Advise advise = new Advise(UUID.randomUUID(), newVer, currentDate, unFilePath, unFileName, true, currentDate, url);
                         advise.save();
                         adviseView.onDownloadAdviseSuccess(unFilePath);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    LogUtil.e(TAG, Thread.currentThread().getName() + ",downloadAdvise onDownLoadSuccess:" + Log.getStackTraceString(e));
                 }
             }
 

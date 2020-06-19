@@ -54,7 +54,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
             @Override
             public void onDownLoadSuccess(File o) {
                 //更新下数据库
-                AppInfo appInfo = new AppInfo(UUID.randomUUID(), version, new Date(), url, o.getAbsolutePath(), AppInfo.EnumForceUpdate.FORCE.value);
+                AppInfo appInfo = new AppInfo(UUID.randomUUID(), o.getName(), version, new Date(), url, o.getAbsolutePath(), AppInfo.EnumForceUpdate.FORCE.value);
                 appInfo.save();
                 appInfoView.onDownloadAppSuccess(o.getAbsolutePath());
             }
