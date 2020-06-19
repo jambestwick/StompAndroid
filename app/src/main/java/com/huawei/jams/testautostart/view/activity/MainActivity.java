@@ -43,7 +43,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator {
+public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
 
@@ -55,9 +55,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAppInfoPresenter appInfoPresenter;
 
     private IAdvisePresenter advisePresenter;
-    private Timer patrolTimer = new Timer();//巡检柜门状态任务Timer，和巡检超时未操作返回广告的timer
-    private DeviceInfoPresenter.TimeCountTask timeCountTask;//巡检任务
-    private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//超时未操作返回广告
+    private Timer patrolTimer = new Timer();//轮巡队列
+    private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门任务
+    private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
+    private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
     private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
@@ -202,6 +203,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (null != patrolTimer) {
+            patrolTimer.cancel();
+            patrolTimer = null;
+        }
     }
 
     @Override
@@ -215,12 +220,19 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     public void onDownloadAppSuccess(String filePath) {
-        //自动替换安装
-        PackageUtils.installApk(this, filePath);
-        PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
-        if (null != packageInfo) {
-            PackageUtils.openAppByPackageName(this, packageInfo.packageName);
+        //自动替换安装 需要判断正在广告状态无人操作时才更新
+        if (binding.mainVideoRl.getVisibility() == View.VISIBLE) {
+            PackageUtils.installApk(this, filePath);
+            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
+            if (null != packageInfo) {
+                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
+            }
+        } else {
+            timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
+            timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
+            patrolTimer.schedule(timeAdvisePlayTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
         }
+
     }
 
     @Override
@@ -337,15 +349,15 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
-                    timeCountTask = new DeviceInfoPresenter.TimeCountTask(boxId, this);
-                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeCountTask);
+                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(boxId, this);
+                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeBoxStateTask);
                 }
                 break;
             case QUERY_BATCH:
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
-                    timeCountTask.cancel();//关闭查询状态的轮巡
+                    timeBoxStateTask.cancel();//关闭查询状态的轮巡
                     playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
                 }
                 break;
@@ -443,6 +455,20 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         });
     }
 
+    @Override
+    public void visible(String filePath, int visible) {
+        if (visible == View.VISIBLE) {
+            timeAdvisePlayTask.cancel();
+            PackageUtils.installApk(this, filePath);
+            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
+            if (null != packageInfo) {
+                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
+            }
+        } else {
+            timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
+        }
+    }
+
     private void showAdvise() {
         closeAnim();
         binding.mainVideoRl.setVisibility(View.VISIBLE);
@@ -453,5 +479,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainVideoRl.setVisibility(View.GONE);
         binding.mainAdviseVideo.pause();
     }
+
 
 }

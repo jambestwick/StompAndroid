@@ -1,5 +1,7 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
+import android.view.View;
+
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
@@ -116,11 +118,14 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     }
 
-    public static class TimeCountTask extends TimerTask {
+    /**
+     * 轮巡柜门状态的task
+     **/
+    public static class TimeBoxStateTask extends TimerTask {
         private String boxId[];
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeCountTask(String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeBoxStateTask(String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
             this.boxId = boxId;
             this.boxStateListener = boxStateListener;
         }
@@ -132,7 +137,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     /**
-     *
+     * 轮巡多久没操作的task
      **/
     public static class TimeAdviseCountDownTask extends TimerTask {
         private long startTime;
@@ -157,6 +162,35 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     public interface TimeOperator {
         void timeOut();
+    }
+
+    /**
+     * 轮巡书否播放广告的task
+     */
+    public static class TimeAdvisePlayTask extends TimerTask {
+
+        int widgetViewVisible;
+        private AdvicePlayState advicePlayState;
+        private String filePath;
+
+        public TimeAdvisePlayTask(String filePath, AdvicePlayState advicePlayState) {
+            this.advicePlayState = advicePlayState;
+            this.filePath = filePath;
+        }
+
+        public void setWidgetViewVisible(int widgetViewVisible) {
+            this.widgetViewVisible = widgetViewVisible;
+        }
+
+        @Override
+        public void run() {
+            advicePlayState.visible(filePath, widgetViewVisible);
+        }
+    }
+
+    public interface AdvicePlayState {
+        void visible(String filePath, int visibleState);
+
     }
 
     public enum EnumBoxConvert {
