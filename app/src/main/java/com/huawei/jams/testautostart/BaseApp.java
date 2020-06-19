@@ -4,13 +4,17 @@ import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
+import com.huawei.jams.testautostart.utils.Constants;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -64,6 +68,15 @@ public class BaseApp extends BaseApplication {
 
         }
     }
+    public static void main(String[] a){
+        String  cc ="1";
+        int b= 2;
+        if(cc.equals(null)){
+            LogUtil.d("CC","DDDDDDDDDDDDD");
+        }else {
+            LogUtil.d("CC","DDDDDDDDDDDDD");
+        }
 
+    }
 
 }

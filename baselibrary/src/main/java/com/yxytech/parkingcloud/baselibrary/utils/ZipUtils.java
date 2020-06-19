@@ -1,7 +1,5 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
-import android.util.Log;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -28,6 +26,7 @@ import java.util.zip.ZipOutputStream;
  */
 public final class ZipUtils {
     private static final int BUFFER_LEN = 8192;
+    private static final String TAG = ZipUtils.class.getName();
 
     private ZipUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -295,7 +294,7 @@ public final class ZipUtils {
                     ZipEntry entry = ((ZipEntry) entries.nextElement());
                     String entryName = entry.getName().replace("\\", "/");
                     if (entryName.contains("../")) {
-                        Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",entryName: " + entryName + " is dangerous!");
                         continue;
                     }
                     if (!unzipChildFile(destDir, files, zip, entry, entryName)) return files;
@@ -305,7 +304,7 @@ public final class ZipUtils {
                     ZipEntry entry = ((ZipEntry) entries.nextElement());
                     String entryName = entry.getName().replace("\\", "/");
                     if (entryName.contains("../")) {
-                        Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",entryName: " + entryName + " is dangerous!");
                         continue;
                     }
                     if (entryName.contains(keyword)) {
@@ -380,7 +379,7 @@ public final class ZipUtils {
         while (entries.hasMoreElements()) {
             String entryName = ((ZipEntry) entries.nextElement()).getName().replace("\\", "/");
             if (entryName.contains("../")) {
-                Log.e("ZipUtils", "entryName: " + entryName + " is dangerous!");
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",entryName: " + entryName + " is dangerous!");
                 paths.add(entryName);
             } else {
                 paths.add(entryName);

@@ -2,14 +2,17 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -28,6 +31,7 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
@@ -152,9 +156,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainVideoRl.setVisibility(View.VISIBLE);
-            if(lastAdvise.getAdvNo().equals("1")){
+            if ("1".equals(lastAdvise.getAdvNo())) {
                 binding.mainAdviseVideo.setVideoURI(Uri.parse(path));
-            }else {
+            } else {
                 binding.mainAdviseVideo.setVideoPath(path);
             }
             binding.mainAdviseVideo.start();//播放
@@ -213,6 +217,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onDownloadAppSuccess(String filePath) {
         //自动替换安装
         PackageUtils.installApk(this, filePath);
+        PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
+        if (null != packageInfo) {
+            PackageUtils.openAppByPackageName(this, packageInfo.packageName);
+        }
     }
 
     @Override
@@ -234,10 +242,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     public void onDownloadAdviseSuccess(String filePath) {
-        //解压并播放
-        binding.mainAdviseVideo.setVideoPath(filePath);
-        binding.mainAdviseVideo.start();//播放
-
+        //播放
+        if (!TextUtils.isEmpty(filePath)) {
+            binding.mainAdviseVideo.setVideoPath(filePath);
+            binding.mainAdviseVideo.start();//播放
+        }
     }
 
     @Override

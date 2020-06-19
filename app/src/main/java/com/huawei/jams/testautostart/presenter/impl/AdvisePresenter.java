@@ -22,6 +22,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class AdvisePresenter implements IAdvisePresenter {
@@ -65,11 +66,15 @@ public class AdvisePresenter implements IAdvisePresenter {
             @Override
             public void onDownLoadSuccess(File o) {
                 try {
-                    ZipUtils.unzipFile(o.getAbsolutePath(), Constants.ADVISE_DIR + File.separator + newVer);
-                    Date currentDate = new Date();
-                    Advise advise = new Advise(UUID.randomUUID(), newVer, currentDate, o.getAbsolutePath(), o.getName(), currentDate);
-                    advise.save();
-                    adviseView.onDownloadAdviseSuccess(o.getAbsolutePath());
+                    List<File> unZipFiles = ZipUtils.unzipFile(o.getAbsolutePath(), Constants.ADVISE_DIR + File.separator + newVer);
+                    if (unZipFiles.size() > 0) {
+                        Date currentDate = new Date();
+                        String unFilePath = unZipFiles.get(0).getAbsolutePath();
+                        String unFileName = unZipFiles.get(0).getName();
+                        Advise advise = new Advise(UUID.randomUUID(), newVer, currentDate, unFilePath, unFileName, currentDate);
+                        advise.save();
+                        adviseView.onDownloadAdviseSuccess(unFilePath);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -77,7 +82,7 @@ public class AdvisePresenter implements IAdvisePresenter {
 
             @Override
             public void onDownLoadFail(Throwable throwable) {
-                LogUtil.e(TAG, Thread.currentThread().getName()+",downloadAdvise onDownLoadFail:" + Log.getStackTraceString(throwable));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",downloadAdvise onDownLoadFail:" + Log.getStackTraceString(throwable));
                 adviseView.onDownloadAdviseFail(throwable.getMessage());
             }
 

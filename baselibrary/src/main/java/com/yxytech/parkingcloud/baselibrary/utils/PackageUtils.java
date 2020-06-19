@@ -17,6 +17,9 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
 
+import static android.os.Process.killProcess;
+import static android.os.Process.myPid;
+
 /**
  * <p>文件描述：<p>
  * <p>作者：jambestwick<p>
@@ -154,11 +157,12 @@ public class PackageUtils {
     public static boolean installApk(Context mContext, String apkFilePath) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         File file = new File(apkFilePath);
-        if (file == null || !file.exists() || !file.isFile() || file.length() <= 0) {
+        if (!file.exists() || !file.isFile() || file.length() <= 0) {
             return false;
         }
-        intent.setDataAndType(Uri.parse("file://" + apkFilePath), "application/vnd.android.package-archive");
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //安装好后打开新版本
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
         mContext.startActivity(intent);
         return true;
     }
