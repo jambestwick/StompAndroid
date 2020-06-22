@@ -280,7 +280,7 @@ public class PreferencesManager {
                 datalist.add(gson.fromJson(jsonElement, cls));
             }
         } catch (Exception e) {
-            Log.e(TAG,"Exception : "+e.getMessage());
+            LogUtil.e(TAG, Thread.currentThread().getName() + ",getDataList Exception : " + Log.getStackTraceString(e));
         }
         return datalist;
     }
@@ -322,7 +322,7 @@ public class PreferencesManager {
             JsonElement jsonElement = new JsonParser().parse(strJson);
             data = gson.fromJson(jsonElement, cls);
         } catch (Exception e) {
-            Log.e(TAG, "Exception : " + e.getMessage());
+            LogUtil.e(TAG, Thread.currentThread().getName() + ",getData Exception : " + Log.getStackTraceString(e));
         }
         return data;
     }

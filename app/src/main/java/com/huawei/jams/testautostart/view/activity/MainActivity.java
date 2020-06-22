@@ -207,6 +207,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             patrolTimer.cancel();
             patrolTimer = null;
         }
+        if (null != stompConnectListener) {
+            StompUtil.getInstance().removeConnectListener(stompConnectListener);
+        }
+        StompUtil.getInstance().disconnect();
     }
 
     @Override
@@ -455,6 +459,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         });
     }
 
+    /**
+     * 等到广告出现，再开始更新安装APP
+     *
+     * **/
     @Override
     public void visible(String filePath, int visible) {
         if (visible == View.VISIBLE) {
