@@ -36,7 +36,7 @@ public class AppInfoModel implements IAppInfoModel {
 
     @Override
     public void subscribeVersion(StompCallBack callBack) {
-        StompUtil.getInstance().receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
+        StompUtil.receiveStomp(IdeaApiService.APP_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());

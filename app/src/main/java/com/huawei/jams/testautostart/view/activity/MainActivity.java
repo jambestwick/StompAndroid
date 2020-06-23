@@ -43,6 +43,9 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_DELY;
+import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_INTERVAL;
+
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
@@ -59,6 +62,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
+    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
     private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
@@ -123,33 +127,32 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private void initNetData() {
         stompConnectListener = enumConnectState -> {
-            runOnUiThread(() -> {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
-                switch (enumConnectState) {
-                    case CLOSE:
-                        if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
-                            if (null != dialogUtils) {
-                                dialogUtils.dismissProgress();
-                            }
-                            hideAdvise();
-                            startAnim(R.mipmap.bg_hint_net_work_error);
-                        }
-                        break;
-                    case CONNECT:
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
+            switch (enumConnectState) {
+                case CLOSE:
+                    if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
                         if (null != dialogUtils) {
                             dialogUtils.dismissProgress();
                         }
-                        if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
-                            showAdvise();
-                        }
-                        initTopic();
-                        break;
-                }
-            });
+                        hideAdvise();
+                        startAnim(R.mipmap.bg_hint_net_work_error);
+                    }
+                    break;
+                case CONNECT:
+                    if (null != dialogUtils) {
+                        dialogUtils.dismissProgress();
+                    }
+                    if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
+                        showAdvise();
+                    }
+                    initTopic();
+                    break;
+            }
 
         };
-        StompUtil.getInstance().setConnectListener(stompConnectListener);
+        StompUtil.setConnectListener(stompConnectListener);
         initTopic();
+        patrolTimer.schedule(timeConnectTask =new DeviceInfoPresenter.TimeConnectTask(),RECONNECT_TIME_DELY, RECONNECT_TIME_INTERVAL);
     }
 
     /**
@@ -211,9 +214,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             patrolTimer = null;
         }
         if (null != stompConnectListener) {
-            StompUtil.getInstance().removeConnectListener(stompConnectListener);
+            StompUtil.removeConnectListener(stompConnectListener);
         }
-        StompUtil.getInstance().disconnect();
+        StompUtil.disconnect();
     }
 
     @Override
@@ -350,7 +353,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         switch (enumActionType) {
             case OPEN_BATCH:
                 if (!isOpen[0]) {//打开柜门失败
-                    StompUtil.getInstance().removeConnectListener(stompConnectListener);
+                    StompUtil.removeConnectListener(stompConnectListener);
                     startAnim(R.mipmap.bg_hint_device_error);
                 } else {//打开柜门成功,上传状态
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());

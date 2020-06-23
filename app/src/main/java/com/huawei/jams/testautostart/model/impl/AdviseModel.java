@@ -35,7 +35,7 @@ public class AdviseModel implements IAdviseModel {
 
     @Override
     public void subscribeVersion(StompCallBack callBack) {
-        StompUtil.getInstance().receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
+        StompUtil.receiveStomp(IdeaApiService.ADV_QUERY_VERSION, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeVersion onNext:" + stompMessage.toString());

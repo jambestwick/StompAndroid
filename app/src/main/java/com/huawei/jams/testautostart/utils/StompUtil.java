@@ -47,65 +47,43 @@ import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 public class StompUtil {
 
     private static final String TAG = StompUtil.class.getName();
-    private StompClient mStompClient;
-    private boolean mNeedConnect;
-    private static final long RECONNECT_TIME_INTERVAL = 30 * 1000;
-    private static final long RECONNECT_TIME_DELY = 5 * 1000;
+    public static StompClient mStompClient;
+    private static boolean mNeedConnect;
+    public static final long RECONNECT_TIME_INTERVAL = 30 * 1000;
+    public static final long RECONNECT_TIME_DELY = 5 * 1000;
     private static final int HEART_BEAT = 1000;
 
-    private static StompUtil instance;
-    private static final Object lock = new Object();
+    private static List<StompConnectListener> connectListeners = new ArrayList<>();
 
-    public static StompUtil getInstance() {
-        if (instance == null) {
-            synchronized (lock) {
-                if (instance == null) {
-                    instance = new StompUtil();
-                }
-            }
-        }
-        return instance;
-    }
-
-    private List<StompConnectListener> connectListeners = new ArrayList<>();
-
-    public void setConnectListener(StompConnectListener stompConnectListener) {
+    public static void setConnectListener(StompConnectListener stompConnectListener) {
         connectListeners.add(stompConnectListener);
     }
 
-    public boolean removeConnectListener(StompConnectListener stompConnectListener) {
+    public static boolean removeConnectListener(StompConnectListener stompConnectListener) {
         return connectListeners.remove(stompConnectListener);
     }
 
+    public static void clearConnectListener() {
+        connectListeners.clear();
+    }
+
+    public static boolean isNeedConnect() {
+        return mNeedConnect;
+    }
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
     //长生命周期的连接贯穿APP整个周期
-    public void createStompClient(String userName, String password) {
+    public static void createStompClient(String userName, String password) {
         try {
             connect(userName, password);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
-                if (mNeedConnect && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
-                    mStompClient = null;
-                    try {
-                        connect(userName, password);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
-                }
-            }
-        }, RECONNECT_TIME_DELY, RECONNECT_TIME_INTERVAL);
     }
 
 
     @SuppressLint("CheckResult")
-    private void connect(String userName, String password) throws IOException {
+    private static void connect(String userName, String password) throws IOException {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
@@ -157,7 +135,7 @@ public class StompUtil {
     }
 
 
-    public void disconnect() {
+    public static void disconnect() {
         if (mStompClient != null) mStompClient.disconnect();
     }
 
@@ -165,7 +143,7 @@ public class StompUtil {
      * 发送信息
      ***/
     @SuppressLint("CheckResult")
-    public void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
+    public static void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
             DialogUtils dialogUtils = new DialogUtils();
             dialogUtils.showProgress(activity);
@@ -209,7 +187,7 @@ public class StompUtil {
     /**
      * 订阅信息
      */
-    public void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
+    public static void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
         if (mStompClient != null) {
             mStompClient.topic(destPath)
                     .doOnError(throwable -> {

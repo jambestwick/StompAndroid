@@ -38,4 +38,13 @@ public class BindDeviceVO extends ErrorCode implements Serializable {
     public void setCabinetPassword(String cabinetPassword) {
         this.cabinetPassword = cabinetPassword;
     }
+
+    @Override
+    public String toString() {
+        return "BindDeviceVO{" +
+                "cabinetNumber='" + cabinetNumber + '\'' +
+                ", cabinetPassword='" + cabinetPassword + '\'' +
+                ", errcode=" + errcode +
+                '}';
+    }
 }

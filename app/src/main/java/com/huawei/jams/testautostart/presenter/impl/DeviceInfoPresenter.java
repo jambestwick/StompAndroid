@@ -1,9 +1,11 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
+import android.util.Log;
 import android.view.View;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
+import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
@@ -14,9 +16,13 @@ import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -192,6 +198,25 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         void visible(String filePath, int visibleState);
 
     }
+
+    /**
+     * 轮巡检查连接状态
+     */
+    public static class TimeConnectTask extends TimerTask {
+        @Override
+        public void run() {
+            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
+            if (StompUtil.isNeedConnect() && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
+                if (null != StompUtil.mStompClient) {
+                    StompUtil.mStompClient.reconnect();
+                } else {
+                    StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                }
+                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
+            }
+        }
+    }
+
 
     public enum EnumBoxConvert {
         BOX1("1", "Z01"),

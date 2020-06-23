@@ -73,7 +73,6 @@ public final class ToastUtil {
         @Override
         public void run() {
             stopToast();
-            mToast = null;
         }
     };
 
@@ -186,7 +185,7 @@ public final class ToastUtil {
         }
     }
 
-    public static void showInCenter(Context context, String text, int time) {
+    private static void showInCenter(Context context, String text, int time) {
         if (context == null) {
             return;
         }
@@ -214,6 +213,7 @@ public final class ToastUtil {
     public static void stopToast() {
         if (mToast != null) {
             mToast.cancel();
+            //mToast = null;
         }
     }
 }

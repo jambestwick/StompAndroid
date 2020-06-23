@@ -81,7 +81,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     break;
             }
         });
-        StompUtil.getInstance().setConnectListener(connectListener);
+        StompUtil.setConnectListener(connectListener);
     }
 
     private void initDevice() {
@@ -106,7 +106,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
             if (deviceCheckPresenter.hasAccountPassword(account, password)) {
-                StompUtil.getInstance().createStompClient(account, password);//重绑
+                StompUtil.createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
             } else {
                 step = EnumDeviceCheck.STEP_4.key;
@@ -121,7 +121,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             judgeBoxAllClose();
         }
         if (step == EnumDeviceCheck.STEP_7.key) {
-            StompUtil.getInstance().createStompClient(
+            StompUtil.createStompClient(
                     PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
                     , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
         }
@@ -161,7 +161,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     public void onBindDeviceSuccess(String account, String password) {
         //绑定成功
         turnStep(EnumDeviceCheck.STEP_7, this.getString(R.string.bind_device) + this.getString(R.string.success), null, null);
-        StompUtil.getInstance().createStompClient(account, password);
+        StompUtil.createStompClient(account, password);
     }
 
     @Override
@@ -317,8 +317,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             runOnUiThread(() -> {
                 if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
                     startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-                    StompUtil.getInstance().removeConnectListener(connectListener);
-                    //finish();
+                    StompUtil.removeConnectListener(connectListener);
+                    finish();
                 } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
                     switch (deviceBindState) {
                         case NEW:
@@ -385,7 +385,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     }
 
 
-    enum EnumDeviceBindState {
+   enum EnumDeviceBindState {
         NEW, OLD
     }
 

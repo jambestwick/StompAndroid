@@ -7,6 +7,7 @@ import android.widget.VideoView;
 /**
  * 全屏播放
  * * Created by lijingnan on 12/04/2017.
+ * extends  {@link android.widget.VideoView}
  */
 public class CustomerVideoView extends VideoView {
 
