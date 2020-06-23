@@ -1,11 +1,7 @@
 package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
@@ -20,9 +16,14 @@ import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import io.reactivex.CompletableObserver;
 import io.reactivex.CompletableTransformer;
-import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -30,15 +31,8 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
 import ua.naiksoftware.stomp.Stomp;
 import ua.naiksoftware.stomp.StompClient;
-import ua.naiksoftware.stomp.dto.LifecycleEvent;
 import ua.naiksoftware.stomp.dto.StompHeader;
 import ua.naiksoftware.stomp.dto.StompMessage;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 
@@ -98,13 +92,11 @@ public class StompUtil {
                 Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
                 if (mNeedConnect && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
                     mStompClient = null;
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        try {
-                            connect(userName, password);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
+                    try {
+                        connect(userName, password);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
             }

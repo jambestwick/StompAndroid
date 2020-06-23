@@ -1,6 +1,5 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yxytech.parkingcloud.baselibrary.R;
+
+import java.lang.ref.WeakReference;
 
 /**
  * <pre>
@@ -30,7 +31,7 @@ public final class ToastUtil {
     /**
      * 上下文.
      */
-    private static Context mContext = null;
+    //private static Context mContext = null;
     private static Toast mToast = null;
     /**
      * 显示Toast.
@@ -42,23 +43,31 @@ public final class ToastUtil {
      * 主要Handler类，在线程中可用
      * what：0.提示文本信息
      */
-    @SuppressLint("HandlerLeak")
-    private static Handler baseHandler = new Handler() {
+    private static Handler baseHandler;
+
+    private static class HandlerOOM extends Handler {
+        private WeakReference<Context> weakReference;
+        private Context activity;
+
+        HandlerOOM(Context activity) {
+            weakReference = new WeakReference<>(activity);
+            this.activity = activity;
+        }
 
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case SHOW_TOAST:
-                    showToast(mContext, msg.getData().getString("TEXT"));
+                    showToast(activity, msg.getData().getString("TEXT"));
                     break;
                 case SHOW_TOAST_CENTER:
-                    showInCenter(mContext, msg.getData().getString("TEXT"));
+                    showInCenter(activity, msg.getData().getString("TEXT"));
                     break;
                 default:
                     break;
             }
         }
-    };
+    }
 
     private static Runnable runnable = new Runnable() {
         @Override
@@ -74,7 +83,6 @@ public final class ToastUtil {
      * @param text 文本
      */
     public static void showToast(Context context, String text) {
-        mContext = context;
         if (!StrUtil.isSpace(text)) {
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         }
@@ -87,7 +95,6 @@ public final class ToastUtil {
      * @param resId 文本的资源ID
      */
     public static void showToast(Context context, int resId) {
-        mContext = context;
         Toast.makeText(context, "" + context.getResources().getText(resId), Toast.LENGTH_SHORT).show();
     }
 
@@ -97,7 +104,7 @@ public final class ToastUtil {
      * @param resId 要提示的字符串资源ID，消息what值为0,
      */
     public static void showToastInThread(Context context, int resId) {
-        mContext = context;
+        baseHandler =new HandlerOOM(context);
         Message msg = baseHandler.obtainMessage(SHOW_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString("TEXT", context.getResources().getString(resId));
@@ -110,7 +117,7 @@ public final class ToastUtil {
      * toast 消息what值为0
      */
     public static void showToastInThread(Context context, String text) {
-        mContext = context;
+        baseHandler= new HandlerOOM(context);
         Message msg = baseHandler.obtainMessage(SHOW_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString("TEXT", text);
@@ -150,7 +157,7 @@ public final class ToastUtil {
      * @param resId
      */
     public static void showInCenterInThread(Context context, int resId) {
-        mContext = context;
+        baseHandler= new HandlerOOM(context);
         Message msg = baseHandler.obtainMessage(SHOW_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString("TEXT", context.getResources().getString(resId));
@@ -166,7 +173,7 @@ public final class ToastUtil {
      * @param text
      */
     public static void showInCenterInThread(Context context, String text) {
-        mContext = context;
+        baseHandler= new HandlerOOM(context);
         Message msg = baseHandler.obtainMessage(SHOW_TOAST);
         Bundle bundle = new Bundle();
         bundle.putString("TEXT", text);

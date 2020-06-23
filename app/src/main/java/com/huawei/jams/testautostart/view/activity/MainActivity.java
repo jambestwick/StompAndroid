@@ -123,27 +123,30 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private void initNetData() {
         stompConnectListener = enumConnectState -> {
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
-            switch (enumConnectState) {
-                case CLOSE:
-                    if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
+            runOnUiThread(() -> {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
+                switch (enumConnectState) {
+                    case CLOSE:
+                        if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
+                            if (null != dialogUtils) {
+                                dialogUtils.dismissProgress();
+                            }
+                            hideAdvise();
+                            startAnim(R.mipmap.bg_hint_net_work_error);
+                        }
+                        break;
+                    case CONNECT:
                         if (null != dialogUtils) {
                             dialogUtils.dismissProgress();
                         }
-                        hideAdvise();
-                        startAnim(R.mipmap.bg_hint_net_work_error);
-                    }
-                    break;
-                case CONNECT:
-                    if (null != dialogUtils) {
-                        dialogUtils.dismissProgress();
-                    }
-                    if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
-                        showAdvise();
-                    }
-                    initTopic();
-                    break;
-            }
+                        if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
+                            showAdvise();
+                        }
+                        initTopic();
+                        break;
+                }
+            });
+
         };
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
@@ -461,8 +464,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     /**
      * 等到广告出现，再开始更新安装APP
-     *
-     * **/
+     **/
     @Override
     public void visible(String filePath, int visible) {
         if (visible == View.VISIBLE) {

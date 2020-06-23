@@ -23,9 +23,7 @@ public class LogUtil {
     private static char MYLOG_TYPE = 'v';// 输入日志类型，w代表只输出告警信息等，v代表输出所有信息
     private static String MYLOG_PATH_SDCARD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "log";// 日志文件在sdcard中的路径
     private static int SDCARD_LOG_FILE_SAVE_DAYS = 0;// sd卡中日志文件的最多保存天数
-    private static String MYLOGFILEName = "Log.txt";// 本类输出的日志文件名称
-    private static SimpleDateFormat myLogSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");// 日志的输出格式
-    private static SimpleDateFormat logfile = new SimpleDateFormat("yyyy-MM-dd");// 日志文件格式
+    private static String MYLOGFILEName = "Log.txt";// 本类输出的日志文件名称// 日志的输出格式
 
     public static void w(String tag, Object msg) { // 警告信息
         log(tag, msg.toString(), 'w');
@@ -88,7 +86,7 @@ public class LogUtil {
                 Log.v(tag, msg);
             }
             if (MYLOG_WRITE_TO_FILE)//日志写入文件开关
-                writeLogtoFile(String.valueOf(level), tag, msg);
+                writeLog2File(String.valueOf(level), tag, msg);
         }
     }
 
@@ -99,16 +97,16 @@ public class LogUtil {
      * @param tag
      * @param text
      */
-    private static void writeLogtoFile(String mylogtype, String tag, String text) {// 新建或打开日志文件
-        Date nowtime = new Date();
-        String needWriteFiel = logfile.format(nowtime);
-        String needWriteMessage = myLogSdf.format(nowtime) + "    " + mylogtype + "    " + tag + "    " + text;
+    private static void writeLog2File(String mylogtype, String tag, String text) {// 新建或打开日志文件
+        Date nowTime = new Date();
+        String needWriteField = TimeUtil.date2Str(nowTime, TimeUtil.DEFAULT_DATE_FORMAT);
+        String needWriteMessage = TimeUtil.date2Str(nowTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT) + "    " + mylogtype + "    " + tag + "    " + text;
         File dirsFile = new File(MYLOG_PATH_SDCARD_DIR);
         if (!dirsFile.exists()) {
             dirsFile.mkdirs();
         }
         //Log.i("创建文件","创建文件");
-        File file = new File(dirsFile.toString(), needWriteFiel + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
+        File file = new File(dirsFile.toString(), needWriteField + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
         if (!file.exists()) {
             try {
                 //在指定的文件夹中创建文件
@@ -132,10 +130,10 @@ public class LogUtil {
     /**
      * 删除制定的日志文件
      */
-    public static void delFile() {// 删除日志文件
-        String needDelFiel = logfile.format(getDateBefore());
+    public static void deleteFile() {// 删除日志文件
+        String needDelField = TimeUtil.date2Str(getDateBefore(), TimeUtil.DEFAULT_DATE_FORMAT);
         File dirPath = Environment.getExternalStorageDirectory();
-        File file = new File(dirPath, needDelFiel + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
+        File file = new File(dirPath, needDelField + MYLOGFILEName);// MYLOG_PATH_SDCARD_DIR
         if (file.exists()) {
             file.delete();
         }
@@ -145,9 +143,9 @@ public class LogUtil {
      * 得到现在时间前的几天日期，用来得到需要删除的日志文件名
      */
     private static Date getDateBefore() {
-        Date nowtime = new Date();
+        Date nowTime = new Date();
         Calendar now = Calendar.getInstance();
-        now.setTime(nowtime);
+        now.setTime(nowTime);
         now.set(Calendar.DATE, now.get(Calendar.DATE) - SDCARD_LOG_FILE_SAVE_DAYS);
         return now.getTime();
     }

@@ -317,7 +317,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
                 startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
                 StompUtil.getInstance().removeConnectListener(connectListener);
-                finish();
+                //finish();
             } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
                 switch (deviceBindState) {
                     case NEW:

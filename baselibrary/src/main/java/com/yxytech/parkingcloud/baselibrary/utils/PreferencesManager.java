@@ -28,18 +28,17 @@ import java.util.Set;
 public class PreferencesManager {
 
     private final static String TAG = PreferencesManager.class.getSimpleName();
-    private Context mContext;
     private SharedPreferences preferences;
     // 默认系统SharedPreferences KEY值名称
     private static String shareName = "PreferencesManager";
-    public static final String THEME = "Theme";
-    public static final String LANG = "Lang";
+    private static final String THEME = "Theme";
+    private static final String LANG = "Lang";
     private static PreferencesManager instance;
 
     /**
      * 构造方法
      *
-     * @param context
+     * @param context {@link android.content.Context}
      */
     private PreferencesManager(Context context) {
         this(context, shareName);
@@ -48,11 +47,10 @@ public class PreferencesManager {
     /**
      * 构造方法
      *
-     * @param context
-     * @param shareName
+     * @param context   {@link android.app.Application }
+     * @param shareName {@link #PreferencesManager#shareName}
      */
     private PreferencesManager(Context context, String shareName) {
-        mContext = context;
         preferences = context.getSharedPreferences(shareName, Context.MODE_PRIVATE);
     }
 
@@ -64,7 +62,7 @@ public class PreferencesManager {
         if (instance == null) {
             synchronized (PreferencesManager.class) {
                 if (instance == null) {
-                    instance = new PreferencesManager(context, shareName);
+                    instance = new PreferencesManager(context.getApplicationContext(), shareName);
                 }
             }
         }
