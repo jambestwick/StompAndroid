@@ -124,5 +124,5 @@ public abstract class BaseActivity extends AppCompatActivity implements Lifecycl
         AppManager.getAppManager().removeActivity(this);
     }
 
-   protected abstract void initViews();
+    protected abstract void initViews();
 }

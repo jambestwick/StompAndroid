@@ -127,7 +127,6 @@ public class StompUtil {
                                     mNeedConnect = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
                                     for (StompConnectListener connectListener : connectListeners) {
-
                                         connectListener.onConnectState(EnumConnectState.CONNECT);
                                     }
                                     //topicMessage();

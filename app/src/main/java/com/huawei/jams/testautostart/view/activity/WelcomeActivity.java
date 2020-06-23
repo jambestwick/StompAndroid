@@ -314,27 +314,30 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private StompUtil.StompConnectListener connectListener = new StompUtil.StompConnectListener() {
         @Override
         public void onConnectState(StompUtil.EnumConnectState enumConnectState) {
-            if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
-                startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
-                StompUtil.getInstance().removeConnectListener(connectListener);
-                //finish();
-            } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
-                switch (deviceBindState) {
-                    case NEW:
-                        turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", WelcomeActivity.this.getString(R.string.retry), null);
-                        binding.welKeyboardLl.setVisibility(View.GONE);
-                        binding.welSixCodeLl.setVisibility(View.GONE);
-                        break;
-                    case OLD:
-                        turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
-                        binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                        binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                        deviceBindState = EnumDeviceBindState.NEW;
-                        break;
-                    default:
-                        break;
+            runOnUiThread(() -> {
+                if (enumConnectState == StompUtil.EnumConnectState.CONNECT) {//连接成功进入Main界面
+                    startActivity(new Intent(WelcomeActivity.this, MainActivity.class));
+                    StompUtil.getInstance().removeConnectListener(connectListener);
+                    //finish();
+                } else {//连接失败，1新设备继续连接，2旧设备重述6位码，重新绑定
+                    switch (deviceBindState) {
+                        case NEW:
+                            turnStep(EnumDeviceCheck.STEP_7, "与后台连接失败,请联系后重试", WelcomeActivity.this.getString(R.string.retry), null);
+                            binding.welKeyboardLl.setVisibility(View.GONE);
+                            binding.welSixCodeLl.setVisibility(View.GONE);
+                            break;
+                        case OLD:
+                            turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
+                            binding.welKeyboardLl.setVisibility(View.VISIBLE);
+                            binding.welSixCodeLl.setVisibility(View.VISIBLE);
+                            deviceBindState = EnumDeviceBindState.NEW;
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
+            });
+
         }
     };
 
@@ -426,11 +429,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            AppManager.getAppManager().AppExit();
-            return true;
-        }
-        if (keyCode == KeyEvent.KEYCODE_HOME) {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
             AppManager.getAppManager().AppExit();
             return true;
         }
