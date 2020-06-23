@@ -33,6 +33,7 @@ public final class ToastUtil {
      */
     //private static Context mContext = null;
     private static Toast mToast = null;
+    private static HandlerOOM baseHandler = null;
     /**
      * 显示Toast.
      */
@@ -43,7 +44,6 @@ public final class ToastUtil {
      * 主要Handler类，在线程中可用
      * what：0.提示文本信息
      */
-    private static Handler baseHandler;
 
     private static class HandlerOOM extends Handler {
         private WeakReference<Context> weakReference;
@@ -84,7 +84,7 @@ public final class ToastUtil {
      */
     public static void showToast(Context context, String text) {
         if (!StrUtil.isSpace(text)) {
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(), text, Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -95,7 +95,7 @@ public final class ToastUtil {
      * @param resId 文本的资源ID
      */
     public static void showToast(Context context, int resId) {
-        Toast.makeText(context, "" + context.getResources().getText(resId), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context.getApplicationContext(), "" + context.getResources().getText(resId), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -104,12 +104,7 @@ public final class ToastUtil {
      * @param resId 要提示的字符串资源ID，消息what值为0,
      */
     public static void showToastInThread(Context context, int resId) {
-        baseHandler =new HandlerOOM(context);
-        Message msg = baseHandler.obtainMessage(SHOW_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString("TEXT", context.getResources().getString(resId));
-        msg.setData(bundle);
-        baseHandler.sendMessage(msg);
+        toastInThread(context, context.getResources().getString(resId), SHOW_TOAST);
     }
 
     /**
@@ -117,14 +112,8 @@ public final class ToastUtil {
      * toast 消息what值为0
      */
     public static void showToastInThread(Context context, String text) {
-        baseHandler= new HandlerOOM(context);
-        Message msg = baseHandler.obtainMessage(SHOW_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString("TEXT", text);
-        msg.setData(bundle);
-        baseHandler.sendMessage(msg);
+        toastInThread(context, text, SHOW_TOAST);
     }
-
 
     /**
      * 描述：Toast提示文本.
@@ -157,13 +146,7 @@ public final class ToastUtil {
      * @param resId
      */
     public static void showInCenterInThread(Context context, int resId) {
-        baseHandler= new HandlerOOM(context);
-        Message msg = baseHandler.obtainMessage(SHOW_TOAST);
-        Bundle bundle = new Bundle();
-        bundle.putString("TEXT", context.getResources().getString(resId));
-        msg.setData(bundle);
-        msg.what = SHOW_TOAST_CENTER;
-        baseHandler.sendMessage(msg);
+        toastInThread(context, context.getResources().getString(resId), SHOW_TOAST_CENTER);
     }
 
     /**
@@ -173,13 +156,20 @@ public final class ToastUtil {
      * @param text
      */
     public static void showInCenterInThread(Context context, String text) {
-        baseHandler= new HandlerOOM(context);
-        Message msg = baseHandler.obtainMessage(SHOW_TOAST);
+        toastInThread(context, text, SHOW_TOAST_CENTER);
+    }
+
+    private static void toastInThread(Context context, String text, int type) {
+        if (null == baseHandler) {
+            baseHandler = new HandlerOOM(context.getApplicationContext());
+        }
+        Message msg = baseHandler.obtainMessage(type);
         Bundle bundle = new Bundle();
         bundle.putString("TEXT", text);
         msg.setData(bundle);
-        msg.what = SHOW_TOAST_CENTER;
+        msg.what = type;
         baseHandler.sendMessage(msg);
+
     }
 
     /**
@@ -205,11 +195,14 @@ public final class ToastUtil {
         }
 
         if (mToast == null) {
-            mToast = new Toast(context);
+            mToast = new Toast(context.getApplicationContext());
+            if (null == baseHandler) {
+                baseHandler = new HandlerOOM(context.getApplicationContext());
+            }
             baseHandler.postDelayed(runnable, time);
         }
         View content = View.inflate(context, R.layout.toast, null);
-        TextView tvToast = (TextView) content.findViewById(R.id.tv_toast);
+        TextView tvToast = content.findViewById(R.id.tv_toast);
         tvToast.setText(text);
         mToast.setGravity(Gravity.CENTER, 0, 0);
         mToast.setDuration(Toast.LENGTH_SHORT);
