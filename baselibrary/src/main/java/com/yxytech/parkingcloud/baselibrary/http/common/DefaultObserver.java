@@ -102,7 +102,7 @@ public abstract class DefaultObserver<T> implements Observer<T> {
 //                e.printStackTrace();
 //            }
 //        }
-        ToastUtil.showToast(BaseApplication.getAppContext(), cause);
+        //ToastUtil.showToast(BaseApplication.getAppContext(), cause);
     }
 
     public void onFinish() {
@@ -116,24 +116,24 @@ public abstract class DefaultObserver<T> implements Observer<T> {
     public void onException(ExceptionReason reason) {
         switch (reason) {
             case CONNECT_ERROR:
-                ToastUtil.showToast(BaseApplication.getAppContext(), R.string.connect_error);
+                ToastUtil.showInCenter(BaseApplication.getAppContext(), R.string.connect_error);
                 break;
 
             case CONNECT_TIMEOUT:
-                ToastUtil.showToast(BaseApplication.getAppContext(), R.string.connect_timeout);
+                ToastUtil.showInCenter(BaseApplication.getAppContext(), R.string.connect_timeout);
                 break;
 
             case BAD_NETWORK:
-                ToastUtil.showToast(BaseApplication.getAppContext(), R.string.bad_network);
+                ToastUtil.showInCenter(BaseApplication.getAppContext(), R.string.bad_network);
                 break;
 
             case PARSE_ERROR:
-                ToastUtil.showToast(BaseApplication.getAppContext(), R.string.parse_error);
+                ToastUtil.showInCenter(BaseApplication.getAppContext(), R.string.parse_error);
                 break;
 
             case UNKNOWN_ERROR:
             default:
-                ToastUtil.showToast(BaseApplication.getAppContext(), R.string.unknown_error);
+                ToastUtil.showInCenter(BaseApplication.getAppContext(), R.string.unknown_error);
                 break;
         }
     }

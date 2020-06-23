@@ -73,7 +73,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                         deviceCheckPresenter.bindDevice(inputCode);
                     } else {
                         //提示码位数不够
-                        ToastUtil.showToast(this, this.getString(R.string.six_code_not_enough));
+                        ToastUtil.showInCenter(this, this.getString(R.string.six_code_not_enough));
                     }
                     break;
                 default:
