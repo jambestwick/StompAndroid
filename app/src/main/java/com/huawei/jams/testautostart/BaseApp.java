@@ -6,6 +6,7 @@ import android.util.Log;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
 import com.huawei.jams.testautostart.utils.Constants;
+import com.huawei.jams.testautostart.utils.ResourceFileUtil;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
@@ -56,27 +57,34 @@ public class BaseApp extends BaseApplication {
     private void initVideo() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
         if (adviseList.size() <= 0) {
-            Advise advise = new Advise();
-            advise.setAdvNo("1");
-            advise.setAdvDate(new Date());
-            advise.setAdvVersion("1.0.0");
-            advise.setUuid(UUID.randomUUID());
-            advise.setCreateTime(new Date());
-            advise.setFileName("adv000");
-            String uri = "android.resource://" + getPackageName() + "/" + R.raw.first_advise;
-            advise.setFilePath(uri);
-            advise.save();
+            try {
+                Advise advise = new Advise();
+                advise.setAdvNo("1");
+                advise.setAdvDate(new Date());
+                advise.setAdvVersion("1.0.0");
+                advise.setUuid(UUID.randomUUID());
+                advise.setCreateTime(new Date());
+                advise.setFileName("adv000");
+                String fileName = "adv000.mp4";
+                ResourceFileUtil.saveAdv2SDCard(this, fileName);
+                advise.setFilePath(Constants.ADVISE_DIR + File.separator + fileName);
+                advise.save();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
 
         }
     }
 //    public static void main(String[] a){
+//        List<File> unZipFiles = null;
+//        try {
+//            unZipFiles = ZipUtils.unzipFile("D:\\工控机设备\\开仓成功失败图\\dedfdokf的_张ff.zip", "D:\\工控机设备\\开仓成功失败图\\1.0.2");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        File file = unZipFiles.get(0);
 //        String  cc =Build.VERSION.RELEASE;
 //        int b= 2;
-//        if(cc.equals(null)){
-//            LogUtil.d("CC","DDDDDDDDDDDDD");
-//        }else {
-//            LogUtil.d("CC","DDDDDDDDDDDDD");
-//        }
 //
 //    }
 

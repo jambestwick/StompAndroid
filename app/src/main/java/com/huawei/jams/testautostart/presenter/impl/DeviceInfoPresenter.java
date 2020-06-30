@@ -199,23 +199,23 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     }
 
-    /**
-     * 轮巡检查连接状态
-     */
-    public static class TimeConnectTask extends TimerTask {
-        @Override
-        public void run() {
-            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
-            if (StompUtil.isNeedConnect() && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
-                if (null != StompUtil.mStompClient) {
-                    StompUtil.mStompClient.reconnect();
-                } else {
-                    StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                }
-                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
-            }
-        }
-    }
+//    /**
+//     * 轮巡检查连接状态
+//     */
+//    public static class TimeConnectTask extends TimerTask {
+//        @Override
+//        public void run() {
+//            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
+//            if (StompUtil.isNeedConnect() && NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
+//                if (null != StompUtil.mStompClient) {
+//                    StompUtil.mStompClient.reconnect();
+//                } else {
+//                    StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+//                }
+//                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
+//            }
+//        }
+//    }
 
 
     public enum EnumBoxConvert {

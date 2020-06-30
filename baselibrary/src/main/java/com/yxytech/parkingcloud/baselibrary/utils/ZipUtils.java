@@ -1,5 +1,10 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -8,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -286,7 +292,7 @@ public final class ZipUtils {
             throws IOException {
         if (zipFile == null || destDir == null) return null;
         List<File> files = new ArrayList<>();
-        ZipFile zip = new ZipFile(zipFile);
+        @SuppressLint("NewApi") ZipFile zip = new ZipFile(zipFile, Charset.forName("GBK"));
         Enumeration<?> entries = zip.entries();
         try {
             if (StrUtil.isSpace(keyword)) {

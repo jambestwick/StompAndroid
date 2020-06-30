@@ -49,9 +49,9 @@ public class StompUtil {
     private static final String TAG = StompUtil.class.getName();
     public static StompClient mStompClient;
     private static boolean mNeedConnect;
-    public static final long RECONNECT_TIME_INTERVAL = 30 * 1000;
-    public static final long RECONNECT_TIME_DELY = 5 * 1000;
-    private static final int HEART_BEAT = 1000;
+    public static final long RECONNECT_TIME_INTERVAL = 30 * Constants.ONE_MILL_SECOND;
+    public static final long RECONNECT_TIME_DELY = 5 * Constants.ONE_MILL_SECOND;
+    private static final long HEART_BEAT = 10 * Constants.ONE_MILL_SECOND;
 
     private static List<StompConnectListener> connectListeners = new ArrayList<>();
 
@@ -87,8 +87,7 @@ public class StompUtil {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
-        //mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI);
-        //mStompClient.withClientHeartbeat(HEART_BEAT).withServerHeartbeat(HEART_BEAT);
+        mStompClient.withClientHeartbeat((int) HEART_BEAT);
         List<StompHeader> _headers = new ArrayList<>();
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
         //_headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth("00002", "AAAAAAAAAAAAAAAAAAAA_2")));
@@ -153,13 +152,13 @@ public class StompUtil {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe(disposable -> {
-                        LogUtil.d(TAG, Thread.currentThread().getName() + ",doOnSubscribe");
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",sendStomp:doOnSubscribe");
                     })
                     .subscribe(new CompletableObserver() {
                         @Override
                         public void onSubscribe(Disposable d) {
                             sendBack.onSendSuccess();
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",STOMP send:" + destPath + ",data:" + jsonMsg + ",successfully");
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",sendStomp:" + destPath + ",data:" + jsonMsg + ",successfully");
                             if (null != dialogUtils) {
                                 dialogUtils.dismissProgress();
                             }
@@ -167,13 +166,13 @@ public class StompUtil {
 
                         @Override
                         public void onComplete() {
-                            LogUtil.d(TAG, "onComplete");
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",sendStomp:onComplete");
                         }
 
                         @Override
                         public void onError(Throwable throwable) {
                             sendBack.onSendError(throwable);
-                            LogUtil.e(TAG, Thread.currentThread().getName() + ",Error send STOMP: " + destPath + ",data:" + jsonMsg + "," + throwable);
+                            LogUtil.e(TAG, Thread.currentThread().getName() + ",sendStomp:onError:" + destPath + ",data:" + jsonMsg + "," + throwable);
                             if (null != dialogUtils) {
                                 dialogUtils.dismissProgress();
                             }
@@ -191,40 +190,13 @@ public class StompUtil {
         if (mStompClient != null) {
             mStompClient.topic(destPath)
                     .doOnError(throwable -> {
-                        LogUtil.e(TAG, Thread.currentThread().getName() + ",topic :" + destPath + ",doOnError:" + Log.getStackTraceString(throwable));
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",receiveStomp:" + destPath + ",doOnError:" + Log.getStackTraceString(throwable));
                         // log the error and tell the service to resubscribe
                     })
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(flowableSubscriber);
         }
-    }
-
-    private void topicMessage() {
-        Disposable dispTopic1 = mStompClient.topic("/user/queue/receive-settings")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d(TAG, Thread.currentThread().getName() + ",Received: " + topicMessage.getPayload());
-                }, throwable -> {
-                    Log.e(TAG, Thread.currentThread().getName() + ",Error on subscribe topic:", throwable);
-                });
-        Disposable dispTopic2 = mStompClient.topic("/user/queue/receive-transaction")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d(TAG, Thread.currentThread().getName() + ",Received " + topicMessage.getPayload());
-                }, throwable -> {
-                    Log.e(TAG, Thread.currentThread().getName() + ",Error on subscribe topic", throwable);
-                });
-        Disposable dispTopic3 = mStompClient.topic("/user/queue/receive-transaction-completion-confirmation")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(topicMessage -> {
-                    Log.d(TAG, Thread.currentThread().getName() + ",Received " + topicMessage.getPayload());
-                }, throwable -> {
-                    Log.e(TAG, Thread.currentThread().getName() + ",Error on subscribe topic", throwable);
-                });
     }
 
     private CompletableTransformer applySchedulers(BaseActivity activity) {

@@ -4,12 +4,11 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
@@ -31,20 +30,13 @@ import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
-import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
-import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_DELY;
-import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_INTERVAL;
 
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
@@ -59,10 +51,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private IAdvisePresenter advisePresenter;
     private Timer patrolTimer = new Timer();//轮巡队列
-    private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门任务
+    private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
-    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
+    //private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
     private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
@@ -136,6 +128,16 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         }
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
+                        if (StompUtil.mStompClient != null) {
+                            LogUtil.d(TAG, "mStompClient对象存在:reconnect");
+                            StompUtil.mStompClient.reconnect();
+                        } else {
+                            LogUtil.d(TAG, "mStompClient对象不存在:createStompClient,account:" + PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT) + ",password:" + PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                            StompUtil.createStompClient(
+                                    PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
+                                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                        }
+
                     }
                     break;
                 case CONNECT:
@@ -152,7 +154,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         };
         StompUtil.setConnectListener(stompConnectListener);
         initTopic();
-        patrolTimer.schedule(timeConnectTask =new DeviceInfoPresenter.TimeConnectTask(),RECONNECT_TIME_DELY, RECONNECT_TIME_INTERVAL);
     }
 
     /**
@@ -163,11 +164,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainVideoRl.setVisibility(View.VISIBLE);
-            if ("1".equals(lastAdvise.getAdvNo())) {
-                binding.mainAdviseVideo.setVideoURI(Uri.parse(path));
-            } else {
-                binding.mainAdviseVideo.setVideoPath(path);
-            }
+            binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 //binding.mainAdviseVideo.setVideoPath(path);
@@ -209,14 +206,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (null != patrolTimer) {
-            patrolTimer.cancel();
-            patrolTimer = null;
-        }
-        if (null != stompConnectListener) {
-            StompUtil.removeConnectListener(stompConnectListener);
-        }
-        StompUtil.disconnect();
+        releaseResource();
     }
 
     @Override
@@ -231,17 +221,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onDownloadAppSuccess(String filePath) {
         //自动替换安装 需要判断正在广告状态无人操作时才更新
-        if (binding.mainVideoRl.getVisibility() == View.VISIBLE) {
-            PackageUtils.installApk(this, filePath);
-            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
-            if (null != packageInfo) {
-                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
-            }
-        } else {
-            timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
-            timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
-            patrolTimer.schedule(timeAdvisePlayTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
-        }
+        timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
+        timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
+        patrolTimer.schedule(timeAdvisePlayTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
 
     }
 
@@ -475,6 +457,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             PackageUtils.installApk(this, filePath);
             PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
             if (null != packageInfo) {
+                releaseResource();
                 PackageUtils.openAppByPackageName(this, packageInfo.packageName);
             }
         } else {
@@ -491,6 +474,28 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private void hideAdvise() {
         binding.mainVideoRl.setVisibility(View.GONE);
         binding.mainAdviseVideo.pause();
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_HOME) {
+            releaseResource();
+            AppManager.getAppManager().AppExit();
+            return true;
+        }
+        return false;
+    }
+
+    private void releaseResource() {
+        if (null != patrolTimer) {
+            patrolTimer.cancel();
+            patrolTimer = null;
+        }
+        if (null != stompConnectListener) {
+            StompUtil.removeConnectListener(stompConnectListener);
+        }
+        StompUtil.disconnect();
     }
 
 
