@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.utils;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +15,20 @@ import java.util.Arrays;
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
     private static BoxStateListener boxStateListener;//接口回调必须设置静态的，否则onReceive回调接收到的boxStateListener为空
-    private static DialogUtils dialogUtils;
+    private DialogUtils dialogUtils;
     private static EnumActionType enumActionType;
+
+    private static KeyCabinetReceiver instance;
+
+    //单例模式
+    public static KeyCabinetReceiver getInstance() {
+        if (instance == null)
+            synchronized (KeyCabinetReceiver.class) {
+                instance = new KeyCabinetReceiver();
+            }
+        return instance;
+    }
+
 
     /***
      * 参数说明:
@@ -23,8 +36,9 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * boxId 指盒子的编号主柜 Z开头Z01，Z02......
      *                  副柜 A01，B01... ...
      * ****/
-    public static void openBatchBox(Context context, String[] boxIdList, BoxStateListener listListener) {
+    public void openBatchBox(Activity context, String[] boxIdList, BoxStateListener listListener) {
         if (dialogUtils == null) {
+            LogUtil.d(TAG, "需要新建:Dialog");
             dialogUtils = new DialogUtils();
         }
         LogUtil.d(TAG, Thread.currentThread().getName() + ",openBatchBox context:" + context);
@@ -37,7 +51,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         enumActionType = EnumActionType.OPEN_BATCH;
     }
 
-    public static void queryBoxState(Context context, String boxId, BoxStateListener listener) {
+    public void queryBoxState(Activity context, String boxId, BoxStateListener listener) {
 //        if (dialogUtils == null) {
 //            dialogUtils = new DialogUtils();
 //        }
@@ -52,7 +66,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
 
     }
 
-    public static void queryBatchBoxState(Context context, String[] boxIds, BoxStateListener listener) {
+    public void queryBatchBoxState(Activity context, String[] boxIds, BoxStateListener listener) {
 //        if (dialogUtils == null) {
 //            dialogUtils = new DialogUtils();
 //        }
@@ -71,6 +85,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (dialogUtils != null) {
             dialogUtils.dismissProgress();
+            dialogUtils = null;
         }
         try {
             if ("android.intent.action.hal.iocontroller.querydata".equals(intent.getAction())) {

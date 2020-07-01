@@ -1,17 +1,13 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
 import android.util.Log;
-import android.view.View;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
-import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
-import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
 import com.huawei.jams.testautostart.model.impl.DeviceInfoModel;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
-import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
@@ -22,7 +18,6 @@ import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -138,7 +133,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         @Override
         public void run() {
-            KeyCabinetReceiver.queryBatchBoxState(BaseApp.getAppContext(), boxId, boxStateListener);
+            KeyCabinetReceiver.getInstance().queryBatchBoxState(null, boxId, boxStateListener);
         }
     }
 
@@ -209,7 +204,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             if (!NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
                 Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to disconnect stomp======================");
                 StompUtil.disconnect();
-            } else {
+                StompUtil.setmNeedConnect(true);
+            } else if (StompUtil.isNeedConnect()) {
                 if (null != StompUtil.mStompClient) {
                     StompUtil.mStompClient.reconnect();
                 } else {

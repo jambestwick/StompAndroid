@@ -71,6 +71,10 @@ public class StompUtil {
         return mNeedConnect;
     }
 
+    public static void setmNeedConnect(boolean mNeedConnect) {
+        StompUtil.mNeedConnect = mNeedConnect;
+    }
+
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
     //长生命周期的连接贯穿APP整个周期
     public static void createStompClient(String userName, String password) {

@@ -1,5 +1,6 @@
 package com.yxytech.parkingcloud.baselibrary.dialog;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.yxytech.parkingcloud.baselibrary.R;
@@ -16,10 +17,10 @@ public class DialogUtils {
     /**
      * 显示ProgressDialog
      */
-    public void showProgress(Context context, String msg) {
-//        if (context == null || context.isFinishing()) {
-//            return;
-//        }
+    public void showProgress(Activity context, String msg) {
+        if (context == null || context.isFinishing()) {
+            return;
+        }
         if (mProgressDialog == null) {
             mProgressDialog = new CustomProgressDialog.Builder(context)
                     .setTheme(R.style.ProgressDialogStyle)
@@ -34,10 +35,10 @@ public class DialogUtils {
     /**
      * 显示ProgressDialog
      */
-    public void showProgress(Context context) {
-         /*if (activity == null || activity.isFinishing()) {
+    public void showProgress(Activity context) {
+        if (context == null || context.isFinishing()) {
             return;
-        }*/
+        }
         if (mProgressDialog == null) {
             mProgressDialog = new CustomProgressDialog.Builder(context)
                     .setTheme(R.style.ProgressDialogStyle)

@@ -212,21 +212,21 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 读取设备柜门是否都关闭
      * */
     private void readBoxAllClose() {
-        KeyCabinetReceiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(WelcomeActivity.this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 判断柜门是否全关闭
      **/
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY, this);
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(WelcomeActivity.this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        KeyCabinetReceiver.openBatchBox(WelcomeActivity.this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
+        KeyCabinetReceiver.getInstance().openBatchBox(WelcomeActivity.this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**

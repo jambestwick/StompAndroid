@@ -283,7 +283,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         }
         DeviceInfoPresenter.EnumBoxConvert enumBoxConvert = DeviceInfoPresenter.EnumBoxConvert.getEnumByKey(boxId);
         if (null != enumBoxConvert) {
-            KeyCabinetReceiver.openBatchBox(MainActivity.this, new String[]{enumBoxConvert.getValue()}, this);
+            KeyCabinetReceiver.getInstance().openBatchBox(MainActivity.this, new String[]{enumBoxConvert.getValue()}, this);
         } else {
             ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_num_error));
             deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
