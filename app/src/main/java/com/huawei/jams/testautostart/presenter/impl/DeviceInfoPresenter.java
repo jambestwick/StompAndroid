@@ -17,6 +17,7 @@ import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import ua.naiksoftware.stomp.Stomp;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -200,18 +201,20 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public static class TimeConnectTask extends TimerTask {
         @Override
         public void run() {
-            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to connect stomp======================");
-            if (!NetworkUtils.isConnected()) {//如果需要重连（连接ERROR或者CLOSED）并且网络状态连接正常
+            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to interval stomp======================");
+            if (!NetworkUtils.isConnected()) {//如果网络断了
                 Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to disconnect stomp======================");
                 StompUtil.disconnect();
                 StompUtil.setmNeedConnect(true);
-            } else if (StompUtil.isNeedConnect()) {
-                if (null != StompUtil.mStompClient) {
-                    StompUtil.mStompClient.reconnect();
-                } else {
-                    StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+            } else {//如果网络没断
+                if (StompUtil.isNeedConnect()) {
+                    if (null != StompUtil.mStompClient) {
+                        StompUtil.mStompClient.reconnect();
+                    } else {
+                        StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                    }
+                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
-                Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
             }
         }
     }
