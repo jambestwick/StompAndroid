@@ -560,7 +560,13 @@ public class StrUtil {
         if (!TextUtils.isEmpty(ver1) && !TextUtils.isEmpty(ver2)) {
             String[] verStr1 = ver1.split(".");
             String[] verStr2 = ver2.split(".");
-            for (int i = 0; i < ver1.length(); i++) {
+            int minLength;
+            if (verStr1.length > verStr2.length) {
+                minLength = verStr2.length;
+            } else {
+                minLength = verStr1.length;
+            }
+            for (int i = 0; i < minLength; i++) {
                 if (TextUtils.isDigitsOnly(verStr1[i]) && TextUtils.isDigitsOnly(verStr2[i])) {
                     if (Integer.parseInt(verStr1[i]) > Integer.parseInt(verStr2[i])) {
                         agtb = true;

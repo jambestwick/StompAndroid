@@ -39,6 +39,9 @@ import com.yxytech.parkingcloud.baselibrary.utils.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_DELY;
+import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_INTERVAL;
+
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
     private ActivityMainBinding binding;
@@ -55,7 +58,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
-    //private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
+    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
     private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
@@ -155,6 +158,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         };
         StompUtil.setConnectListener(stompConnectListener);
         initTopic();
+        patrolTimer.schedule(timeConnectTask = new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.ONE_MILL_SECOND);
     }
 
     /**
