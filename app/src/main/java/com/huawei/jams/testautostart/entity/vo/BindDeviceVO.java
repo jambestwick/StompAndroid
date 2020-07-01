@@ -14,6 +14,7 @@ public class BindDeviceVO extends ErrorCode implements Serializable {
     private static final long serialVersionUID = 2884491148162865166L;
     private String cabinetNumber;
     private String cabinetPassword;
+    private String name;
 
     public int getErrcode() {
         return errcode;
@@ -39,11 +40,20 @@ public class BindDeviceVO extends ErrorCode implements Serializable {
         this.cabinetPassword = cabinetPassword;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "BindDeviceVO{" +
                 "cabinetNumber='" + cabinetNumber + '\'' +
                 ", cabinetPassword='" + cabinetPassword + '\'' +
+                ", name='" + name + '\'' +
                 ", errcode=" + errcode +
                 '}';
     }

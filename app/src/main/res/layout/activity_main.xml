@@ -73,104 +73,110 @@
                 android:layout_weight="5">
 
                 <LinearLayout style="@style/style_layout_number_total_linear"
-                    android:layout_marginRight="80dp">
+                              android:layout_marginRight="80dp">
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                            android:id="@+id/main_code_1_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_1" />
+                                android:id="@+id/main_code_1_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_1"/>
 
                         <TextView
-                            android:id="@+id/main_code_2_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_2" />
+                                android:id="@+id/main_code_2_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_2"/>
 
                         <TextView
-                            android:id="@+id/main_code_3_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_3" />
+                                android:id="@+id/main_code_3_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_3"/>
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                            android:id="@+id/main_code_4_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_4" />
+                                android:id="@+id/main_code_4_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_4"/>
 
                         <TextView
-                            android:id="@+id/main_code_5_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_5" />
+                                android:id="@+id/main_code_5_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_5"/>
 
                         <TextView
-                            android:id="@+id/main_code_6_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_6" />
+                                android:id="@+id/main_code_6_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_6"/>
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                            android:id="@+id/main_code_7_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_7" />
+                                android:id="@+id/main_code_7_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_7"/>
 
                         <TextView
-                            android:id="@+id/main_code_8_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_8" />
+                                android:id="@+id/main_code_8_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_8"/>
 
                         <TextView
-                            android:id="@+id/main_code_9_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_9" />
+                                android:id="@+id/main_code_9_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_9"/>
                     </LinearLayout>
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
                         <TextView
-                            android:id="@+id/main_code_delete_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_red"
-                            android:onClick="@{click}"
-                            android:text="@string/delete" />
+                                android:id="@+id/main_code_delete_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_red"
+                                android:onClick="@{click}"
+                                android:text="@string/delete"/>
 
                         <TextView
-                            android:id="@+id/main_code_0_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_normal"
-                            android:onClick="@{click}"
-                            android:text="@string/number_0" />
+                                android:id="@+id/main_code_0_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_normal"
+                                android:onClick="@{click}"
+                                android:text="@string/number_0"/>
 
                         <TextView
-                            android:id="@+id/main_code_ok_tv"
-                            style="@style/style_circle_number_button"
-                            android:background="@drawable/bg_selector_btn_click_green"
-                            android:onClick="@{click}"
-                            android:text="@string/ok" />
+                                android:id="@+id/main_code_ok_tv"
+                                style="@style/style_circle_number_button"
+                                android:background="@drawable/bg_selector_btn_click_green"
+                                android:onClick="@{click}"
+                                android:text="@string/ok"/>
                     </LinearLayout>
                 </LinearLayout>
+                <TextView
+                        android:layout_width="match_parent"
+                        android:gravity="right"
+                        style="@style/style_six_input_dialog_number"
+                        android:text=""
+                        android:id="@+id/main_device_name_tv"/>
             </LinearLayout>
         </LinearLayout>
         <!--广告播放-->

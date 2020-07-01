@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
@@ -38,9 +37,6 @@ import com.yxytech.parkingcloud.baselibrary.utils.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_DELY;
-import static com.huawei.jams.testautostart.utils.StompUtil.RECONNECT_TIME_INTERVAL;
 
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
@@ -86,6 +82,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
+        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME));
         deviceInfoPresenter = new DeviceInfoPresenter(MainActivity.this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);

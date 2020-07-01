@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
     private static BoxStateListener boxStateListener;//接口回调必须设置静态的，否则onReceive回调接收到的boxStateListener为空
-    private DialogUtils dialogUtils;
+    private static DialogUtils dialogUtils;
     private static EnumActionType enumActionType;
 
     private static KeyCabinetReceiver instance;
