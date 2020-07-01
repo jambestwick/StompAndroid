@@ -145,7 +145,7 @@ public class StompUtil {
     public static void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
             DialogUtils dialogUtils = new DialogUtils();
-            dialogUtils.showProgress(activity.getApplicationContext());
+            dialogUtils.showProgress(activity);
             mStompClient.send(destPath, jsonMsg)
                     .retry(2)
                     .unsubscribeOn(Schedulers.newThread())

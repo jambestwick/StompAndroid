@@ -83,7 +83,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
-        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(MainActivity.this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
         binding.setClick(v -> {
@@ -263,7 +263,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onSendOpenBoxSuccess() {
         //send成功等待返回
         dialogUtils = new DialogUtils();
-        dialogUtils.showProgress(this.getApplicationContext());
+        dialogUtils.showProgress(MainActivity.this);
     }
 
     @Override
@@ -302,7 +302,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onSendBoxStateSuccess() {
         //send成功等待返回
         dialogUtils = new DialogUtils();
-        dialogUtils.showProgress(this.getApplicationContext());
+        dialogUtils.showProgress(MainActivity.this);
     }
 
     @Override

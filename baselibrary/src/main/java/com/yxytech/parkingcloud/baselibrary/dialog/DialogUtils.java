@@ -17,9 +17,9 @@ public class DialogUtils {
      * 显示ProgressDialog
      */
     public void showProgress(Context context, String msg) {
-         /* if (context == null || context.isFinishing()) {
-            return;
-        }*/
+//        if (context == null || context.isFinishing()) {
+//            return;
+//        }
         if (mProgressDialog == null) {
             mProgressDialog = new CustomProgressDialog.Builder(context)
                     .setTheme(R.style.ProgressDialogStyle)
@@ -52,8 +52,8 @@ public class DialogUtils {
      * 取消ProgressDialog
      */
     public void dismissProgress() {
-        if (null != mProgressDialog ) {
-            if(mProgressDialog.isShowing()){
+        if (null != mProgressDialog) {
+            if (mProgressDialog.isShowing()) {
                 mProgressDialog.dismiss();
             }
 

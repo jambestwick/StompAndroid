@@ -54,7 +54,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
 
     @Override
     protected void initViews() {
-        deviceCheckPresenter = new DeviceCheckPresenter(this, this);
+        deviceCheckPresenter = new DeviceCheckPresenter(WelcomeActivity.this, this);
         binding.setClick(v -> {
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
@@ -226,7 +226,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        KeyCabinetReceiver.openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
+        KeyCabinetReceiver.openBatchBox(WelcomeActivity.this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**

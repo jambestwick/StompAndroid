@@ -27,7 +27,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         if (dialogUtils == null) {
             dialogUtils = new DialogUtils();
         }
-        dialogUtils.showProgress(context.getApplicationContext());
+        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
         intent.putExtra("batchboxid", boxIdList);
         context.sendBroadcast(intent);
