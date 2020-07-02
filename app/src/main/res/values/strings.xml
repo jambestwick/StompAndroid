@@ -27,7 +27,7 @@
     <string name="fail">失败</string>
     <string name="contact_back_office_handle">请联系后台人员处理</string>
     <string name="back_server_password_invalid_retry">密码错误,请重新输入</string>
-    <string name="back_server_box_state_invalid">设备柜门状态未知</string>
+    <string name="back_server_box_state_invalid">设备柜门状态有误</string>
     <string name="back_server_box_num_error">返回柜门编号有误</string>
     <string name="checking">检测中… …</string>
     <string name="network">网络</string>

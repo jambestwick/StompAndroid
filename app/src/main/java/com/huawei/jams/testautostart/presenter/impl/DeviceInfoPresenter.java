@@ -57,10 +57,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         });
     }
 
-    @Override
-    public void patrolBoxState(Timer timer, TimerTask task) {
-        timer.schedule(task, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
-    }
 
     @Override
     public void refreshMainCode2View(ActivityMainBinding binding, String inputCode) {
@@ -169,11 +165,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     /**
-     * 轮巡书否播放广告的task
+     * 轮巡是否播放广告的task
      */
     public static class TimeAdvisePlayTask extends TimerTask {
 
-        int widgetViewVisible;
+        boolean playState;
         private AdvicePlayState advicePlayState;
         private String filePath;
 
@@ -182,18 +178,18 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             this.filePath = filePath;
         }
 
-        public void setWidgetViewVisible(int widgetViewVisible) {
-            this.widgetViewVisible = widgetViewVisible;
+        public void setPlayState(boolean playState) {
+            this.playState = playState;
         }
 
         @Override
         public void run() {
-            advicePlayState.visible(filePath, widgetViewVisible);
+            advicePlayState.isPlaying(filePath, playState);
         }
     }
 
     public interface AdvicePlayState {
-        void visible(String filePath, int visibleState);
+        void isPlaying(String filePath, boolean isPlaying);
 
     }
 
@@ -203,19 +199,21 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public static class TimeConnectTask extends TimerTask {
         @Override
         public void run() {
-            Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to interval stomp======================");
             if (!NetworkUtils.isConnected()) {//如果网络断了
-                Log.d(TAG, Thread.currentThread().getName() + ", debug in timer to disconnect stomp======================");
-                StompUtil.disconnect();
-                StompUtil.setmNeedConnect(true);
-            } else {//如果网络没断
-                if (StompUtil.isNeedConnect()) {
-                    if (null != StompUtil.mStompClient) {
-                        StompUtil.mStompClient.reconnect();
-                    } else {
-                        StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                    }
-                    Log.d(TAG, Thread.currentThread().getName() + ",forlan debug start connect WS_URI:" + IdeaApiService.WS_URI);
+                if (!StompUtil.isNeedConnect()) {//如果不需要连接
+                    Log.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
+                    StompUtil.disconnect();
+                    StompUtil.setmNeedConnect(true);
+                }
+            } else {//如果网络正常
+                if (StompUtil.isNeedConnect()) {//如果需要连接
+                    StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+//                    if (null != StompUtil.mStompClient) {
+//                        StompUtil.mStompClient.reconnect();
+//                    } else {
+//                        StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+//                    }
+                    Log.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
             }
         }

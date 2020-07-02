@@ -55,8 +55,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
-    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//长连接状态任务
-    private DialogUtils dialogUtils;//发送成功的等待
     private StompUtil.StompConnectListener stompConnectListener;
 
     //网络超时8秒
@@ -84,13 +82,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     protected void initViews() {
         binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME));
-        deviceInfoPresenter = new DeviceInfoPresenter(MainActivity.this, this);
+        deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
         binding.setClick(v -> {
-            if (null != timeAdviseTask) {
-                timeAdviseTask.setStartTime(System.currentTimeMillis());
-            }
             switch (v.getId()) {
                 case R.id.main_video_rl://进入输入6位码界面，倒计时30秒未操作返回广告
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
@@ -113,6 +108,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     addInputCode(((TextView) v).getText().toString());
                     break;
             }
+            if (null != timeAdviseTask) {
+                timeAdviseTask.setStartTime(System.currentTimeMillis());
+            }
 
         });
         Glide.with(this).load(R.mipmap.gif_open_box).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(binding.mainOpenClickIv);//加载gif动画
@@ -124,39 +122,22 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
             switch (enumConnectState) {
                 case CLOSE:
-                    if (binding.mainDialogAnimIv.getVisibility() != View.VISIBLE) {
-                        if (null != dialogUtils) {
-                            dialogUtils.dismissProgress();
-                        }
+                    if (null == binding.mainDialogAnimIv.getTag() || (int) binding.mainDialogAnimIv.getTag() != R.mipmap.bg_hint_net_work_error) {//当前的界面没展示网络异常
+                        stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
-                        if (StompUtil.mStompClient != null) {
-                            LogUtil.d(TAG, "mStompClient对象存在:reconnect");
-                            StompUtil.mStompClient.reconnect();
-                        } else {
-                            LogUtil.d(TAG, "mStompClient对象不存在:createStompClient,account:" + PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT) + ",password:" + PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                            StompUtil.createStompClient(
-                                    PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
-                                    , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                        }
-
                     }
                     break;
                 case CONNECT:
-                    if (null != dialogUtils) {
-                        dialogUtils.dismissProgress();
-                    }
-                    if (binding.mainDialogAnimIv.getVisibility() == View.VISIBLE) {
-                        showAdvise();
-                    }
                     initTopic();
+                    showAdvise();
                     break;
             }
 
         };
         StompUtil.setConnectListener(stompConnectListener);
         initTopic();
-        patrolTimer.schedule(timeConnectTask = new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.ONE_MILL_SECOND);
+        patrolTimer.schedule(new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.ONE_MILL_SECOND);//全程巡检网络
     }
 
     /**
@@ -225,7 +206,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onDownloadAppSuccess(String filePath) {
         //自动替换安装 需要判断正在广告状态无人操作时才更新
         timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
-        timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
+        timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
         patrolTimer.schedule(timeAdvisePlayTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
 
     }
@@ -264,23 +245,19 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onSendOpenBoxSuccess() {
         //send成功等待返回
-        dialogUtils = new DialogUtils();
-        dialogUtils.showProgress(MainActivity.this);
     }
 
     @Override
     public void onSendOpenBoxFail(String reason) {
-        startAnim(R.mipmap.bg_hint_net_work_error);
+        ToastUtil.showInCenter(this, "打开柜门失败");
+        deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
     }
 
     @Override
     public void onReceiveOpenBoxSuccess(String boxId) {
-        timeAdviseTask.cancel();
-        if (null != dialogUtils) {
-            dialogUtils.dismissProgress();
-        }
         DeviceInfoPresenter.EnumBoxConvert enumBoxConvert = DeviceInfoPresenter.EnumBoxConvert.getEnumByKey(boxId);
         if (null != enumBoxConvert) {
+            stopPatrolAdvTimeOut();
             KeyCabinetReceiver.getInstance().openBatchBox(MainActivity.this, new String[]{enumBoxConvert.getValue()}, this);
         } else {
             ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_num_error));
@@ -292,10 +269,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onReceiveOpenBoxFail(String reason) {
         //后台返回打开失败
-        //timeAdviseTask.cancel();
-        if (null != dialogUtils) {
-            dialogUtils.dismissProgress();
-        }
         ToastUtil.showInCenter(this, this.getString(R.string.back_server_password_invalid_retry));
         deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
     }
@@ -303,29 +276,18 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onSendBoxStateSuccess() {
         //send成功等待返回
-        dialogUtils = new DialogUtils();
-        dialogUtils.showProgress(MainActivity.this);
     }
 
     @Override
     public void onSendBoxStateFail(String reason) {
-        startAnim(R.mipmap.bg_hint_net_work_error);
-        timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
-        patrolTimer.schedule(timeAdviseTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
     }
 
     @Override
     public void onReceiveBoxStateSuccess(int state) {
-        if (null != dialogUtils) {
-            dialogUtils.dismissProgress();
-        }
     }
 
     @Override
     public void onReceiveBoxStateFail(String reason) {
-        if (null != dialogUtils) {
-            dialogUtils.dismissProgress();
-        }
         ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_state_invalid));
     }
 
@@ -338,14 +300,17 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         switch (enumActionType) {
             case OPEN_BATCH:
                 if (!isOpen[0]) {//打开柜门失败
-                    StompUtil.removeConnectListener(stompConnectListener);
+                    releaseResource();
                     startAnim(R.mipmap.bg_hint_device_error);
                 } else {//打开柜门成功,上传状态
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
-                    playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
+                    playMusic(R.raw.msc_box_open);
+                    if (!NetworkUtils.isConnected()) {
+                        startAnim(R.mipmap.bg_hint_net_work_error);
+                    }
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId, this);
-                    deviceInfoPresenter.patrolBoxState(patrolTimer, timeBoxStateTask);
+                    patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
                 break;
             case QUERY_BATCH:
@@ -353,7 +318,16 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     //上报
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeBoxStateTask.cancel();//关闭查询状态的轮巡
-                    playMusic(R.raw.msc_thank_use, DeviceInfo.EnumBoxState.CLOSE);
+                    playMusic(R.raw.msc_thank_use);
+                    if (NetworkUtils.isConnected()) {
+                        patrolTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(() -> showAdvise());
+                            }
+                        }, Constants.DELAY_ADVISE_MILL_SECOND);
+                    }
+
                 }
                 break;
         }
@@ -363,6 +337,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      * 播放动画
      */
     private void startAnim(int resId) {
+        binding.mainDialogAnimIv.setTag(resId);
         binding.mainDialogAnimIv.setVisibility(View.VISIBLE);
         binding.mainDialogAnimIv.setBackgroundResource(resId);
         ValueAnimator animator = ValueAnimator.ofFloat(0.0f, 1.0f);//设置属性值
@@ -380,21 +355,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     /**
      * 播放音乐
      *
-     * @param rawId        资源ID
-     * @param enumBoxState 如果柜门已关闭，
-     *                     延迟Constants#DELAY_ADVISE_MILL_SECOND 关闭顶部图片，展示并播放广告
+     * @param rawId 资源ID
+     *              如果柜门已关闭，
+     *              延迟Constants#DELAY_ADVISE_MILL_SECOND 关闭顶部图片，展示并播放广告
      */
-    private void playMusic(int rawId, DeviceInfo.EnumBoxState enumBoxState) {
+    private void playMusic(int rawId) {
         //直接创建，不需要设置setDataSource
         SoundPoolUtil.getInstance().play(this, rawId);
-        if (enumBoxState == DeviceInfo.EnumBoxState.CLOSE) {
-            patrolTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    runOnUiThread(() -> showAdvise());
-                }
-            }, Constants.DELAY_ADVISE_MILL_SECOND);
-        }
     }
 
     private void setAnim(ValueAnimator animator, int visible) {
@@ -413,6 +380,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (visible == View.GONE) {
+                    binding.mainDialogAnimIv.setTag(-1);
                     binding.mainDialogAnimIv.setVisibility(View.GONE);
                 }
             }
@@ -441,21 +409,16 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     public void timeOut() {//超时界面没人操作，则回到广告
-        timeAdviseTask.cancel();
-        runOnUiThread(() -> {
-            if (null != dialogUtils) {
-                dialogUtils.dismissProgress();
-            }
-            showAdvise();
-        });
+        stopPatrolAdvTimeOut();
+        runOnUiThread(this::showAdvise);
     }
 
     /**
      * 等到广告出现，再开始更新安装APP
      **/
     @Override
-    public void visible(String filePath, int visible) {
-        if (visible == View.VISIBLE) {
+    public void isPlaying(String filePath, boolean isPlaying) {
+        if (isPlaying) {
             timeAdvisePlayTask.cancel();
             PackageUtils.installApk(this, filePath);
             PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
@@ -464,7 +427,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 PackageUtils.openAppByPackageName(this, packageInfo.packageName);
             }
         } else {
-            timeAdvisePlayTask.setWidgetViewVisible(binding.mainVideoRl.getVisibility());
+            timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
         }
     }
 
@@ -472,6 +435,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         closeAnim();
         binding.mainVideoRl.setVisibility(View.VISIBLE);
         binding.mainAdviseVideo.start();
+
     }
 
     private void hideAdvise() {
@@ -501,5 +465,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         StompUtil.disconnect();
     }
 
+    private void stopPatrolAdvTimeOut() {
+        if (null != timeAdviseTask) {
+            timeAdviseTask.cancel();
+            timeAdviseTask = null;
+        }
+    }
 
 }
