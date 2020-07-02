@@ -89,8 +89,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             switch (v.getId()) {
                 case R.id.main_video_rl://进入输入6位码界面，倒计时30秒未操作返回广告
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                    timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
-                    patrolTimer.schedule(timeAdviseTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
+                    if (null == timeAdviseTask) {
+                        timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
+                        patrolTimer.schedule(timeAdviseTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
+                    }
                     hideAdvise();
                 case R.id.main_code_delete_tv://删除前一位
                     decreaseInputCode();
