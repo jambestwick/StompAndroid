@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
@@ -343,7 +344,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open, DeviceInfo.EnumBoxState.OPEN);
-                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(boxId, this);
+                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId, this);
                     deviceInfoPresenter.patrolBoxState(patrolTimer, timeBoxStateTask);
                 }
                 break;

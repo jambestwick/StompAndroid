@@ -1,5 +1,6 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
+import android.app.Activity;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
@@ -17,7 +18,6 @@ import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
-import ua.naiksoftware.stomp.Stomp;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -124,17 +124,19 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
      * 轮巡柜门状态的task
      **/
     public static class TimeBoxStateTask extends TimerTask {
+        private Activity activity;
         private String boxId[];
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeBoxStateTask(String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeBoxStateTask(Activity activity, String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+            this.activity = activity;
             this.boxId = boxId;
             this.boxStateListener = boxStateListener;
         }
 
         @Override
         public void run() {
-            KeyCabinetReceiver.getInstance().queryBatchBoxState(null, boxId, boxStateListener);
+            KeyCabinetReceiver.getInstance().queryBatchBoxState(activity, boxId, boxStateListener);
         }
     }
 

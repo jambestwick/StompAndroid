@@ -58,7 +58,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                         }
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getCabinetNumber());
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getCabinetPassword());
-                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.NAME, response.getName());
+                        PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.NAME, response.getCabinetName());
 
                         callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), response);
 
