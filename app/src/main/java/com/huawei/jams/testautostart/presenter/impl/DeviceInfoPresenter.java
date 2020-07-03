@@ -16,6 +16,7 @@ import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 
@@ -201,19 +202,19 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         public void run() {
             if (!NetworkUtils.isConnected()) {//如果网络断了
                 if (!StompUtil.isNeedConnect()) {//如果不需要连接
-                    Log.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
                     StompUtil.disconnect();
                     StompUtil.setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (StompUtil.isNeedConnect()) {//如果需要连接
+                if (StompUtil.isNeedConnect() && !StompUtil.isConnecting) {//如果需要连接
                     StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
 //                    if (null != StompUtil.mStompClient) {
 //                        StompUtil.mStompClient.reconnect();
 //                    } else {
 //                        StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
 //                    }
-                    Log.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
             }
         }

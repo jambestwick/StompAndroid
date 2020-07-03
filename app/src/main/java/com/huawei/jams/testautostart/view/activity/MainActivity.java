@@ -139,7 +139,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         };
         StompUtil.setConnectListener(stompConnectListener);
         initTopic();
-        patrolTimer.schedule(new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.ONE_MILL_SECOND);//全程巡检网络
+        patrolTimer.schedule(new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);//全程巡检网络
     }
 
     /**

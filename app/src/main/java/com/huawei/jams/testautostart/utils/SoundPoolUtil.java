@@ -67,7 +67,7 @@ public class SoundPoolUtil {
         //int load(FileDescriptor fd, long offset, long length, int priority)
         //声音ID 加载音频资源,这里用的是第二种，第三个参数为priority，声音的优先级*API中指出，priority参数目前没有效果，建议设置为1。
         final int voiceId = soundPool.load(context, resId, 1);
-        LogUtil.d(TAG, "voiceId: " + voiceId);
+        //LogUtil.d(TAG, "voiceId: " + voiceId);
         //异步需要等待加载完成，音频才能播放成功
         soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {
             if (status == 0) {

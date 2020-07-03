@@ -16,7 +16,7 @@ public class ResourceFileUtil {
         File file = new File(Constants.ADVISE_DIR, name);
         FileUtils.createOrExistsFile(file);
         FileOutputStream fileOutputStream = new FileOutputStream(file);//存入SDCard
-        byte[] buffer = new byte[10];
+        byte[] buffer = new byte[2048];
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         int len = 0;
         while ((len = inStream.read(buffer)) != -1) {

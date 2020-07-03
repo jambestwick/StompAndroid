@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.entity.Advise;
+import com.huawei.jams.testautostart.entity.Advise_Table;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.ResourceFileUtil;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -13,6 +14,7 @@ import com.yxytech.parkingcloud.baselibrary.http.common.RxRetrofitApp;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.ExceptionHelper;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
 
 import java.io.File;
@@ -57,25 +59,18 @@ public class BaseApp extends BaseApplication {
     private void initVideo() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
         if (adviseList.size() <= 0) {
-            try {
-                Advise advise = new Advise();
-                advise.setAdvNo("1");
-                advise.setAdvDate(new Date());
-                advise.setAdvVersion("1.0.0");
-                advise.setUuid(UUID.randomUUID());
-                advise.setCreateTime(new Date());
-                advise.setFileName("adv000");
-                String fileName = "adv000.mp4";
-                ResourceFileUtil.saveAdv2SDCard(this, fileName);
-                advise.setFilePath(Constants.ADVISE_DIR + File.separator + fileName);
-                advise.save();
-            } catch (Throwable throwable) {
-                throwable.printStackTrace();
+            buildFirstAdv();
+        } else {
+            if (adviseList.size() == 1) {
+                if (!adviseList.get(0).getAdvVersion().contains(".")) {
+                    adviseList.get(0).delete();
+                    buildFirstAdv();
+                }
             }
-
         }
     }
-//    public static void main(String[] a){
+
+    //    public static void main(String[] a){
 //        List<File> unZipFiles = null;
 //        try {
 //            unZipFiles = ZipUtils.unzipFile("D:\\工控机设备\\开仓成功失败图\\dedfdokf的_张ff.zip", "D:\\工控机设备\\开仓成功失败图\\1.0.2");
@@ -87,5 +82,22 @@ public class BaseApp extends BaseApplication {
 //        int b= 2;
 //
 //    }
+    private void buildFirstAdv() {
+        try {
+            Advise advise = new Advise();
+            advise.setAdvNo("1");
+            advise.setAdvDate(new Date());
+            advise.setAdvVersion("1.0.0");
+            advise.setUuid(UUID.randomUUID());
+            advise.setCreateTime(new Date());
+            advise.setFileName("adv000");
+            String fileName = "adv000.mp4";
+            ResourceFileUtil.saveAdv2SDCard(this, fileName);
+            advise.setFilePath(Constants.ADVISE_DIR + File.separator + fileName);
+            advise.save();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
 
 }
