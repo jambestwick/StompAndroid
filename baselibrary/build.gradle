@@ -52,4 +52,5 @@ dependencies {
     api 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5'
     api 'com.pnikosis:materialish-progress:1.0'
     api 'com.ycjiang:ImagePreview:2.2.2'
+
 }

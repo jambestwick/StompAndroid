@@ -270,11 +270,23 @@ public class PackageUtils {
      */
     public static boolean openAppByPackageName(Context context, String packageName) {
         Intent intent = getIntentByPackageName(context, packageName);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (intent != null) {
             context.startActivity(intent);
             return true;
         }
         return false;
+    }
+    /**
+     * 打开apk
+     *
+     * @param context
+     * @param pathName 文件路径
+     */
+    public static void openFile(Context context, String pathName) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(new File(pathName)), "application/vnd.android.package-archive");
+        context.startActivity(intent);
     }
 
     /**

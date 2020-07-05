@@ -70,18 +70,16 @@ public class BaseApp extends BaseApplication {
         }
     }
 
-    //    public static void main(String[] a){
+//    public static void main(String[] a) {
 //        List<File> unZipFiles = null;
-//        try {
-//            unZipFiles = ZipUtils.unzipFile("D:\\工控机设备\\开仓成功失败图\\dedfdokf的_张ff.zip", "D:\\工控机设备\\开仓成功失败图\\1.0.2");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+//        ZipUtils.unZip("D:\\工控机设备\\开仓成功失败图\\test.zip", "D:\\工控机设备\\开仓成功失败图\\1.0.2", 1);
+//
 //        File file = unZipFiles.get(0);
-//        String  cc =Build.VERSION.RELEASE;
-//        int b= 2;
+//        String cc = Build.VERSION.RELEASE;
+//        int b = 2;
 //
 //    }
+
     private void buildFirstAdv() {
         try {
             Advise advise = new Advise();

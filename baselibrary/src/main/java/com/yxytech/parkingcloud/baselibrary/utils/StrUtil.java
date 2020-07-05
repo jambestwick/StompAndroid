@@ -558,8 +558,8 @@ public class StrUtil {
     public static boolean compareVerName(String ver1, String ver2) {
         boolean agtb = false;
         if (!TextUtils.isEmpty(ver1) && !TextUtils.isEmpty(ver2)) {
-            String[] verStr1 = ver1.split(".");
-            String[] verStr2 = ver2.split(".");
+            String[] verStr1 = ver1.split("\\.");
+            String[] verStr2 = ver2.split("\\.");
             int minLength;
             if (verStr1.length > verStr2.length) {
                 minLength = verStr2.length;

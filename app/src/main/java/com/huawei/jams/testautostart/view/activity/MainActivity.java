@@ -2,6 +2,7 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
@@ -422,12 +423,19 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void isPlaying(String filePath, boolean isPlaying) {
         if (isPlaying) {
             timeAdvisePlayTask.cancel();
-            PackageUtils.installApk(this, filePath);
-            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
-            if (null != packageInfo) {
-                releaseResource();
-                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
-            }
+            ShellUtils.execCmd("pm install -f" + filePath, false);
+            //静态注册自启动广播
+//            Intent intent=new Intent();
+//            //与清单文件的receiver的anction对应
+//            intent.setAction("android.intent.action.PACKAGE_REPLACED");
+//            //发送广播
+//            sendBroadcast(intent);
+//            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
+//            if (null != packageInfo) {
+//                //releaseResource();
+//                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
+//                //ShellUtils.execCmd("am start -n" + filePath, false);
+//            }
         } else {
             timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
         }

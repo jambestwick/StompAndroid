@@ -292,7 +292,7 @@ public final class ZipUtils {
             throws IOException {
         if (zipFile == null || destDir == null) return null;
         List<File> files = new ArrayList<>();
-        @SuppressLint("NewApi") ZipFile zip = new ZipFile(zipFile, Charset.forName("GBK"));
+         ZipFile zip = new ZipFile(zipFile);
         Enumeration<?> entries = zip.entries();
         try {
             if (StrUtil.isSpace(keyword)) {
