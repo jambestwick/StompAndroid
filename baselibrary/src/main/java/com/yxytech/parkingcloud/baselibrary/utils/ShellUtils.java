@@ -97,8 +97,12 @@ public class ShellUtils {
         StringBuilder errorMsg = null;
         DataOutputStream os = null;
         try {
-            process = Runtime.getRuntime().exec(isRoot ? "su" : "sh");
+            process = Runtime.getRuntime().exec(isRoot ? "su" : "sh");// (这里执行是系统已经开放了root权限，而不是说通过执行这句来获得root权限)
             os = new DataOutputStream(process.getOutputStream());
+//            if (isRoot) {
+//                // 部分手机Root之后Library path 丢失，导入path可解决该问题
+//                os.writeBytes((String) "export LD_LIBRARY_PATH=/vendor/lib:/system/lib\n");
+//            }
             for (String command : commands) {
                 if (command == null) continue;
                 os.write(command.getBytes());
@@ -163,6 +167,15 @@ public class ShellUtils {
             this.result = result;
             this.successMsg = successMsg;
             this.errorMsg = errorMsg;
+        }
+
+        @Override
+        public String toString() {
+            return "CommandResult{" +
+                    "result=" + result +
+                    ", successMsg='" + successMsg + '\'' +
+                    ", errorMsg='" + errorMsg + '\'' +
+                    '}';
         }
     }
 }

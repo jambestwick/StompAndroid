@@ -423,19 +423,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void isPlaying(String filePath, boolean isPlaying) {
         if (isPlaying) {
             timeAdvisePlayTask.cancel();
-            ShellUtils.execCmd("pm install -f" + filePath, false);
-            //静态注册自启动广播
-//            Intent intent=new Intent();
-//            //与清单文件的receiver的anction对应
-//            intent.setAction("android.intent.action.PACKAGE_REPLACED");
-//            //发送广播
-//            sendBroadcast(intent);
-//            PackageInfo packageInfo = PackageUtils.getPackageInfo(BaseApp.getAppContext());
-//            if (null != packageInfo) {
-//                //releaseResource();
-//                PackageUtils.openAppByPackageName(this, packageInfo.packageName);
-//                //ShellUtils.execCmd("am start -n" + filePath, false);
-//            }
+            boolean installRes = PackageUtils.clientInstall(filePath);
+            //ShellUtils.CommandResult commandResult = ShellUtils.execCmd("pm install -r" + filePath, true);
+            LogUtil.d(TAG, "静默安装结果:" + installRes);
+            //LogUtil.d(TAG, "静默安装结果:" + commandResult.toString());
         } else {
             timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
         }

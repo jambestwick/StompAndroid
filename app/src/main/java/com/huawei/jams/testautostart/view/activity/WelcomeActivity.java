@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.huawei.jams.testautostart.BaseApp;
+import com.huawei.jams.testautostart.BuildConfig;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
@@ -20,6 +21,7 @@ import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
@@ -47,6 +49,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.d(TAG, "当前的版本:" + BuildConfig.VERSION_NAME);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initDevice();
@@ -105,6 +108,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_3.key) {
             String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
+            LogUtil.d(TAG, "账号:" + account);
+            LogUtil.d(TAG, "密码:" + password);
             if (deviceCheckPresenter.hasAccountPassword(account, password)) {
                 StompUtil.createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;

@@ -39,6 +39,7 @@ public class BaseApp extends BaseApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        LogUtil.d(this.getClass().getName(), "当前的版本:" + BuildConfig.VERSION_NAME);
         FlowManager.init(this);//初始化dbflow
         ExceptionHelper.getInstance().init();//初始化未知异常捕获
         RxJavaPlugins.setErrorHandler(throwable -> {
@@ -58,6 +59,7 @@ public class BaseApp extends BaseApplication {
      * **/
     private void initVideo() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
+        LogUtil.d(this.getClass().getName(), "数据库广告:" + adviseList);
         if (adviseList.size() <= 0) {
             buildFirstAdv();
         } else {

@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.huawei.jams.testautostart.BuildConfig;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.view.activity.MainActivity;
 import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
@@ -31,7 +32,7 @@ public class SystemAutoStartReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //监听系统启动的广播接收者
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",接收到系统启动的广播......");
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",接收到系统启动的广播......"+ BuildConfig.VERSION_NAME);
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {//等到网路连接上以后再进行启动APP
                 @Override
