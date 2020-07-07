@@ -20,9 +20,6 @@ public class UpdateRestartReceiver extends BroadcastReceiver {
             intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent2);
             LogUtil.d(UpdateRestartReceiver.class.getName(), "已启动新版本... ...");
-            LogUtil.d(UpdateRestartReceiver.class.getName(), "当前activity:" + AppManager.getAppManager().currentActivity());
-            AppManager.getAppManager().finishActivity();
-            LogUtil.d(UpdateRestartReceiver.class.getName(), "结束当前activity... ...");
         }
         //接收安装广播
         if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {
