@@ -68,12 +68,13 @@
                     android:layout_marginLeft="80dp"/>
             </LinearLayout>
 
-            <LinearLayout
-                style="@style/style_layout_main_each_linear"
+            <RelativeLayout
+                style="@style/style_layout_main_each_linear_not_center"
                 android:layout_weight="5">
 
                 <LinearLayout style="@style/style_layout_number_total_linear"
-                              android:layout_marginRight="80dp">
+                              android:layout_gravity="center"
+                              android:layout_centerInParent="true">
 
                     <LinearLayout style="@style/style_layout_number_linear">
 
@@ -171,14 +172,15 @@
                                 android:text="@string/ok"/>
                     </LinearLayout>
                 </LinearLayout>
+
                 <TextView
-                        android:layout_width="match_parent"
-                        android:gravity="right"
-                        android:layout_marginRight="20dp"
-                        style="@style/style_six_input_dialog_number"
+                        style="@style/style_device_address_name"
                         android:text=""
-                        android:id="@+id/main_device_name_tv"/>
-            </LinearLayout>
+                        android:id="@+id/main_device_name_tv"
+                        android:layout_marginRight="20dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"/>
+            </RelativeLayout>
         </LinearLayout>
         <!--广告播放-->
         <RelativeLayout

@@ -82,7 +82,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
-        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME));
+        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME)+"测试多多多多多多多多多多");
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
