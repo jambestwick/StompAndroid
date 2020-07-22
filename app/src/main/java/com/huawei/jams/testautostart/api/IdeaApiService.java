@@ -18,9 +18,11 @@ import java.util.Map;
 public interface IdeaApiService {
 
 
-    String SERVER_HOST = "https://www.metalcar.cn";
+    //    String SERVER_HOST = "https://api.metalcar.cn";
+//    String WS_URI = "wss://api.metalcar.cn:443/ws/endpoint";
+    String SERVER_HOST = "https://dev.metalcar.cn";
+    String WS_URI = "wss://dev.metalcar.cn/ws/endpoint";
 
-    String WS_URI = "wss://www.metalcar.cn:443/ws/endpoint";
     //String WS_URI = "ws://121.40.165.18:8800";
     //String WS_URI = "wss://openhw.work.weixin.qq.com:443";
 
