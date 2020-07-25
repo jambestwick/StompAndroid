@@ -136,7 +136,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
-                        StompUtil.disconnect();
+                        StompUtil.getInstance().disconnect();
                     }
                     break;
                 case CONNECT:
@@ -146,7 +146,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             }
 
         };
-        StompUtil.setConnectListener(stompConnectListener);
+        StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
         patrolTimer.schedule(new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);//全程巡检网络
     }
@@ -469,9 +469,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             patrolTimer = null;
         }
         if (null != stompConnectListener) {
-            StompUtil.removeConnectListener(stompConnectListener);
+            StompUtil.getInstance().removeConnectListener(stompConnectListener);
         }
-        StompUtil.disconnect();
+        StompUtil.getInstance().disconnect();
     }
 
     private void stopPatrolAdvTimeOut() {

@@ -47,38 +47,55 @@ import static ua.naiksoftware.stomp.Stomp.ConnectionProvider.OKHTTP;
 public class StompUtil {
 
     private static final String TAG = StompUtil.class.getName();
-    public static StompClient mStompClient;
-    private static boolean mNeedConnect;
-    public static boolean isConnecting = false;
+    private StompClient mStompClient;
+    private boolean mNeedConnect;
+    private boolean isConnecting = false;
     public static final long RECONNECT_TIME_INTERVAL = 30 * Constants.ONE_MILL_SECOND;
     public static final long RECONNECT_TIME_DELY = 5 * Constants.ONE_MILL_SECOND;
     private static final long HEART_BEAT = 10 * Constants.ONE_MILL_SECOND;
+    private static StompUtil instance;
 
-    private static List<StompConnectListener> connectListeners = new ArrayList<>();
+    private List<StompConnectListener> connectListeners = new ArrayList<>();
 
-    public static void setConnectListener(StompConnectListener stompConnectListener) {
+    public static StompUtil getInstance() {
+        if (instance == null) {
+            synchronized (StompUtil.class) {
+                if (instance == null) {
+                    instance = new StompUtil();
+                }
+            }
+        }
+        return instance;
+    }
+
+
+    public void setConnectListener(StompConnectListener stompConnectListener) {
         connectListeners.add(stompConnectListener);
     }
 
-    public static boolean removeConnectListener(StompConnectListener stompConnectListener) {
+    public boolean removeConnectListener(StompConnectListener stompConnectListener) {
         return connectListeners.remove(stompConnectListener);
     }
 
-    public static void clearConnectListener() {
+    public void clearConnectListener() {
         connectListeners.clear();
     }
 
-    public static boolean isNeedConnect() {
+    public boolean isNeedConnect() {
         return mNeedConnect;
     }
 
-    public static void setmNeedConnect(boolean mNeedConnect) {
-        StompUtil.mNeedConnect = mNeedConnect;
+    public void setmNeedConnect(boolean mNeedConnect) {
+        this.mNeedConnect = mNeedConnect;
+    }
+
+    public boolean isConnecting() {
+        return isConnecting;
     }
 
     //创建长连接，服务器端没有心跳机制的情况下，启动timer来检查长连接是否断开，如果断开就执行重连
     //长生命周期的连接贯穿APP整个周期
-    public static void createStompClient(String userName, String password) {
+    public void createStompClient(String userName, String password) {
         try {
             connect(userName, password);
         } catch (IOException e) {
@@ -88,7 +105,7 @@ public class StompUtil {
 
 
     @SuppressLint("CheckResult")
-    private static void connect(String userName, String password) throws IOException {
+    private void connect(String userName, String password) throws IOException {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
@@ -144,7 +161,7 @@ public class StompUtil {
     }
 
 
-    public static void disconnect() {
+    public void disconnect() {
         if (mStompClient != null) mStompClient.disconnect();
     }
 
@@ -152,7 +169,7 @@ public class StompUtil {
      * 发送信息
      ***/
     @SuppressLint("CheckResult")
-    public static void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
+    public void sendStomp(BaseActivity activity, String destPath, String jsonMsg, StompSendBack sendBack) {
         if (mStompClient != null) {
             DialogUtils dialogUtils = new DialogUtils();
             dialogUtils.showProgress(activity);
@@ -196,7 +213,7 @@ public class StompUtil {
     /**
      * 订阅信息
      */
-    public static void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
+    public void receiveStomp(String destPath, FlowableSubscriber<StompMessage> flowableSubscriber) {
         if (mStompClient != null) {
             mStompClient.topic(destPath)
                     .doOnError(throwable -> {

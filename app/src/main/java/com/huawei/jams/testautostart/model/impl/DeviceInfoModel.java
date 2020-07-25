@@ -95,7 +95,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     public void uploadBoxState(int boxState, StompCallBack stompCallBack) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("eventcode", boxState);
-        StompUtil.sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString(), new StompSendBack() {
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_UPDATE_BOX_STATE, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {
                 stompCallBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), boxState);
@@ -113,7 +113,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     public void openBox(String sixCode, StompCallBack callBack) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("openBoxCode", Integer.parseInt(sixCode));
-        StompUtil.sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString(), new StompSendBack() {
+        StompUtil.getInstance().sendStomp(activity, IdeaApiService.DEVICE_OPEN_BOX, jsonObject.toString(), new StompSendBack() {
             @Override
             public void onSendSuccess() {
                 callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), sixCode);
@@ -129,7 +129,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
     @Override
     public void subscribeBoxState(StompCallBack callBack) {
-        StompUtil.receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE_RECEIVE, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_UPDATE_BOX_STATE_RECEIVE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeBoxState onNext:" + stompMessage.toString());
@@ -160,7 +160,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
 
     @Override
     public void subscribeOpenBox(StompCallBack callBack) {
-        StompUtil.receiveStomp(IdeaApiService.DEVICE_OPEN_BOX_RECEIVE, new DisposableSubscriber<StompMessage>() {
+        StompUtil.getInstance().receiveStomp(IdeaApiService.DEVICE_OPEN_BOX_RECEIVE, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeOpenBox onNext:" + stompMessage);
