@@ -67,13 +67,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initViews();
         initNetData();
         initData();
-        patrolTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                deviceInfoPresenter.openBox("123456");
-                deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
-            }
-        }, 0L, 10L);
+//        patrolTimer.schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                deviceInfoPresenter.openBox("123456");
+//                deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
+//            }
+//        }, 0L, 10L);
     }
 
     //用户在广告界面点击任意键，则退出广告，输入（小程序下发）6位数字码，
@@ -136,6 +136,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
+                        StompUtil.disconnect();
                     }
                     break;
                 case CONNECT:

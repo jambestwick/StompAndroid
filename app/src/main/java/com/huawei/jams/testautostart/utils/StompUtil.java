@@ -49,7 +49,7 @@ public class StompUtil {
     private static final String TAG = StompUtil.class.getName();
     public static StompClient mStompClient;
     private static boolean mNeedConnect;
-    public static boolean isConnecting =false;
+    public static boolean isConnecting = false;
     public static final long RECONNECT_TIME_INTERVAL = 30 * Constants.ONE_MILL_SECOND;
     public static final long RECONNECT_TIME_DELY = 5 * Constants.ONE_MILL_SECOND;
     private static final long HEART_BEAT = 10 * Constants.ONE_MILL_SECOND;
@@ -97,7 +97,7 @@ public class StompUtil {
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
         //_headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth("00002", "AAAAAAAAAAAAAAAAAAAA_2")));
         LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection start to connect...");
-        isConnecting =true;
+        isConnecting = true;
         mStompClient.connect(_headers);
         mStompClient.lifecycle()
                 //.onBackpressureBuffer()
@@ -109,7 +109,7 @@ public class StompUtil {
                             switch (lifecycleEvent.getType()) {
                                 case OPENED:
                                     mNeedConnect = false;
-                                    isConnecting =false;
+                                    isConnecting = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection opened");
                                     for (StompConnectListener connectListener : connectListeners) {
                                         connectListener.onConnectState(EnumConnectState.CONNECT);
@@ -118,15 +118,15 @@ public class StompUtil {
                                     break;
                                 case ERROR:
                                     mNeedConnect = true;
-                                    isConnecting =false;
-                                    LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + lifecycleEvent.getException());
+                                    isConnecting = false;
+                                    LogUtil.e(TAG, Thread.currentThread().getName() + ",Stomp connection error :" + Log.getStackTraceString(lifecycleEvent.getException()));
 //                                    for (StompConnectListener connectListener : connectListeners) {
 //                                        connectListener.onConnectState(EnumConnectState.ERROR);
 //                                    }
                                     break;
                                 case CLOSED:
                                     mNeedConnect = true;
-                                    isConnecting =false;
+                                    isConnecting = false;
                                     LogUtil.d(TAG, Thread.currentThread().getName() + ",Stomp connection closed");
                                     for (StompConnectListener connectListener : connectListeners) {
                                         connectListener.onConnectState(EnumConnectState.CLOSE);

@@ -207,13 +207,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (StompUtil.isNeedConnect() && !StompUtil.isConnecting) {//如果需要连接
+                if (StompUtil.isNeedConnect() && !StompUtil.isConnecting) {//如果
                     StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-//                    if (null != StompUtil.mStompClient) {
-//                        StompUtil.mStompClient.reconnect();
-//                    } else {
-//                        StompUtil.createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-//                    }
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
             }
