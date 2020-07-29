@@ -1,13 +1,12 @@
 package com.huawei.jams.testautostart.receiver;
 
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
 import com.huawei.jams.testautostart.BuildConfig;
+import com.huawei.jams.testautostart.presenter.impl.AppInfoPresenter;
+import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
-import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
 public class UpdateRestartReceiver extends BroadcastReceiver {
@@ -20,6 +19,9 @@ public class UpdateRestartReceiver extends BroadcastReceiver {
             intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent2);
             LogUtil.d(UpdateRestartReceiver.class.getName(), "已启动新版本... ...");
+            IAppInfoPresenter appInfoPresenter = new AppInfoPresenter(null, null);
+            appInfoPresenter.deleteOldApp();
+
         }
         //接收安装广播
         if (intent.getAction().equals("android.intent.action.PACKAGE_ADDED")) {

@@ -7,4 +7,6 @@ public interface IAdvisePresenter {
     void topicAdviseInfo();
 
     void downloadAdvise(String url, String newVer);
+
+    boolean deleteOldAdvise();
 }

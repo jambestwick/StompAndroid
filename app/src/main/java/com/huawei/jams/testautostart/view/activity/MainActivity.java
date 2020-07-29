@@ -90,7 +90,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
-        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME) + "测试多多多多多多多多多多");
+        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME));
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
@@ -247,6 +247,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (!TextUtils.isEmpty(filePath)) {
             binding.mainAdviseVideo.setVideoPath(filePath);
             binding.mainAdviseVideo.start();//播放
+            advisePresenter.deleteOldAdvise();
         }
     }
 

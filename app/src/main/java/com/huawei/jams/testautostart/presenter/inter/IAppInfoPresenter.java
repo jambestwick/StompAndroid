@@ -7,4 +7,6 @@ public interface IAppInfoPresenter {
     void topicAppInfo();
 
     void downloadApp(String url, String newVer);
+
+    boolean deleteOldApp();
 }

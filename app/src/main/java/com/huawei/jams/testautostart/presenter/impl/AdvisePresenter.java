@@ -15,6 +15,7 @@ import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.http.common.ErrorCode;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.FileUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ZipUtils;
@@ -92,5 +93,17 @@ public class AdvisePresenter implements IAdvisePresenter {
 
             }
         });
+    }
+
+    @Override
+    public boolean deleteOldAdvise() {
+        List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
+        if (adviseList.size() > 1) {
+            Advise oldAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, true).limit(1).querySingle();
+            if (oldAdv != null) {
+                return FileUtils.deleteFile(oldAdv.getFilePath()) && oldAdv.delete();
+            }
+        }
+        return false;
     }
 }
