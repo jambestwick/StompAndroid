@@ -56,6 +56,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
+    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//连接的task
     private StompUtil.StompConnectListener stompConnectListener;
 
     //网络超时8秒
@@ -89,7 +90,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
-        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME)+"测试多多多多多多多多多多");
+        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME) + "测试多多多多多多多多多多");
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);
@@ -148,7 +149,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         };
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
-        patrolTimer.schedule(new DeviceInfoPresenter.TimeConnectTask(), 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);//全程巡检网络
+        timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
+        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);//全程巡检网络
     }
 
     /**

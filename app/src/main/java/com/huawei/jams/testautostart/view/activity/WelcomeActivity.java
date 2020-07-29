@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.BuildConfig;
 import com.huawei.jams.testautostart.R;
+import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
@@ -203,7 +204,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 判断后台服务是否联通
      **/
     private boolean isConnectServer() {
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + Constants.SERVER_URL, false);
+        int idx = IdeaApiService.SERVER_HOST.lastIndexOf("//");
+        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2, IdeaApiService.SERVER_HOST.length()), false);
         if (commandResult.result == 0) {//ping后台失败
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;

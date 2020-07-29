@@ -17,7 +17,6 @@ public class Constants {
     public static final String ACCOUNT = "account";
     public static final String PASSWORD = "password";
     public static final String NAME = "name";
-    public static final String SERVER_URL = "www.metalcar.cn";
     public static final long ONE_MILL_SECOND = 1000L;
     public static final long PATROL_INTERVAL_MILL_SECOND = 3 * ONE_MILL_SECOND;//巡检间隔时间
     public static final long DELAY_ADVISE_MILL_SECOND = 2 * ONE_MILL_SECOND;//延时播放广告

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
+import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
@@ -14,11 +15,13 @@ import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
+import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -207,7 +210,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {//如果
+                if (isConnectServer() && StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {//如果
                     StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
@@ -276,9 +279,17 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
             return null;
         }
-
-
     }
+
+    /**
+     * 判断后台服务是否联通
+     **/
+    private static boolean isConnectServer() {
+        int idx = IdeaApiService.SERVER_HOST.lastIndexOf("//");
+        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2, IdeaApiService.SERVER_HOST.length()), false);
+        return commandResult.result == 0;
+    }
+
 }
 
 
