@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
+import com.huawei.jams.testautostart.entity.Advise;
+import com.huawei.jams.testautostart.entity.Advise_Table;
 import com.huawei.jams.testautostart.entity.AppInfo;
 import com.huawei.jams.testautostart.entity.AppInfo_Table;
 import com.huawei.jams.testautostart.entity.vo.AppVO;
@@ -15,11 +17,13 @@ import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.FileUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class AppInfoPresenter implements IAppInfoPresenter {
@@ -77,6 +81,18 @@ public class AppInfoPresenter implements IAppInfoPresenter {
 
             }
         });
+    }
+
+    @Override
+    public boolean deleteOldApp() {
+        List<AppInfo> appInfoList = SQLite.select().from(AppInfo.class).queryList();
+        if (appInfoList.size() > 1) {
+            AppInfo oldApp = SQLite.select().from(AppInfo.class).orderBy(AppInfo_Table.app_version, true).limit(1).querySingle();
+            if (oldApp != null) {
+                return FileUtils.deleteFile(oldApp.getFilePath()) && oldApp.delete();
+            }
+        }
+        return false;
     }
 
 

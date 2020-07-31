@@ -250,6 +250,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (!TextUtils.isEmpty(filePath)) {
             binding.mainAdviseVideo.setVideoPath(filePath);
             binding.mainAdviseVideo.start();//播放
+            advisePresenter.deleteOldAdvise();
         }
     }
 
