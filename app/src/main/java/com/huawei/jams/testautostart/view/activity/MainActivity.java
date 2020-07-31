@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
+import com.huawei.jams.testautostart.BuildConfig;
 import com.huawei.jams.testautostart.R;
 import com.huawei.jams.testautostart.databinding.ActivityMainBinding;
 import com.huawei.jams.testautostart.entity.Advise;
@@ -90,7 +92,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     protected void initViews() {
-        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME) + "测试多多多多多多多多多多");
+        binding.mainAppVersionTv.setText(BuildConfig.VERSION_NAME);
+        binding.mainDeviceNameTv.setText(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.NAME));
         deviceInfoPresenter = new DeviceInfoPresenter(this, this);
         appInfoPresenter = new AppInfoPresenter(this, this);
         advisePresenter = new AdvisePresenter(this, this);

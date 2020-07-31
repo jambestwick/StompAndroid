@@ -1,18 +1,25 @@
 package com.yxytech.parkingcloud.baselibrary.http.https;
 
-import android.content.Context;
-
-import com.yxytech.parkingcloud.baselibrary.R;
-
-import javax.net.ssl.*;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.*;
-import java.security.cert.Certificate;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 public class SSLHelper {
 
@@ -22,7 +29,7 @@ public class SSLHelper {
     }
 
     public final static String CLIENT_PRI_KEY = "keystore/le.p12";
-    public final static String CLIENT_BKS_PASSWORD = "LE";
+    public final static String CLIENT_BKS_PASSWORD = "yg8KR36N";
     public final static String TRUSTSTORE_PUB_KEY = "certificates/lets-encrypt-x3-cross-signed.pem.txt";
     private final static String TRUSTSTORE_BKS_PASSWORD = "123456";
     private final static String KEYSTORE_TYPE = "BKS";
@@ -31,38 +38,38 @@ public class SSLHelper {
     private static final String KEY_STORE_TYPE_P12 = "PKCS12";//证书类型
 
 
-    private static final String KEY_STORE_PASSWORD = "LE";//证书密码（客户端证书密码）
+    //private static final String KEY_STORE_PASSWORD = "LE";//证书密码（客户端证书密码）
     private static final String KEY_STORE_TRUST_PASSWORD = "***";//授信证书密码（应该是服务端证书密码）
 
-    public static SSLSocketFactory getSocketFactory(Context context) throws IOException {
-        //InputStream trust_input = context.getAssets().openRawResource(R.raw.client_trust);//服务器授信证书
-        InputStream client_input = context.getAssets().open("keystore/le.p12");//客户端证书
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            //KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            //trustStore.load(trust_input, KEY_STORE_TRUST_PASSWORD.toCharArray());
-            KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE_P12);
-            keyStore.load(client_input, KEY_STORE_PASSWORD.toCharArray());
-            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            //trustManagerFactory.init(trustStore);
-
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, KEY_STORE_PASSWORD.toCharArray());
-            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
-            SSLSocketFactory factory = sslContext.getSocketFactory();
-            return factory;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            try {
-                //trust_input.close();
-                client_input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public static SSLSocketFactory getSocketFactory(Context context) throws IOException {
+//        //InputStream trust_input = context.getAssets().openRawResource(R.raw.client_trust);//服务器授信证书
+//        InputStream client_input = context.getAssets().open("keystore/le.p12");//客户端证书
+//        try {
+//            SSLContext sslContext = SSLContext.getInstance("TLS");
+//            //KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+//            //trustStore.load(trust_input, KEY_STORE_TRUST_PASSWORD.toCharArray());
+//            KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE_P12);
+//            keyStore.load(client_input, KEY_STORE_PASSWORD.toCharArray());
+//            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+//            //trustManagerFactory.init(trustStore);
+//
+//            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+//            keyManagerFactory.init(keyStore, KEY_STORE_PASSWORD.toCharArray());
+//            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), new SecureRandom());
+//            SSLSocketFactory factory = sslContext.getSocketFactory();
+//            return factory;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        } finally {
+//            try {
+//                //trust_input.close();
+//                client_input.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public static SSLParams getSslSocketFactory(InputStream[] certificates, InputStream bksFile, String password) {
         SSLParams sslParams = new SSLParams();

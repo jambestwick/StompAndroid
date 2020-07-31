@@ -4,15 +4,17 @@ import com.huawei.jams.testautostart.db.AppDataBase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
 @Table(database = AppDataBase.class, name = "tb_device_info")
-public class DeviceInfo implements Serializable {
+public class DeviceInfo extends BaseModel implements Serializable {
 
     private static final long serialVersionUID = 3547764664305244570L;
+
     @PrimaryKey
     private UUID uuid;
 
@@ -68,6 +70,9 @@ public class DeviceInfo implements Serializable {
         this.createTime = createTime;
     }
 
+    public DeviceInfo() {
+    }
+
     @Override
     public String toString() {
         return "DeviceInfo{" +
@@ -109,7 +114,7 @@ public class DeviceInfo implements Serializable {
         public static EnumBoxState getEnumByKey(int key) {
 
             for (EnumBoxState enumBoxState : EnumBoxState.values()) {
-                if (enumBoxState.getKey()==key) {
+                if (enumBoxState.getKey() == key) {
                     return enumBoxState;
                 }
             }

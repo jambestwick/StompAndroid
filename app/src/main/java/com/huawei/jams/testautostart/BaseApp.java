@@ -41,7 +41,7 @@ public class BaseApp extends BaseApplication {
         super.onCreate();
         LogUtil.d(this.getClass().getName(), "当前的版本:" + BuildConfig.VERSION_NAME);
         FlowManager.init(this);//初始化dbflow
-        ExceptionHelper.getInstance().init();//初始化未知异常捕获
+        ExceptionHelper.getInstance().init(this);//初始化未知异常捕获
         RxJavaPlugins.setErrorHandler(throwable -> {
             //异常处理
             LogUtil.e(this.getClass().getName(), Thread.currentThread().getName() + ",setErrorHandler:" + Log.getStackTraceString(throwable));
