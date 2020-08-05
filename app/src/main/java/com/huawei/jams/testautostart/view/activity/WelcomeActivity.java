@@ -192,7 +192,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 判断网络是否连通
      **/
     private boolean isConnectInternet() {
-        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 3 " + Constants.ALI_PUBLIC_IP, false);
+        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 3 " + Constants.BAIDU_PUBLIC_IP, false);
         if (NetworkUtils.isConnected() && result.result == 0) {
             return true;
         }
