@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 def dbflow_version = "4.2.4"
-def app_version_code = 1
-def app_version_name = '1.0.1'
+def app_version_code = 0
+def app_version_name = '1.0.0'
 android {
     compileSdkVersion 28
     defaultConfig {

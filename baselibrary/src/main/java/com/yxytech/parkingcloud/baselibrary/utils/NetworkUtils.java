@@ -8,19 +8,24 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
+import android.util.Log;
+import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * 网络相关工具类
@@ -81,7 +86,7 @@ public class NetworkUtils {
      * @return {@code true}: 可用<br>{@code false}: 不可用
      */
     public static boolean isAvailableByPing() {
-        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 1 -w 1 223.5.5.5", false);
+        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 1 -w 1 www.baidu.com", false);
         boolean ret = result.result == 0;
         if (result.errorMsg != null) {
             LogUtil.d(Thread.currentThread().getName() + ",isAvailableByPing errorMsg", result.errorMsg);
@@ -341,4 +346,79 @@ public class NetworkUtils {
         }
         return null;
     }
+
+    /* @author suncat
+     * @category 判断是否有外网连接（普通方法不能判断外网的网络是否连接，比如连接上局域网）
+     * @return
+     */
+    public static final boolean ping(String address) {
+
+        String result = null;
+        try {
+            Process p = Runtime.getRuntime().exec("ping -c 3 " + address);// ping网址3次
+            // 读取ping的内容，可以不加
+            InputStream input = p.getInputStream();
+            BufferedReader in = new BufferedReader(new InputStreamReader(input));
+            StringBuilder stringBuffer = new StringBuilder();
+            String content = "";
+            while ((content = in.readLine()) != null) {
+                stringBuffer.append(content);
+            }
+            LogUtil.d("------ping-----", "result content : " + stringBuffer.toString());
+            // ping的状态
+            int status = p.waitFor();
+            if (status == 0) {
+                result = "success";
+                return true;
+            } else {
+                result = "failed";
+            }
+        } catch (IOException e) {
+            result = "IOException";
+        } catch (InterruptedException e) {
+            result = "InterruptedException";
+        } finally {
+            LogUtil.d("----result---", "result = " + result);
+        }
+        return false;
+    }
+
+
+    public static boolean getRespStatus(String url) {
+        Semaphore atomicFrontGetClearInteger = new Semaphore(1);
+        try {
+            atomicFrontGetClearInteger.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        final int[] status = {-1};
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OkHttpClient okHttpClient = new OkHttpClient();
+                    Request request = new Request.Builder().url(url).build();
+                    Response response = okHttpClient.newCall(request).execute();
+                    status[0] = response.code();
+                } catch (Exception e) {
+                    LogUtil.e(HttpManager.class.getName(), Thread.currentThread().getName() + ",getRespStatus:" + Log.getStackTraceString(e));
+                } finally {
+                    atomicFrontGetClearInteger.release();
+                }
+            }
+        }).start();
+
+        try {
+            if (atomicFrontGetClearInteger.tryAcquire(5, TimeUnit.SECONDS) == false) {
+                return false;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (status[0] == 200) {
+            return true;
+        }
+        return false;
+    }
+
 }

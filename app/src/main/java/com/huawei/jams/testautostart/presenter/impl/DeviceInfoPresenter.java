@@ -17,6 +17,8 @@ import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.activity.WelcomeActivity;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
+import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
+import com.yxytech.parkingcloud.baselibrary.http.common.IdeaApi;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
@@ -31,8 +33,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
+    private BaseActivity baseActivity;
 
     public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
+        this.baseActivity = baseActivity;
         this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
         this.deviceInfoView = deviceInfoView;
     }
@@ -210,7 +214,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (isConnectServer() && StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {//如果
+                if (NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST) && StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {//如果
                     StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                 }
@@ -279,15 +283,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
             return null;
         }
-    }
-
-    /**
-     * 判断后台服务是否联通
-     **/
-    private static boolean isConnectServer() {
-        int idx = IdeaApiService.SERVER_HOST.lastIndexOf("//");
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2, IdeaApiService.SERVER_HOST.length()), false);
-        return commandResult.result == 0;
     }
 
 }
