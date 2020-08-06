@@ -1,12 +1,22 @@
 package com.yxytech.parkingcloud.baselibrary.http;
 
+import android.util.Log;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.http.common.DefaultObserver;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import java.io.IOException;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by Water on 2018/3/30.
@@ -63,6 +73,7 @@ public class HttpManager {
                 .compose(ProgressUtils.applyProgressBar(baseActivity))
                 .subscribe(defaultObserver);
     }
+
 
 
 }

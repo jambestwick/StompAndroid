@@ -3,6 +3,7 @@ package com.huawei.jams.testautostart.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -20,6 +21,8 @@ import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
+import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
+import com.yxytech.parkingcloud.baselibrary.http.https.HttpsUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
@@ -192,24 +195,33 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 判断网络是否连通
      **/
     private boolean isConnectInternet() {
-        ShellUtils.CommandResult result = ShellUtils.execCmd("ping -c 3 " + Constants.ALI_PUBLIC_IP, false);
-        if (NetworkUtils.isConnected() && result.result == 0) {
+        if (NetworkUtils.getRespStatus(Constants.BAIDU_PUBLIC_IP)) {
             return true;
         }
         turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", this.getString(R.string.retry), null);
         return false;
+//        ShellUtils.CommandResult result = ShellUtils.execCmd("traceroute -m 3 " + Constants.BAIDU_PUBLIC_IP, false);
+//        LogUtil.d(TAG, "traceroute -m 3 " + Constants.BAIDU_PUBLIC_IP + ",结果:" + result);
+//        if (NetworkUtils.isConnected() && result.result == 0) {
+//            return true;
+//        }
+//        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", this.getString(R.string.retry), null);
+//        return false;
     }
 
     /**
      * 判断后台服务是否联通
      **/
     private boolean isConnectServer() {
-        int idx = IdeaApiService.SERVER_HOST.lastIndexOf("//");
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2, IdeaApiService.SERVER_HOST.length()), false);
-        if (commandResult.result == 0) {//ping后台失败
-            //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
+        if (NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST)) {
             return true;
         }
+//        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("traceroute -m 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2), false);
+//        LogUtil.d(TAG, "traceroute -m 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2) + ",结果:" + commandResult);
+//        if (commandResult.result == 0) {//ping后台失败
+//            //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
+//            return true;
+//        }
         turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
         return false;
     }

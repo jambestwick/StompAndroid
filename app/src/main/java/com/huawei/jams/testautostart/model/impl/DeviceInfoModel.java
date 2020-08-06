@@ -37,6 +37,10 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         this.activity = activity;
     }
 
+    public BaseActivity getActivity() {
+        return activity;
+    }
+
     /**
      * http请求方式
      **/
