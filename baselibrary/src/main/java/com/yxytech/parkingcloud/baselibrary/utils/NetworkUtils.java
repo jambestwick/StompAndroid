@@ -9,8 +9,10 @@ import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
 import android.util.Log;
+
 import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -347,78 +349,32 @@ public class NetworkUtils {
         return null;
     }
 
-    /* @author suncat
-     * @category 判断是否有外网连接（普通方法不能判断外网的网络是否连接，比如连接上局域网）
-     * @return
-     */
-    public static final boolean ping(String address) {
-
-        String result = null;
-        try {
-            Process p = Runtime.getRuntime().exec("ping -c 3 " + address);// ping网址3次
-            // 读取ping的内容，可以不加
-            InputStream input = p.getInputStream();
-            BufferedReader in = new BufferedReader(new InputStreamReader(input));
-            StringBuilder stringBuffer = new StringBuilder();
-            String content = "";
-            while ((content = in.readLine()) != null) {
-                stringBuffer.append(content);
-            }
-            LogUtil.d("------ping-----", "result content : " + stringBuffer.toString());
-            // ping的状态
-            int status = p.waitFor();
-            if (status == 0) {
-                result = "success";
-                return true;
-            } else {
-                result = "failed";
-            }
-        } catch (IOException e) {
-            result = "IOException";
-        } catch (InterruptedException e) {
-            result = "InterruptedException";
-        } finally {
-            LogUtil.d("----result---", "result = " + result);
-        }
-        return false;
-    }
-
-
-    public static boolean getRespStatus(String url) {
-        Semaphore atomicFrontGetClearInteger = new Semaphore(1);
-        try {
-            atomicFrontGetClearInteger.acquire();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        final int[] status = {-1};
+    public static void getRespStatus(String url, HttpStateCallBack callBack) {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                int status = -1;
                 try {
-                    OkHttpClient okHttpClient = new OkHttpClient();
+                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求开始:" + url);
+                    OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                            .connectTimeout(15, TimeUnit.SECONDS)
+                            .readTimeout(20, TimeUnit.SECONDS)//设置读取超时时间
+                            .build();
                     Request request = new Request.Builder().url(url).build();
                     Response response = okHttpClient.newCall(request).execute();
-                    status[0] = response.code();
+                    status = response.code();
+                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求结束:" + url + ",结果:" + status);
                 } catch (Exception e) {
-                    LogUtil.e(HttpManager.class.getName(), Thread.currentThread().getName() + ",getRespStatus:" + Log.getStackTraceString(e));
+                    LogUtil.e(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",getRespStatus:" + Log.getStackTraceString(e));
                 } finally {
-                    atomicFrontGetClearInteger.release();
+                    callBack.onStatusBack(status);
                 }
             }
         }).start();
 
-        try {
-            if (atomicFrontGetClearInteger.tryAcquire(5, TimeUnit.SECONDS) == false) {
-                return false;
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        if (status[0] == 200) {
-            return true;
-        }
-        return false;
     }
 
+    public interface HttpStateCallBack {
+        void onStatusBack(int status);
+    }
 }

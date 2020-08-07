@@ -18,7 +18,7 @@ import java.util.Date;
  * 邮箱：719240226@qq.com
  */
 public class LogUtil {
-    private static Boolean MYLOG_SWITCH = false; // 日志文件总开关
+    private static Boolean MYLOG_SWITCH = true; // 日志文件总开关
     private static Boolean MYLOG_WRITE_TO_FILE = true;// 日志写入文件开关
     private static char MYLOG_TYPE = 'v';// 输入日志类型，w代表只输出告警信息等，v代表输出所有信息
     private static String MYLOG_PATH_SDCARD_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "log";// 日志文件在sdcard中的路径

@@ -94,19 +94,31 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private void initDevice() {
         //检查网络
         if (step == EnumDeviceCheck.STEP_1.key) {
-            if (!isConnectInternet()) {
-                return;
-            }
-            step = EnumDeviceCheck.STEP_2.key;
-            initDevice();
+            isConnectInternet(new HttpStatusBack() {
+                @Override
+                public void connectStatus(boolean flag) {
+                    if (flag) {
+                        step = EnumDeviceCheck.STEP_2.key;
+                        initDevice();
+                    } else {
+                        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
+                    }
+                }
+            });
             return;
         }
         if (step == EnumDeviceCheck.STEP_2.key) {
-            if (!isConnectServer()) {
-                return;
-            }
-            step = EnumDeviceCheck.STEP_3.key;
-            initDevice();
+            isConnectServer(new HttpStatusBack() {
+                @Override
+                public void connectStatus(boolean flag) {
+                    if (flag) {
+                        step = EnumDeviceCheck.STEP_3.key;
+                        initDevice();
+                    } else {
+                        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + getString(R.string.contact_back_office_handle), getString(R.string.retry), null);
+                    }
+                }
+            });
             return;
         }
         if (step == EnumDeviceCheck.STEP_3.key) {
@@ -194,36 +206,45 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     /**
      * 判断网络是否连通
      **/
-    private boolean isConnectInternet() {
-        if (NetworkUtils.getRespStatus(Constants.BAIDU_PUBLIC_IP)) {
-            return true;
-        }
-        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", this.getString(R.string.retry), null);
-        return false;
-//        ShellUtils.CommandResult result = ShellUtils.execCmd("traceroute -m 3 " + Constants.BAIDU_PUBLIC_IP, false);
-//        LogUtil.d(TAG, "traceroute -m 3 " + Constants.BAIDU_PUBLIC_IP + ",结果:" + result);
-//        if (NetworkUtils.isConnected() && result.result == 0) {
-//            return true;
-//        }
-//        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", this.getString(R.string.retry), null);
-//        return false;
+    private void isConnectInternet(HttpStatusBack statusBack) {
+        NetworkUtils.getRespStatus(Constants.BAIDU_PUBLIC_IP, new NetworkUtils.HttpStateCallBack() {
+            @Override
+            public void onStatusBack(int status) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (status == 200) {
+                            statusBack.connectStatus(true);
+                        } else {
+                            statusBack.connectStatus(false);
+                        }
+                    }
+                });
+
+            }
+        });
     }
 
     /**
      * 判断后台服务是否联通
      **/
-    private boolean isConnectServer() {
-        if (NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST)) {
-            return true;
-        }
-//        ShellUtils.CommandResult commandResult = ShellUtils.execCmd("traceroute -m 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2), false);
-//        LogUtil.d(TAG, "traceroute -m 3 " + IdeaApiService.SERVER_HOST.substring(idx + 2) + ",结果:" + commandResult);
-//        if (commandResult.result == 0) {//ping后台失败
-//            //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
-//            return true;
-//        }
-        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
-        return false;
+    private void isConnectServer(HttpStatusBack statusBack) {
+        NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST, new NetworkUtils.HttpStateCallBack() {
+            @Override
+            public void onStatusBack(int status) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (status == 200) {
+                            statusBack.connectStatus(true);
+                        } else {
+                            statusBack.connectStatus(false);
+                        }
+                    }
+                });
+            }
+        });
+
     }
 
     /***
@@ -450,6 +471,10 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             return true;
         }
         return false;
+    }
+
+    interface HttpStatusBack {
+        void connectStatus(boolean flag);
     }
 
 }
