@@ -363,7 +363,8 @@ public class NetworkUtils {
                     Request request = new Request.Builder().url(url).build();
                     Response response = okHttpClient.newCall(request).execute();
                     status = response.code();
-                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求结束:" + url + ",结果:" + status);
+
+                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求结束:" + url + ",结果:" + status+",数据大小:"+response.toString());
                 } catch (Exception e) {
                     LogUtil.e(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",getRespStatus:" + Log.getStackTraceString(e));
                 } finally {
