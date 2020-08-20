@@ -92,7 +92,7 @@ public class BaseApp extends BaseApplication {
             advise.setCreateTime(new Date());
             advise.setFileName("adv000");
             String fileName = "adv000.mp4";
-            ResourceFileUtil.saveAdv2SDCard(this, fileName);
+            //ResourceFileUtil.saveAdv2SDCard(this, fileName);
             advise.setFilePath(Constants.ADVISE_DIR + File.separator + fileName);
             advise.save();
         } catch (Throwable throwable) {

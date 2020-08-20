@@ -2,6 +2,9 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
@@ -37,6 +40,7 @@ import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
 
 import java.util.Timer;
@@ -60,6 +64,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
     private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//连接的task
     private StompUtil.StompConnectListener stompConnectListener;
+    private long clickOKMillTime = System.currentTimeMillis();
+    private long initMillTime = System.currentTimeMillis();
+    private boolean isOpen = false;
 
     //网络超时8秒
 
@@ -70,6 +77,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initViews();
         initNetData();
         initData();
+        restartApp();
 //        patrolTimer.schedule(new TimerTask() {
 //            @Override
 //            public void run() {
@@ -112,7 +120,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case R.id.main_code_ok_tv:
                     SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
-                        deviceInfoPresenter.openBox(inputCode);
+                        //判断5秒内不允许再次点击
+                        if (System.currentTimeMillis() - clickOKMillTime < 5000) {
+                            LogUtil.d(TAG, "点击间隔未超过5秒，不予处理");
+                        } else {
+                            deviceInfoPresenter.openBox(inputCode);
+                        }
+                        clickOKMillTime = System.currentTimeMillis();
                     } else {
                         //提示码位数不够
                         ToastUtil.showInCenter(this, this.getString(R.string.six_code_not_enough));
@@ -314,6 +328,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
      **/
     @Override
     public void onBoxStateBack(KeyCabinetReceiver.EnumActionType enumActionType, String[] boxId, boolean[] isOpen) {
+        this.isOpen = isOpen[0];
         switch (enumActionType) {
             case OPEN_BATCH:
                 if (!isOpen[0]) {//打开柜门失败
@@ -487,5 +502,28 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         }
     }
 
+    //5分钟重启
+    private void restartApp() {
+
+        TimerTask taskRestartApp = new TimerTask() {
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - initMillTime > 5 * 60 * 1000) {
+                    //大于5分钟需要重启
+                    if (!isOpen) {//如果是关着的
+                        Intent intent = BaseApplication.getAppContext().getPackageManager()
+                                .getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
+                        PendingIntent restartIntent = PendingIntent.getActivity(BaseApplication.getAppContext(), 0, intent, 0);
+                        AlarmManager mgr = (AlarmManager) BaseApplication.getAppContext().getSystemService(Context.ALARM_SERVICE);
+                        // 1秒钟后重启应用
+                        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
+                        System.exit(0);
+                    }
+                }
+            }
+        };
+        patrolTimer.schedule(taskRestartApp, 0, 5000L);
+
+    }
 
 }

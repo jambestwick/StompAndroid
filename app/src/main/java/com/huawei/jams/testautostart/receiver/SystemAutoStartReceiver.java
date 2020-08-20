@@ -44,7 +44,7 @@ public class SystemAutoStartReceiver extends BroadcastReceiver {
                         timer.cancel();
                     }
                 }
-            }, 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);
+            }, 0, Constants.START_UP_MILL_SECOND);
 
         }
     }
