@@ -51,7 +51,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private String inputCode = "";//6位输入码
     private IDeviceCheckPresenter deviceCheckPresenter;
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
-    private Timer partolTimer = new Timer();
+    private Timer turnTimer = new Timer();
 
 
     @Override
@@ -102,7 +102,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_1.key) {
             if (!NetState.isConnectServer()) {
                 turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
-                partolNet();
+                turnNet();
                 return;
             }
             step = EnumDeviceCheck.STEP_2.key;
@@ -112,7 +112,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_2.key) {
             if (!NetState.isConnectServer()) {
                 turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
-                partolNet();
+                turnNet();
                 return;
             }
             step = EnumDeviceCheck.STEP_3.key;
@@ -415,6 +415,10 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (null != turnTimer) {
+            turnTimer.cancel();
+            turnTimer = null;
+        }
     }
 
     @Override
@@ -426,8 +430,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         return false;
     }
 
-    private void partolNet() {
-        partolTimer.schedule(new TimerTask() {
+    private void turnNet() {
+        turnTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(() -> initDevice());

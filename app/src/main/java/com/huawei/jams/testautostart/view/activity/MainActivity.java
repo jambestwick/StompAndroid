@@ -537,6 +537,14 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_THREE_CLOCK_RESTART)) {
                 /**重启App*/
                 //重新打开app启动页
+                while (isOpen) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
