@@ -34,6 +34,8 @@ import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, KeyCabinetReceiver.BoxStateListener {
@@ -49,6 +51,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private String inputCode = "";//6位输入码
     private IDeviceCheckPresenter deviceCheckPresenter;
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
+    private Timer partolTimer = new Timer();
 
 
     @Override
@@ -99,6 +102,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_1.key) {
             if (!NetState.isConnectServer()) {
                 turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
+                partolNet();
                 return;
             }
             step = EnumDeviceCheck.STEP_2.key;
@@ -108,6 +112,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_2.key) {
             if (!NetState.isConnectServer()) {
                 turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
+                partolNet();
                 return;
             }
             step = EnumDeviceCheck.STEP_3.key;
@@ -421,8 +426,13 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         return false;
     }
 
-    interface HttpStatusBack {
-        void connectStatus(boolean flag);
+    private void partolNet() {
+        partolTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> initDevice());
+            }
+        }, Constants.PATROL_NET_INTERVAL_MILL_SECOND);
     }
 
 }

@@ -237,7 +237,7 @@ public class TimeUtil {
         long clockTime = SystemClock.elapsedRealtime();
         LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr 3 clock : " + clockTime + ",set clock" + TimeUtil.long2String(calendar.getTimeInMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + ",current:" + TimeUtil.long2String(systemTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
         /**RTC_SHUTDOWN_WAKEUP 使用标识，系统进入深度休眠还唤醒*/
-        mg.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, p);
+        mg.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), p);
     }
 
 }

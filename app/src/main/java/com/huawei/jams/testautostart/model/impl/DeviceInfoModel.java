@@ -60,6 +60,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
                             callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
                             return;
                         }
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",SP写入信息:" + response.getCabinetNumber() + "," + response.getCabinetPassword());
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.ACCOUNT, response.getCabinetNumber());
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.PASSWORD, response.getCabinetPassword());
                         PreferencesManager.getInstance(BaseApp.getAppContext()).put(Constants.NAME, response.getCabinetName());

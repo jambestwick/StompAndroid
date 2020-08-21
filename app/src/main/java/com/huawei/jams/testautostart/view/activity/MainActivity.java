@@ -2,6 +2,7 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -535,10 +536,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
             if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_THREE_CLOCK_RESTART)) {
                 /**重启App*/
-                finish();
+                //重新打开app启动页
                 Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
+                //杀掉以前进程
+                AppManager.getAppManager().AppExit();
             } else if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_TIME_SET)) {
                 /**修改时间后，重新设置定时器*/
                 TimeUtil.start3Clock(context);
