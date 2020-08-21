@@ -1,12 +1,25 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
+import android.provider.SyncStateContract;
+import android.util.Log;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class TimeUtil {
+
+    public static final String ACTION_THREE_CLOCK_RESTART = "ACTION_THREE_CLOCK_RESTART";
+    public static final String ACTION_TIME_SET = "android.intent.action.TIME_SET";
+    private static final String TAG = TimeUtil.class.getName();
 
     /**
      * 一秒钟
@@ -200,6 +213,31 @@ public class TimeUtil {
     public static String leadingZero(Integer number, String pattern) {
         DecimalFormat df = new DecimalFormat(pattern);
         return df.format(number);
+    }
+
+    public static void start3Clock(Context context) {
+        AlarmManager mg = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent mFifteenIntent = new Intent(ACTION_THREE_CLOCK_RESTART);
+        PendingIntent p = PendingIntent.getBroadcast(context, 0, mFifteenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        long systemTime = System.currentTimeMillis();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 3);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long selectTime = calendar.getTimeInMillis();
+        /**如果超过今天的3点，那么定时器就设置为明天3点*/
+        if (systemTime > selectTime) {
+            calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_TIME_FORMAT);
+        String selectStr = sdf.format(new Date(calendar.getTimeInMillis()));
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr 3 clock : " + selectStr);
+        long clockTime = SystemClock.elapsedRealtime();
+        LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr 3 clock : " + clockTime + ",set clock" + TimeUtil.long2String(calendar.getTimeInMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + ",current:" + TimeUtil.long2String(systemTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
+        /**RTC_SHUTDOWN_WAKEUP 使用标识，系统进入深度休眠还唤醒*/
+        mg.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, p);
     }
 
 }

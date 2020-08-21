@@ -4,12 +4,15 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -43,6 +46,7 @@ import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
 
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,6 +71,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private long clickOKMillTime = System.currentTimeMillis();
     private long initMillTime = System.currentTimeMillis();
     private boolean isOpen = false;
+    private BroadcastReceiver mThreeClockReceiver;
 
     //网络超时8秒
 
@@ -77,6 +82,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initViews();
         initNetData();
         initData();
+        initReceiver();
         restartApp();
 //        patrolTimer.schedule(new TimerTask() {
 //            @Override
@@ -122,7 +128,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     if (inputCode.length() == 6) {
                         //判断5秒内不允许再次点击
                         if (System.currentTimeMillis() - clickOKMillTime < 5000) {
-                            LogUtil.d(TAG, "点击间隔未超过5秒，不予处理");
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",点击间隔未超过5秒，不予处理");
                         } else {
                             deviceInfoPresenter.openBox(inputCode);
                         }
@@ -454,7 +460,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             timeAdvisePlayTask.cancel();
             boolean installRes = PackageUtils.clientInstall(filePath);
             //ShellUtils.CommandResult commandResult = ShellUtils.execCmd("pm install -r" + filePath, true);
-            LogUtil.d(TAG, "静默安装结果:" + installRes);
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",静默安装结果:" + installRes);
             //LogUtil.d(TAG, "静默安装结果:" + commandResult.toString());
         } else {
             timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
@@ -493,6 +499,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             StompUtil.getInstance().removeConnectListener(stompConnectListener);
         }
         StompUtil.getInstance().disconnect();
+        if (mThreeClockReceiver != null) {
+            unregisterReceiver(mThreeClockReceiver);
+        }
+
     }
 
     private void stopPatrolAdvTimeOut() {
@@ -502,28 +512,38 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         }
     }
 
+    /**
+     * 广播初始化
+     */
+    private void initReceiver() {
+        mThreeClockReceiver = new ThreeClockReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TimeUtil.ACTION_THREE_CLOCK_RESTART);
+        filter.addAction(TimeUtil.ACTION_TIME_SET);
+        registerReceiver(mThreeClockReceiver, filter);
+    }
+
     //5分钟重启
     private void restartApp() {
+        TimeUtil.start3Clock(this);
+    }
 
-        TimerTask taskRestartApp = new TimerTask() {
-            @Override
-            public void run() {
-                if (System.currentTimeMillis() - initMillTime > 5 * 60 * 1000) {
-                    //大于5分钟需要重启
-                    if (!isOpen) {//如果是关着的
-                        Intent intent = BaseApplication.getAppContext().getPackageManager()
-                                .getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
-                        PendingIntent restartIntent = PendingIntent.getActivity(BaseApplication.getAppContext(), 0, intent, 0);
-                        AlarmManager mgr = (AlarmManager) BaseApplication.getAppContext().getSystemService(Context.ALARM_SERVICE);
-                        // 1秒钟后重启应用
-                        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, restartIntent);
-                        System.exit(0);
-                    }
-                }
+    class ThreeClockReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_THREE_CLOCK_RESTART)) {
+                /**重启App*/
+                finish();
+                Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+            } else if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_TIME_SET)) {
+                /**修改时间后，重新设置定时器*/
+                TimeUtil.start3Clock(context);
             }
-        };
-        patrolTimer.schedule(taskRestartApp, 0, 5000L);
-
+        }
     }
 
 }

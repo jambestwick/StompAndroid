@@ -181,7 +181,7 @@ public class RetrofitService {
 
                 client.connectionSpecs(specs);
             } catch (Exception exc) {
-                LogUtil.e(TAG, "Error while setting TLS 1.2" + Log.getStackTraceString(exc));
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",Error while setting TLS 1.2" + Log.getStackTraceString(exc));
             }
         }
 

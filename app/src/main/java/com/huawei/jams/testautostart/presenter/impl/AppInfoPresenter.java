@@ -18,6 +18,7 @@ import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.FileUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 
@@ -45,6 +46,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
                     if (null == lastAppInfo) {
                         appInfoView.onTopicAppInfoSuccess(data.getDownloadUrl(), data.getVersion());
                     } else {
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",APP版本比对:" + data.getVersion() + ",旧版本:" + lastAppInfo.getAppVersion());
                         if (StrUtil.compareVerName(data.getVersion(), lastAppInfo.getAppVersion())) {//新版本比旧版本大则下载，否则不下载
                             appInfoView.onTopicAppInfoSuccess(data.getDownloadUrl(), data.getVersion());
                         }

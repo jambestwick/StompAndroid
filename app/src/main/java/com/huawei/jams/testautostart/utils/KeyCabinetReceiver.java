@@ -38,7 +38,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * ****/
     public void openBatchBox(Activity context, String[] boxIdList, BoxStateListener listListener) {
         if (dialogUtils == null) {
-            LogUtil.d(TAG, "需要新建:Dialog");
+            LogUtil.d(TAG, Thread.currentThread().getName() +",需要新建:Dialog");
             dialogUtils = new DialogUtils();
         }
         LogUtil.d(TAG, Thread.currentThread().getName() + ",openBatchBox context:" + context);

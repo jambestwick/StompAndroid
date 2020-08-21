@@ -12,12 +12,14 @@ import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.NetState;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 
 import java.util.TimerTask;
 
@@ -26,10 +28,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
-    private BaseActivity baseActivity;
 
     public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
-        this.baseActivity = baseActivity;
         this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
         this.deviceInfoView = deviceInfoView;
     }
@@ -207,17 +207,12 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST, new NetworkUtils.HttpStateCallBack() {
-                    @Override
-                    public void onStatusBack(int status) {
-                        if (status == 200) {
-                            if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
-                                StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                                LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
-                            }
-                        }
+                if (NetState.isConnectServer()) {
+                    if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
+                        StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                     }
-                });
+                }
             }
         }
     }

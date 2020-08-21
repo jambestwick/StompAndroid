@@ -349,33 +349,4 @@ public class NetworkUtils {
         return null;
     }
 
-    public static void getRespStatus(String url, HttpStateCallBack callBack) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int status = -1;
-                try {
-                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求开始:" + url);
-                    OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                            .connectTimeout(15, TimeUnit.SECONDS)
-                            .readTimeout(20, TimeUnit.SECONDS)//设置读取超时时间
-                            .build();
-                    Request request = new Request.Builder().url(url).build();
-                    Response response = okHttpClient.newCall(request).execute();
-                    status = response.code();
-
-                    LogUtil.d(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",请求结束:" + url + ",结果:" + status+",数据大小:"+response.toString());
-                } catch (Exception e) {
-                    LogUtil.e(NetworkUtils.class.getName(), Thread.currentThread().getName() + ",getRespStatus:" + Log.getStackTraceString(e));
-                } finally {
-                    callBack.onStatusBack(status);
-                }
-            }
-        }).start();
-
-    }
-
-    public interface HttpStateCallBack {
-        void onStatusBack(int status);
-    }
 }

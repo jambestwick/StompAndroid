@@ -17,6 +17,7 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
+import com.huawei.jams.testautostart.utils.NetState;
 import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
@@ -53,7 +54,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogUtil.d(TAG, "当前的版本:" + BuildConfig.VERSION_NAME);
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",当前的版本:" + BuildConfig.VERSION_NAME);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
         initViews();
         initDevice();
@@ -63,6 +64,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     protected void initViews() {
         deviceCheckPresenter = new DeviceCheckPresenter(WelcomeActivity.this, this);
         binding.setClick(v -> {
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",点击了按钮:" + v);
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
                     initDevice();
@@ -92,40 +94,31 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     }
 
     private void initDevice() {
+        LogUtil.d(TAG, Thread.currentThread().getName() + "执行到第" + step + "步");
         //检查网络
         if (step == EnumDeviceCheck.STEP_1.key) {
-            isConnectInternet(new HttpStatusBack() {
-                @Override
-                public void connectStatus(boolean flag) {
-                    if (flag) {
-                        step = EnumDeviceCheck.STEP_2.key;
-                        initDevice();
-                    } else {
-                        turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
-                    }
-                }
-            });
+            if (!NetState.isConnectServer()) {
+                turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
+                return;
+            }
+            step = EnumDeviceCheck.STEP_2.key;
+            initDevice();
             return;
         }
         if (step == EnumDeviceCheck.STEP_2.key) {
-            isConnectServer(new HttpStatusBack() {
-                @Override
-                public void connectStatus(boolean flag) {
-                    if (flag) {
-                        step = EnumDeviceCheck.STEP_3.key;
-                        initDevice();
-                    } else {
-                        turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + getString(R.string.contact_back_office_handle), getString(R.string.retry), null);
-                    }
-                }
-            });
+            if (!NetState.isConnectServer()) {
+                turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
+                return;
+            }
+            step = EnumDeviceCheck.STEP_3.key;
+            initDevice();
             return;
         }
         if (step == EnumDeviceCheck.STEP_3.key) {
             String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
-            LogUtil.d(TAG, "账号:" + account);
-            LogUtil.d(TAG, "密码:" + password);
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",账号:" + account);
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",密码:" + password);
             if (deviceCheckPresenter.hasAccountPassword(account, password)) {
                 StompUtil.getInstance().createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
@@ -200,51 +193,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     binding.welKeyboardLl.setVisibility(View.VISIBLE);
                     sDialog.cancel();
                 }).show();
-    }
-
-
-    /**
-     * 判断网络是否连通
-     **/
-    private void isConnectInternet(HttpStatusBack statusBack) {
-        NetworkUtils.getRespStatus(Constants.BAIDU_PUBLIC_IP, new NetworkUtils.HttpStateCallBack() {
-            @Override
-            public void onStatusBack(int status) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (status == 200) {
-                            statusBack.connectStatus(true);
-                        } else {
-                            statusBack.connectStatus(false);
-                        }
-                    }
-                });
-
-            }
-        });
-    }
-
-    /**
-     * 判断后台服务是否联通
-     **/
-    private void isConnectServer(HttpStatusBack statusBack) {
-        NetworkUtils.getRespStatus(IdeaApiService.SERVER_HOST, new NetworkUtils.HttpStateCallBack() {
-            @Override
-            public void onStatusBack(int status) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (status == 200) {
-                            statusBack.connectStatus(true);
-                        } else {
-                            statusBack.connectStatus(false);
-                        }
-                    }
-                });
-            }
-        });
-
     }
 
     /***
