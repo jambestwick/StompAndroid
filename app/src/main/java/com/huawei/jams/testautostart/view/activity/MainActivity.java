@@ -2,23 +2,16 @@ package com.huawei.jams.testautostart.view.activity;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.app.ActivityManager;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
 import android.databinding.DataBindingUtil;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
@@ -42,12 +35,10 @@ import com.huawei.jams.testautostart.view.inter.IAdviseView;
 import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 import com.yxytech.parkingcloud.baselibrary.utils.*;
 
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -537,24 +528,32 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_THREE_CLOCK_RESTART)) {
                 /**重启App*/
                 //重新打开app启动页
-                while (isOpen) {
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-                //杀掉以前进程
-                AppManager.getAppManager().AppExit();
+                restartAppByBoxClosed();
             } else if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_TIME_SET)) {
                 /**修改时间后，重新设置定时器*/
                 TimeUtil.start3Clock(context);
             }
         }
+    }
+
+    private void restartAppByBoxClosed() {
+        patrolTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                while (isOpen) {
+                    try {
+                        Thread.sleep(Constants.RESTART_UP_MILL_SECOND);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                //杀掉以前进程
+                AppManager.getAppManager().AppExit();
+            }
+        }, 0);
     }
 
 }

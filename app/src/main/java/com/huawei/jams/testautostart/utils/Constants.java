@@ -24,6 +24,7 @@ public class Constants {
     public static final long NOT_CLICK_DELAY_SECOND = 30 * ONE_MILL_SECOND;//多久没有操作的时间
     public static final long PATROL_NET_INTERVAL_MILL_SECOND = 30 * ONE_MILL_SECOND;//轮巡网络间隔时间
     public static final long START_UP_MILL_SECOND = 5 * ONE_MILL_SECOND;//启动
+    public static final long RESTART_UP_MILL_SECOND = 5 * ONE_MILL_SECOND;//判断柜门全关再重启
 
     public static final String APP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "app";
     public static final String ADVISE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "advise";

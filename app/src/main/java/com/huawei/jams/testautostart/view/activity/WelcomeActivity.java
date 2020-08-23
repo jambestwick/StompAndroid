@@ -319,10 +319,13 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                         binding.welSixCodeLl.setVisibility(View.GONE);
                         break;
                     case OLD:
-                        turnStep(EnumDeviceCheck.STEP_6, "设备账户信息已失效，请重新绑定", null, null);
-                        binding.welKeyboardLl.setVisibility(View.VISIBLE);
-                        binding.welSixCodeLl.setVisibility(View.VISIBLE);
-                        deviceBindState = EnumDeviceBindState.NEW;
+                        turnStep(EnumDeviceCheck.STEP_6, "设备连接中，请等待...", null, null);
+                        StompUtil.getInstance().createStompClient(
+                                PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
+                                , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+//                        binding.welKeyboardLl.setVisibility(View.VISIBLE);
+//                        binding.welSixCodeLl.setVisibility(View.VISIBLE);
+//                        deviceBindState = EnumDeviceBindState.NEW;
                         break;
                     default:
                         break;
