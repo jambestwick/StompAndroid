@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.utils;
 
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 
 /**

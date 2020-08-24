@@ -101,7 +101,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         //检查网络
         if (step == EnumDeviceCheck.STEP_1.key) {
             if (!NetState.isConnectServer()) {
-                turnStep(EnumDeviceCheck.STEP_1, "未连接网络,请检查后重试", getString(R.string.retry), null);
+                //turnStep(EnumDeviceCheck.STEP_1, "设备连接中，请等待...", getString(R.string.retry), null);
+                turnStep(EnumDeviceCheck.STEP_1, "设备连接中，请等待...", null, null);
                 turnNet();
                 return;
             }
@@ -111,7 +112,8 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         }
         if (step == EnumDeviceCheck.STEP_2.key) {
             if (!NetState.isConnectServer()) {
-                turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
+                //turnStep(EnumDeviceCheck.STEP_2, "后台通信失败," + this.getString(R.string.contact_back_office_handle), this.getString(R.string.retry), null);
+                turnStep(EnumDeviceCheck.STEP_2, "设备连接中，请等待...", null, null);
                 turnNet();
                 return;
             }
@@ -434,6 +436,18 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     }
 
     private void turnNet() {
+        turnTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                NetworkUtils.setAirPlaneMode(true);
+                try {
+                    Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                NetworkUtils.setAirPlaneMode(false);
+            }
+        }, 0);
         turnTimer.schedule(new TimerTask() {
             @Override
             public void run() {

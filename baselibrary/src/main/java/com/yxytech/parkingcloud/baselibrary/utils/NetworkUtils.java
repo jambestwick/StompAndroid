@@ -349,4 +349,14 @@ public class NetworkUtils {
         return null;
     }
 
+    public static boolean setAirPlaneMode(boolean enable) {
+        int mode = enable ? 1 : 0;
+        String cmd = "settings put global airplane_mode_on " + mode;
+        ShellUtils.CommandResult commandResult = ShellUtils.execCmd(cmd, true);
+        if (commandResult.result == 0) {//ping后台失败
+            return true;
+        }
+        return false;
+    }
+
 }
