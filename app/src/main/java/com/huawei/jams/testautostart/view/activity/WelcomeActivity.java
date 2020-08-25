@@ -322,9 +322,29 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                         break;
                     case OLD:
                         turnStep(EnumDeviceCheck.STEP_6, "设备连接中，请等待...", null, null);
-                        StompUtil.getInstance().createStompClient(
-                                PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
-                                , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                        turnTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, true);
+                                try {
+                                    Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, false);
+
+                            }
+                        }, 0);
+                        turnTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                StompUtil.getInstance().createStompClient(
+                                        PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
+                                        , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                            }
+                        }, Constants.PATROL_NET_INTERVAL_MILL_SECOND);
+
+
 //                        binding.welKeyboardLl.setVisibility(View.VISIBLE);
 //                        binding.welSixCodeLl.setVisibility(View.VISIBLE);
 //                        deviceBindState = EnumDeviceBindState.NEW;
@@ -439,13 +459,13 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         turnTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                NetworkUtils.setAirPlaneMode(true);
+                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, true);
                 try {
                     Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                NetworkUtils.setAirPlaneMode(false);
+                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, false);
             }
         }, 0);
         turnTimer.schedule(new TimerTask() {

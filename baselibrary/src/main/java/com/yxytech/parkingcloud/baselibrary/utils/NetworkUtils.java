@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
 import android.util.Log;
@@ -21,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -349,14 +352,31 @@ public class NetworkUtils {
         return null;
     }
 
-    public static boolean setAirPlaneMode(boolean enable) {
-        int mode = enable ? 1 : 0;
-        String cmd = "settings put global airplane_mode_on " + mode;
-        ShellUtils.CommandResult commandResult = ShellUtils.execCmd(cmd, true);
-        if (commandResult.result == 0) {//ping后台失败
-            return true;
+    public static void setAirPlaneMode(Context context, boolean enable) {
+        try {
+           TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
+            Class<?> telephonyManager = Class.forName("android.telephony.TelephonyManager");
+
+            Method setRadio = telephonyManager.getMethod("setRadio", boolean.class);
+            setRadio.invoke(telephonyManager.getMethod("getDefault").invoke(null), enable);
+            if (enable) {
+                Method toggleRadioOnOff = telephonyManager.getMethod("toggleRadioOnOff");
+                toggleRadioOnOff.invoke(telephonyManager.getMethod("getDefault").invoke(null));
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            LogUtil.e(NetworkUtils.class.getName(),"ClassNotFoundException:"+Log.getStackTraceString(e));
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            LogUtil.e(NetworkUtils.class.getName(),"NoSuchMethodException:"+Log.getStackTraceString(e));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            LogUtil.e(NetworkUtils.class.getName(),"IllegalAccessException:"+Log.getStackTraceString(e));
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            LogUtil.e(NetworkUtils.class.getName(),"InvocationTargetException:"+Log.getStackTraceString(e));
         }
-        return false;
     }
+
 
 }
