@@ -15,6 +15,7 @@ import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
+import com.huawei.jams.testautostart.utils.AirplaneModeUtils;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.NetState;
@@ -322,19 +323,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                         break;
                     case OLD:
                         turnStep(EnumDeviceCheck.STEP_6, "设备连接中，请等待...", null, null);
-                        turnTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, true);
-                                try {
-                                    Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, false);
-
-                            }
-                        }, 0);
+                        changeAirPlane();
                         turnTimer.schedule(new TimerTask() {
                             @Override
                             public void run() {
@@ -456,24 +445,28 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     }
 
     private void turnNet() {
-        turnTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, true);
-                try {
-                    Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                NetworkUtils.setAirPlaneMode(WelcomeActivity.this, false);
-            }
-        }, 0);
+        changeAirPlane();
         turnTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(() -> initDevice());
             }
         }, Constants.PATROL_NET_INTERVAL_MILL_SECOND);
+    }
+
+    private void changeAirPlane() {
+        turnTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                AirplaneModeUtils.setAirplane(WelcomeActivity.this, true);
+                try {
+                    Thread.sleep(Constants.RESTART_AIR_PLANE_MILL_SECOND);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                AirplaneModeUtils.setAirplane(WelcomeActivity.this, false);
+            }
+        }, 0);
     }
 
 }

@@ -1,9 +1,13 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -15,6 +19,7 @@ import java.util.List;
  * </pre>
  */
 public class ShellUtils {
+    private static String TAG = ShellUtils.class.getName();
 
     private ShellUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -177,5 +182,58 @@ public class ShellUtils {
                     ", errorMsg='" + errorMsg + '\'' +
                     '}';
         }
+    }
+
+    //http://blog.csdn.net/alexander_xfl/article/details/9150971
+    //command can be some cmd, use ; to split
+
+    public static String runRootCmd(String command) {
+        return runRootCmd(command, ";");
+    }
+
+    public static String runRootCmd(String command, String split) {
+        Process process = null;
+        DataOutputStream os = null;
+        String result = "false";
+        try {
+            process = Runtime.getRuntime().exec("su");
+            OutputStream outstream = process.getOutputStream();
+            DataOutputStream dataOutputStream = new DataOutputStream(outstream);
+            String temp = "";
+            String[] cmds = command.split(split);
+            for (int i = 0; i < cmds.length; i++)
+                temp += cmds[i] + "\n";
+            dataOutputStream.writeBytes(temp);
+            dataOutputStream.flush();
+            dataOutputStream.writeBytes("exit\n");
+            dataOutputStream.flush();
+            process.waitFor();
+            result = inputStreamToString(process.getInputStream());
+            LogUtil.i(TAG, temp);
+
+        } catch (Exception e) {
+            LogUtil.e(TAG, e.getMessage());
+            return result;
+        } finally {
+            LogUtil.i(TAG, result);
+            try {
+                if (os != null) {
+                    os.close();
+                }
+                process.destroy();
+            } catch (Exception e) {
+                LogUtil.e(TAG, e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    private static String inputStreamToString(InputStream in) throws IOException {
+        StringBuffer out = new StringBuffer();
+        byte[] b = new byte[1024];
+        for (int n; (n = in.read(b)) != -1; ) {
+            out.append(new String(b, 0, n));
+        }
+        return out.toString();
     }
 }

@@ -352,31 +352,31 @@ public class NetworkUtils {
         return null;
     }
 
-    public static void setAirPlaneMode(Context context, boolean enable) {
-        try {
-           TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
-            Class<?> telephonyManager = Class.forName("android.telephony.TelephonyManager");
-
-            Method setRadio = telephonyManager.getMethod("setRadio", boolean.class);
-            setRadio.invoke(telephonyManager.getMethod("getDefault").invoke(null), enable);
-            if (enable) {
-                Method toggleRadioOnOff = telephonyManager.getMethod("toggleRadioOnOff");
-                toggleRadioOnOff.invoke(telephonyManager.getMethod("getDefault").invoke(null));
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            LogUtil.e(NetworkUtils.class.getName(),"ClassNotFoundException:"+Log.getStackTraceString(e));
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            LogUtil.e(NetworkUtils.class.getName(),"NoSuchMethodException:"+Log.getStackTraceString(e));
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            LogUtil.e(NetworkUtils.class.getName(),"IllegalAccessException:"+Log.getStackTraceString(e));
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            LogUtil.e(NetworkUtils.class.getName(),"InvocationTargetException:"+Log.getStackTraceString(e));
-        }
-    }
+//    public static void setAirPlaneMode(Context context, boolean enable) {
+//        try {
+//           TelephonyManager telephonyManager = context.getSystemService(TelephonyManager.class);
+//            Class<?> telephonyManager = Class.forName("android.telephony.TelephonyManager");
+//
+//            Method setRadio = telephonyManager.getMethod("setRadio", boolean.class);
+//            setRadio.invoke(telephonyManager.getMethod("getDefault").invoke(null), enable);
+//            if (enable) {
+//                Method toggleRadioOnOff = telephonyManager.getMethod("toggleRadioOnOff");
+//                toggleRadioOnOff.invoke(telephonyManager.getMethod("getDefault").invoke(null));
+//            }
+//        } catch (ClassNotFoundException e) {
+//            e.printStackTrace();
+//            LogUtil.e(NetworkUtils.class.getName(),"ClassNotFoundException:"+Log.getStackTraceString(e));
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//            LogUtil.e(NetworkUtils.class.getName(),"NoSuchMethodException:"+Log.getStackTraceString(e));
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//            LogUtil.e(NetworkUtils.class.getName(),"IllegalAccessException:"+Log.getStackTraceString(e));
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//            LogUtil.e(NetworkUtils.class.getName(),"InvocationTargetException:"+Log.getStackTraceString(e));
+//        }
+//    }
 
 
 }
