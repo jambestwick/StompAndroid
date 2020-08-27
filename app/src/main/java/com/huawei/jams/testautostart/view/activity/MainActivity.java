@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.huawei.jams.testautostart.BaseApp;
@@ -165,7 +166,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
         timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
-        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_NET_INTERVAL_MILL_SECOND);//全程巡检网络
+        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//全程巡检网络
     }
 
     /**
@@ -547,10 +548,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         e.printStackTrace();
                     }
                 }
-                Intent i = getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(i);
-                //杀掉以前进程
+                AppManager.getAppManager().restartApp(MainActivity.this);
                 AppManager.getAppManager().AppExit();
             }
         }, 0);

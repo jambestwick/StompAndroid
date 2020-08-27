@@ -1,8 +1,13 @@
 package com.yxytech.parkingcloud.baselibrary.utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+
+import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
 
 import java.util.Stack;
 
@@ -101,7 +106,7 @@ public class AppManager {
     /**
      * 退出应用程序
      */
-    public  void AppExit() {
+    public void AppExit() {
         try {
             finishAllActivity();
             System.exit(0);
@@ -138,6 +143,12 @@ public class AppManager {
         } else {
             return false;
         }
+    }
+
+    public void restartApp(Context context) {
+        Intent i = context.getPackageManager().getLaunchIntentForPackage(BaseApplication.getAppContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(i);
     }
 
 }

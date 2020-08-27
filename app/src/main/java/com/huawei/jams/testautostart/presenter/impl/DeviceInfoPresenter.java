@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.presenter.impl;
 
 import android.app.Activity;
+import android.content.Intent;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.EnumResponseCode;
@@ -14,8 +15,11 @@ import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.NetState;
 import com.huawei.jams.testautostart.utils.StompUtil;
+import com.huawei.jams.testautostart.view.activity.MainActivity;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
+import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
@@ -28,6 +32,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
+    private static long firstNetDisconnected;
+    private static boolean isFistDisconnect = true;
 
     public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
         this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
@@ -201,13 +207,24 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         @Override
         public void run() {
             if (!NetworkUtils.isConnected()) {//如果网络断了
+                //如果超过10分钟断网重启APP
+                if (isFistDisconnect) {
+                    firstNetDisconnected = System.currentTimeMillis();
+                    isFistDisconnect = false;
+                }
+                if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
+                    AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                    AppManager.getAppManager().AppExit();
+                    return;
+                }
                 if (!StompUtil.getInstance().isNeedConnect()) {//如果不需要连接
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
                     StompUtil.getInstance().disconnect();
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (NetState.isConnectServer()) {
+                firstNetDisconnected = System.currentTimeMillis();
+                if (NetState.isConnectServer()) {//如果ping服务能ping通
                     if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
                         StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
