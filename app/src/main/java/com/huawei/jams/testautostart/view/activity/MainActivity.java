@@ -154,9 +154,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
                         StompUtil.getInstance().disconnect();
+                        DeviceInfoPresenter.firstNetDisconnected = System.currentTimeMillis();
                     }
                     break;
                 case CONNECT:
+                    DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
                     showAdvise();
                     break;

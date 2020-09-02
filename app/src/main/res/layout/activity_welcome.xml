@@ -62,8 +62,7 @@
 
         <View style="@style/style_space_20_dp_vertical" />
 
-        <LinearLayout style="@style/style_layout_device_check_linear"
-                       >
+        <LinearLayout style="@style/style_layout_device_check_linear">
 
             <Button
                 android:id="@+id/wel_confirm_btn"
@@ -182,6 +181,10 @@
                     android:text="@string/ok" />
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/main_customer_service_phone_tv"
+            style="@style/style_service_phone" />
 
     </LinearLayout>
 </layout>

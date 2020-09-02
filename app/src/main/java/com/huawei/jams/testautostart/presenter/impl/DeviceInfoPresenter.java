@@ -32,8 +32,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private static final String TAG = AppInfoPresenter.class.getName();
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
-    private static long firstNetDisconnected;
-    private static boolean isFistDisconnect = true;
+    public static Long firstNetDisconnected;
 
     public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
         this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
@@ -208,14 +207,12 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         public void run() {
             if (!NetworkUtils.isConnected()) {//如果网络断了
                 //如果超过10分钟断网重启APP
-                if (isFistDisconnect) {
-                    firstNetDisconnected = System.currentTimeMillis();
-                    isFistDisconnect = false;
-                }
-                if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
-                    AppManager.getAppManager().restartApp(BaseApp.getAppContext());
-                    AppManager.getAppManager().AppExit();
-                    return;
+                if (null != firstNetDisconnected) {
+                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
+                        AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                        AppManager.getAppManager().AppExit();
+                        return;
+                    }
                 }
                 if (!StompUtil.getInstance().isNeedConnect()) {//如果不需要连接
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
@@ -223,7 +220,13 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                firstNetDisconnected = System.currentTimeMillis();
+                if (null != firstNetDisconnected) {
+                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
+                        AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                        AppManager.getAppManager().AppExit();
+                        return;
+                    }
+                }
                 if (NetState.isConnectServer()) {//如果ping服务能ping通
                     if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
                         StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
