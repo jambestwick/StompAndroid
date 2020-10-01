@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 public class AdvisePresenter implements IAdvisePresenter {
-    private static final String TAG = AppInfoPresenter.class.getName();
+    private static final String TAG = AdvisePresenter.class.getName();
     private IAdviseModel mAdviseModel;//Model接口
     private IAdviseView adviseView;//View接口
 
