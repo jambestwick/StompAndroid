@@ -43,7 +43,7 @@ public class AdvisePresenter implements IAdvisePresenter {
             public void onCallBack(int errorCode, String msg, AdviseVO data) {
                 switch (errorCode) {
                     case ErrorCode.SUCCESS:
-                        Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();
+                        Advise currentAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.create_time, false).limit(1).querySingle();
                         if (null == currentAdv) {
                             adviseView.onTopicAdviseSuccess(data.getDownloadUrl(), data.getVersion());
                         } else {
@@ -100,7 +100,7 @@ public class AdvisePresenter implements IAdvisePresenter {
     public boolean deleteOldAdvise() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
         if (adviseList.size() > 1) {
-            Advise oldAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, true).limit(1).querySingle();
+            Advise oldAdv = SQLite.select().from(Advise.class).orderBy(Advise_Table.create_time, true).limit(1).querySingle();
             if (oldAdv != null) {
                 return FileUtils.deleteFile(oldAdv.getFilePath()) && oldAdv.delete();
             }

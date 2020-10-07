@@ -42,7 +42,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
         mAppInfoModel.subscribeVersion((StompCallBack<AppVO>) (errorCode, msg, data) -> {
             if (errorCode == EnumResponseCode.SUCCESS.getKey()) {
                 if (null != data) {
-                    AppInfo lastAppInfo = SQLite.select().from(AppInfo.class).orderBy(AppInfo_Table.app_version, false).limit(1).querySingle();//倒数第一个广告
+                    AppInfo lastAppInfo = SQLite.select().from(AppInfo.class).orderBy(AppInfo_Table.create_time, false).limit(1).querySingle();//倒数第一个广告
                     if (null == lastAppInfo) {
                         appInfoView.onTopicAppInfoSuccess(data.getDownloadUrl(), data.getVersion());
                     } else {
@@ -89,7 +89,7 @@ public class AppInfoPresenter implements IAppInfoPresenter {
     public boolean deleteOldApp() {
         List<AppInfo> appInfoList = SQLite.select().from(AppInfo.class).queryList();
         if (appInfoList.size() > 1) {
-            AppInfo oldApp = SQLite.select().from(AppInfo.class).orderBy(AppInfo_Table.app_version, true).limit(1).querySingle();
+            AppInfo oldApp = SQLite.select().from(AppInfo.class).orderBy(AppInfo_Table.create_time, true).limit(1).querySingle();
             if (oldApp != null) {
                 return FileUtils.deleteFile(oldApp.getFilePath()) && oldApp.delete();
             }
