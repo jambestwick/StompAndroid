@@ -208,7 +208,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             if (!NetworkUtils.isConnected()) {//如果网络断了
                 //如果超过10分钟断网重启APP
                 if (null != firstNetDisconnected) {
-                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
+                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
                         AppManager.getAppManager().restartApp(BaseApp.getAppContext());
                         AppManager.getAppManager().AppExit();
                         return;
