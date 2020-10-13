@@ -168,14 +168,14 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
         timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
-        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//全程巡检网络
+        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//每30s全程巡检网络
     }
 
     /**
      * 初始化广告播放
      */
     private void initData() {
-        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.adv_version, false).limit(1).querySingle();//倒数第一个广告
+        Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.create_time, false).limit(1).querySingle();//倒数第一个广告
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainVideoRl.setVisibility(View.VISIBLE);

@@ -213,6 +213,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         AppManager.getAppManager().AppExit();
                         return;
                     }
+                } else {
+                    firstNetDisconnected = System.currentTimeMillis();
                 }
                 if (!StompUtil.getInstance().isNeedConnect()) {//如果不需要连接
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
@@ -232,6 +234,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                         StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                     }
+                } else {
+                    firstNetDisconnected = System.currentTimeMillis();
                 }
             }
         }

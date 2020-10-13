@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.provider.SyncStateContract;
-import android.util.Log;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
