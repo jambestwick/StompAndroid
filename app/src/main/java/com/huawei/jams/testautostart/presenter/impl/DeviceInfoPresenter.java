@@ -221,7 +221,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                 }
             } else {//如果网络正常
                 if (null != firstNetDisconnected) {
-                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 600) {
+                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
                         AppManager.getAppManager().restartApp(BaseApp.getAppContext());
                         AppManager.getAppManager().AppExit();
                         return;
