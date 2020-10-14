@@ -59,7 +59,7 @@ public class BaseApp extends BaseApplication {
      * **/
     private void initVideo() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
-        LogUtil.d(this.getClass().getName(), Thread.currentThread().getName() +",数据库广告:" + adviseList);
+        LogUtil.d(this.getClass().getName(), Thread.currentThread().getName() + ",数据库广告:" + adviseList);
         if (adviseList.size() <= 0) {
             buildFirstAdv();
         } else {

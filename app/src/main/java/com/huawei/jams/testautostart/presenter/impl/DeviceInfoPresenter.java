@@ -206,7 +206,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         @Override
         public void run() {
             if (!NetworkUtils.isConnected()) {//如果网络断了
-                //如果超过10分钟断网重启APP
+                //如果超过3分钟断网重启APP
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",network is disconnect ======================");
                 if (null != firstNetDisconnected) {
                     if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
                         AppManager.getAppManager().restartApp(BaseApp.getAppContext());
@@ -222,20 +223,23 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     StompUtil.getInstance().setmNeedConnect(true);
                 }
             } else {//如果网络正常
-                if (null != firstNetDisconnected) {
-                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
-                        AppManager.getAppManager().restartApp(BaseApp.getAppContext());
-                        AppManager.getAppManager().AppExit();
-                        return;
-                    }
-                }
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
                 if (NetState.isConnectServer()) {//如果ping服务能ping通
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
                     if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
                         StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                     }
                 } else {
-                    firstNetDisconnected = System.currentTimeMillis();
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is fail ======================");
+                    if (null != firstNetDisconnected) {
+                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                            AppManager.getAppManager().AppExit();
+                        }
+                    } else {
+                        firstNetDisconnected = System.currentTimeMillis();
+                    }
                 }
             }
         }
