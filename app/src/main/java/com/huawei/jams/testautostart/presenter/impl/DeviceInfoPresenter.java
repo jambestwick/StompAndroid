@@ -227,7 +227,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             } else {//如果网络正常
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
                 if (NetState.isConnectServer()) {//如果ping服务能ping通
-                    LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
+                    //LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
                     if (null != firstNetDisconnected) {
                         if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
                             AppManager.getAppManager().restartApp(BaseApp.getAppContext());
