@@ -29,7 +29,7 @@ public class SSLHelper {
     }
 
     public final static String CLIENT_PRI_KEY = "keystore/le.p12";
-    public final static String CLIENT_BKS_PASSWORD = "yg8KR36N";
+    public final static String CLIENT_BKS_PASSWORD = "OaYmXnQi";
     public final static String TRUSTSTORE_PUB_KEY = "certificates/lets-encrypt-x3-cross-signed.pem.txt";
     private final static String TRUSTSTORE_BKS_PASSWORD = "yg8KR36N";
     private final static String KEYSTORE_TYPE = "BKS";
