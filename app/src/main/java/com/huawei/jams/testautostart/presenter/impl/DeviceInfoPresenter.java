@@ -27,6 +27,8 @@ import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 
 import java.util.TimerTask;
 
+import ua.naiksoftware.stomp.Stomp;
+
 public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
     private static final String TAG = AppInfoPresenter.class.getName();
@@ -226,6 +228,13 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
                 if (NetState.isConnectServer()) {//如果ping服务能ping通
                     LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
+                    if (null != firstNetDisconnected) {
+                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                            AppManager.getAppManager().AppExit();
+                            return;
+                        }
+                    }
                     if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
                         StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
