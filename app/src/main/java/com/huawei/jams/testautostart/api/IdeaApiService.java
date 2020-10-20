@@ -39,6 +39,7 @@ public interface IdeaApiService {
     String DEVICE_UPDATE_BOX_STATE_RECEIVE = "/user/queue/box-event";
     String DEVICE_OPEN_BOX = "/ws/cabinet/ask-for-open-box";
     String DEVICE_OPEN_BOX_RECEIVE = "/user/queue/ask-for-open-box";
+    String SERVER_HEART_BEAT = "/topic/socket-heart";
 
 
     /**

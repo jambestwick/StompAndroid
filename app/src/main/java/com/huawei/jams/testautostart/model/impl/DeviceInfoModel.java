@@ -12,6 +12,7 @@ import com.huawei.jams.testautostart.entity.DeviceInfo;
 import com.huawei.jams.testautostart.entity.vo.BindDeviceVO;
 import com.huawei.jams.testautostart.entity.vo.BoxStateVO;
 import com.huawei.jams.testautostart.entity.vo.OpenBoxVO;
+import com.huawei.jams.testautostart.entity.vo.ServerHeartBeatVO;
 import com.huawei.jams.testautostart.model.inter.IDeviceInfoModel;
 import com.huawei.jams.testautostart.presenter.inter.HttpCallBack;
 import com.huawei.jams.testautostart.presenter.inter.StompCallBack;
@@ -196,4 +197,34 @@ public class DeviceInfoModel implements IDeviceInfoModel {
     }
 
 
+    @Override
+    public void subscribeServerHeartBeat(StompCallBack callBack) {
+        StompUtil.getInstance().receiveStomp(IdeaApiService.SERVER_HEART_BEAT, new DisposableSubscriber<StompMessage>() {
+            @Override
+            public void onNext(StompMessage stompMessage) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeServerHeartBeat onNext:" + stompMessage);
+                ServerHeartBeatVO vo = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ServerHeartBeatVO.class);
+                if (vo == null) {
+                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                    return;
+                }
+                if (StrUtil.isNotBlank(vo.getHeart())) {
+                    callBack.onCallBack(EnumResponseCode.SUCCESS.getKey(), EnumResponseCode.SUCCESS.getValue(), vo.getHeart());
+                } else {
+                    callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
+                }
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",subscribeServerHeartBeat onError:" + Log.getStackTraceString(t));
+                callBack.onCallBack(EnumResponseCode.EXCEPTION.getKey(), EnumResponseCode.EXCEPTION.getValue(), t.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeServerHeartBeat onComplete");
+            }
+        });
+    }
 }

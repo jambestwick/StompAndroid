@@ -42,6 +42,10 @@ public interface IDeviceInfoModel<E> {
      * 订阅打开柜门
      */
     <T> void subscribeOpenBox(StompCallBack<T> callBack);
+    /**
+     * 订阅服务端的心跳
+     * **/
+    <T> void subscribeServerHeartBeat(StompCallBack<T> callBack);
 
 
 }

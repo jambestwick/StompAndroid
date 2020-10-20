@@ -26,5 +26,7 @@ public interface IDeviceInfoView {
 
     void onReceiveBoxStateFail(String reason);
 
+    void onServerReceiveHeart();
+
 
 }

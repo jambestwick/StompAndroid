@@ -323,6 +323,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_state_invalid));
     }
 
+    @Override
+    public void onServerReceiveHeart() {
+        //心跳接收成功
+        DeviceInfoPresenter.serverHeartBeatTime = System.currentTimeMillis();
+
+    }
+
 
     /**
      * 操作柜门的回调

@@ -35,6 +35,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     private IDeviceInfoModel mDeviceInfoModel;//Model接口
     private IDeviceInfoView deviceInfoView;//View接口
     public static Long firstNetDisconnected;
+    public static long serverHeartBeatTime = System.currentTimeMillis();
 
     public DeviceInfoPresenter(BaseActivity baseActivity, IDeviceInfoView deviceInfoView) {
         this.mDeviceInfoModel = new DeviceInfoModel(baseActivity);
@@ -122,6 +123,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             }
         });
 
+    }
+
+    @Override
+    public void topicServerHeartBeat() {
+        mDeviceInfoModel.subscribeServerHeartBeat((errorCode, msg, data) -> deviceInfoView.onServerReceiveHeart());
     }
 
     /**
@@ -227,6 +233,13 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
             } else {//如果网络正常
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
                 if (NetState.isConnectServer()) {//如果ping服务能ping通
+                    if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND) {
+                        //服务心跳中断
+                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
+                        StompUtil.getInstance().disconnect();
+                        StompUtil.getInstance().setmNeedConnect(true);
+
+                    }
                     //LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
                     if (null != firstNetDisconnected) {
                         if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {

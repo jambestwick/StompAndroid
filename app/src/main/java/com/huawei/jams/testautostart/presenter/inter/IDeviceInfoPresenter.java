@@ -31,4 +31,9 @@ public interface IDeviceInfoPresenter {
      * 订阅上传柜门状态
      **/
     void topicUploadBoxState();
+    /**
+     * 订阅Stomp服务心跳
+     *
+     * **/
+    void topicServerHeartBeat();
 }
