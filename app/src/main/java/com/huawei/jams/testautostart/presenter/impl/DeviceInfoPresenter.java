@@ -236,9 +236,11 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND) {
                         //服务心跳中断
                         LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
-                        StompUtil.getInstance().disconnect();
-                        StompUtil.getInstance().setmNeedConnect(true);
-
+                        if (!StompUtil.getInstance().isNeedConnect()) {
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp begin disconnect stomp======================");
+                            StompUtil.getInstance().disconnect();
+                            StompUtil.getInstance().setmNeedConnect(true);
+                        }
                     }
                     //LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
                     if (null != firstNetDisconnected) {

@@ -68,7 +68,7 @@ public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        LogUtil.e(TAG, Thread.currentThread().getName() +",全局异常捕获:" + "当前线程:" + t + ",异常信息:" + Log.getStackTraceString(e));
+        LogUtil.e(TAG, Thread.currentThread().getName() + ",全局异常捕获:" + "当前线程:" + t + ",异常信息:" + Log.getStackTraceString(e));
         dumpException2SDCard(e);
         if (handleException(e)) {
             // 已经处理,APP重启
@@ -102,7 +102,7 @@ public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
      * @param ex
      */
     private void dumpException2SDCard(Throwable ex) {
-        LogUtil.e(TAG, Thread.currentThread().getName() +",==============================" + ex.toString());
+        LogUtil.e(TAG, Thread.currentThread().getName() + ",==============================" + ex.toString());
         if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             return;
         }
