@@ -34,17 +34,18 @@ import io.reactivex.plugins.RxJavaPlugins;
  * <p>邮箱：jambestwick@126.com<p>
  */
 public class BaseApp extends BaseApplication {
+    private static final String TAG = BaseApp.class.getName();
 
 
     @Override
     public void onCreate() {
         super.onCreate();
-        LogUtil.d(this.getClass().getName(), Thread.currentThread().getName() + ",当前的版本:" + BuildConfig.VERSION_NAME);
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",当前的版本:" + BuildConfig.VERSION_NAME);
         FlowManager.init(this);//初始化dbflow
         ExceptionHelper.getInstance().init(this);//初始化未知异常捕获
         RxJavaPlugins.setErrorHandler(throwable -> {
             //异常处理
-            LogUtil.e(this.getClass().getName(), Thread.currentThread().getName() + ",setErrorHandler:" + Log.getStackTraceString(throwable));
+            LogUtil.e(TAG, Thread.currentThread().getName() + ",setErrorHandler:" + Log.getStackTraceString(throwable));
         });
         initVideo();
     }
@@ -59,7 +60,7 @@ public class BaseApp extends BaseApplication {
      * **/
     private void initVideo() {
         List<Advise> adviseList = SQLite.select().from(Advise.class).queryList();
-        LogUtil.d(this.getClass().getName(), Thread.currentThread().getName() + ",数据库广告:" + adviseList);
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",数据库广告:" + adviseList);
         if (adviseList.size() <= 0) {
             buildFirstAdv();
         } else {

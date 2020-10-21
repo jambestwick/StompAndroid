@@ -37,8 +37,14 @@ import com.huawei.jams.testautostart.view.inter.IAppInfoView;
 import com.huawei.jams.testautostart.view.inter.IDeviceInfoView;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
-import com.yxytech.parkingcloud.baselibrary.ui.BaseApplication;
-import com.yxytech.parkingcloud.baselibrary.utils.*;
+import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
+import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.PackageUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
+import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
+import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,7 +68,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//连接的task
     private StompUtil.StompConnectListener stompConnectListener;
     private long clickOKMillTime = System.currentTimeMillis();
-    private long initMillTime = System.currentTimeMillis();
     private boolean isOpen = false;
     private BroadcastReceiver mThreeClockReceiver;
 
@@ -182,8 +187,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             binding.mainAdviseVideo.setVideoPath(path);
             binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
-                //binding.mainAdviseVideo.setVideoPath(path);
-                //或 //mVideoView.setVideoPath(Uri.parse(_filePath));
                 binding.mainAdviseVideo.start();
             });
         }
@@ -444,6 +447,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         advisePresenter.topicAdviseInfo();
         deviceInfoPresenter.topicOpenBox();
         deviceInfoPresenter.topicUploadBoxState();
+        deviceInfoPresenter.topicServerHeartBeat();
     }
 
 
@@ -515,7 +519,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     /**
-     * 广播初始化
+     * 定时重启广播初始化
      */
     private void initReceiver() {
         mThreeClockReceiver = new ThreeClockReceiver();
@@ -525,7 +529,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         registerReceiver(mThreeClockReceiver, filter);
     }
 
-    //5分钟重启
+    //每天3点分钟重启
     private void restartApp() {
         TimeUtil.start3Clock(this);
     }

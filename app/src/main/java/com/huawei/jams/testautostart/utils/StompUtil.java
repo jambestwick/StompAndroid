@@ -109,8 +109,8 @@ public class StompUtil {
         SSLHelper.SSLParams sslParams = RetrofitService.setSSLParams(BaseApp.getAppContext());
         OkHttpClient okHttpClient = RetrofitService.getOkHttpClientBuilder().sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager).build();
         mStompClient = Stomp.over(OKHTTP, IdeaApiService.WS_URI, null, okHttpClient);
-        mStompClient.withClientHeartbeat((int) HEART_BEAT);
-        mStompClient.withServerHeartbeat((int) HEART_BEAT);
+//        mStompClient.withClientHeartbeat((int) HEART_BEAT);
+//        mStompClient.withServerHeartbeat((int) HEART_BEAT);
         List<StompHeader> _headers = new ArrayList<>();
         _headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth(userName, password)));
         //_headers.add(new StompHeader("Authorization", Base64Util.encodeBasicAuth("00002", "AAAAAAAAAAAAAAAAAAAA_2")));

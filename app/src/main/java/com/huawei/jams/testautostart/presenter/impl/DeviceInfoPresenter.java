@@ -213,59 +213,86 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public static class TimeConnectTask extends TimerTask {
         @Override
         public void run() {
-            if (!NetworkUtils.isConnected()) {//如果网络断了
-                //如果超过3分钟断网重启APP
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",network is disconnect ======================");
-                if (null != firstNetDisconnected) {
-                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+            if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_SERVER_HEART_INTERVAL_MILL_SECOND) {//心跳断开
+                //服务心跳中断
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
+                if (null == firstNetDisconnected) {
+                    firstNetDisconnected = System.currentTimeMillis();
+                } else {
+                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {//超时重启
                         AppManager.getAppManager().restartApp(BaseApp.getAppContext());
                         AppManager.getAppManager().AppExit();
                         return;
                     }
-                } else {
-                    firstNetDisconnected = System.currentTimeMillis();
                 }
-                if (!StompUtil.getInstance().isNeedConnect()) {//如果不需要连接
-                    LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
+                if (!StompUtil.getInstance().isNeedConnect()) {//如果已经stomp连接，则主动断开
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp begin disconnect stomp======================");
                     StompUtil.getInstance().disconnect();
                     StompUtil.getInstance().setmNeedConnect(true);
-                }
-            } else {//如果网络正常
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
-                if (NetState.isConnectServer()) {//如果ping服务能ping通
-                    if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND) {
-                        //服务心跳中断
-                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
-                        if (!StompUtil.getInstance().isNeedConnect()) {
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp begin disconnect stomp======================");
-                            StompUtil.getInstance().disconnect();
-                            StompUtil.getInstance().setmNeedConnect(true);
+                } else {//尝试重连
+                    if (NetworkUtils.isConnected() && NetState.isConnectServer()) {
+                        if (!StompUtil.getInstance().isConnecting()) {
+                            StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+                            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                         }
-                    }
-                    //LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
-                    if (null != firstNetDisconnected) {
-                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
-                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
-                            AppManager.getAppManager().AppExit();
-                            return;
-                        }
-                    }
-                    if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
-                        StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
-                    }
-                } else {
-                    LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is fail ======================");
-                    if (null != firstNetDisconnected) {
-                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
-                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
-                            AppManager.getAppManager().AppExit();
-                        }
-                    } else {
-                        firstNetDisconnected = System.currentTimeMillis();
                     }
                 }
             }
+
+
+//            if (!NetworkUtils.isConnected()) {//如果网络断了
+//                //如果超过3分钟断网重启APP
+//                LogUtil.d(TAG, Thread.currentThread().getName() + ",network is disconnect ======================");
+//                if (null != firstNetDisconnected) {
+//                    if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+//                        AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+//                        AppManager.getAppManager().AppExit();
+//                        return;
+//                    }
+//                } else {
+//                    firstNetDisconnected = System.currentTimeMillis();
+//                }
+//                if (!StompUtil.getInstance().isNeedConnect()) {//如果不需要连接
+//                    LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start disconnect stomp======================");
+//                    StompUtil.getInstance().disconnect();
+//                    StompUtil.getInstance().setmNeedConnect(true);
+//                }
+//            } else {//如果网络正常
+//                LogUtil.d(TAG, Thread.currentThread().getName() + ",network has connect ======================");
+//                if (NetState.isConnectServer()) {//如果ping服务能ping通
+//                    if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND) {
+//                        //服务心跳中断
+//                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
+//                        if (!StompUtil.getInstance().isNeedConnect()) {
+//                            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp begin disconnect stomp======================");
+//                            StompUtil.getInstance().disconnect();
+//                            StompUtil.getInstance().setmNeedConnect(true);
+//                        }
+//                    }
+//                    //LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is success ======================");
+//                    if (null != firstNetDisconnected) {
+//                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+//                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+//                            AppManager.getAppManager().AppExit();
+//                            return;
+//                        }
+//                    }
+//                    if (StompUtil.getInstance().isNeedConnect() && !StompUtil.getInstance().isConnecting()) {
+//                        StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
+//                        LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
+//                    }
+//                } else {
+//                    LogUtil.d(TAG, Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 is fail ======================");
+//                    if (null != firstNetDisconnected) {
+//                        if (System.currentTimeMillis() - firstNetDisconnected > Constants.ONE_MILL_SECOND * 180) {
+//                            AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+//                            AppManager.getAppManager().AppExit();
+//                        }
+//                    } else {
+//                        firstNetDisconnected = System.currentTimeMillis();
+//                    }
+//                }
+//            }
         }
     }
 

@@ -3,7 +3,6 @@ package com.huawei.jams.testautostart.view.activity;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.BuildConfig;
 import com.huawei.jams.testautostart.R;
-import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
@@ -23,14 +21,10 @@ import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
-import com.yxytech.parkingcloud.baselibrary.http.HttpManager;
-import com.yxytech.parkingcloud.baselibrary.http.https.HttpsUtils;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
-import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.StrUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
@@ -125,8 +119,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
         if (step == EnumDeviceCheck.STEP_3.key) {
             String account = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT);
             String password = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD);
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",账号:" + account);
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",密码:" + password);
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",账号:" + account + ",密码:" + password);
             if (deviceCheckPresenter.hasAccountPassword(account, password)) {
                 StompUtil.getInstance().createStompClient(account, password);//重绑
                 deviceBindState = EnumDeviceBindState.OLD;
@@ -147,35 +140,6 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                     PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT)
                     , PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
         }
-
-
-//        if (commandResult.result == -1) {//ping后台失败
-//            //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
-//        } else {
-//            String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
-//            if (StrUtil.isEmpty(deviceUuid)) {//读不到设备绑定信息（新设备入网自检硬件）
-//                //1.提示框：自检柜门,请手动关闭所有柜门(按键确定)
-//                //点击确定，1.1读取所有柜门状态
-//                // 1.1.1所有关闭-->下一步 2
-//                // 1.1.2尚有未关闭的，则提示框：确定柜门是否全部关闭（是，否），
-//                // 1.1.2-->是 继续查一遍1.1.2.1 发现柜门全关--->2
-//                // 1.1.2.2否则柜门尚有未关闭者，则提示框：设备柜门故障（卡住，设备无法使用）;
-//                // 1.1.2-->否-->跳回1步骤
-//                //2.发送开门命令，弹开所有柜门，后读取所有柜门状态，
-//                //2.1 柜门状态:全开:提示框:设备自检通过，请关闭所有柜门(按钮下一步)
-//                //2.1.1 下一步-->判断所有柜门是否已经关闭，是-->3; 否,提示框（非全屏）：请关闭所有柜门，再点下一步(确定)-->2.1。
-//                //2.2 柜门状态:存在未弹开柜门,则提示框：设备柜门故障（卡住，设备无法使用）;
-//                //3新设备未绑定:工人输入6位数字码，调用设备绑定，
-//                //3新设备绑定：结果-->
-//                //3.1成功，更新SP设备-->主页
-//                //3.2绑定失败,提示框:设备绑定失败,联系后台人员(非全屏)(确定)点击确定自动清空6位号码
-//            } else {
-//                //发送SP6位数字码，返回-->
-//                //1.1成功-->主页
-//                //1.2失败-->3
-//            }
-//        }
-
 
     }
 
@@ -468,5 +432,33 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             }
         }, 0);
     }
+
+
+    //        if (commandResult.result == -1) {//ping后台失败
+//            //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
+//        } else {
+//            String deviceUuid = PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.DEVICE_NO);
+//            if (StrUtil.isEmpty(deviceUuid)) {//读不到设备绑定信息（新设备入网自检硬件）
+//                //1.提示框：自检柜门,请手动关闭所有柜门(按键确定)
+//                //点击确定，1.1读取所有柜门状态
+//                // 1.1.1所有关闭-->下一步 2
+//                // 1.1.2尚有未关闭的，则提示框：确定柜门是否全部关闭（是，否），
+//                // 1.1.2-->是 继续查一遍1.1.2.1 发现柜门全关--->2
+//                // 1.1.2.2否则柜门尚有未关闭者，则提示框：设备柜门故障（卡住，设备无法使用）;
+//                // 1.1.2-->否-->跳回1步骤
+//                //2.发送开门命令，弹开所有柜门，后读取所有柜门状态，
+//                //2.1 柜门状态:全开:提示框:设备自检通过，请关闭所有柜门(按钮下一步)
+//                //2.1.1 下一步-->判断所有柜门是否已经关闭，是-->3; 否,提示框（非全屏）：请关闭所有柜门，再点下一步(确定)-->2.1。
+//                //2.2 柜门状态:存在未弹开柜门,则提示框：设备柜门故障（卡住，设备无法使用）;
+//                //3新设备未绑定:工人输入6位数字码，调用设备绑定，
+//                //3新设备绑定：结果-->
+//                //3.1成功，更新SP设备-->主页
+//                //3.2绑定失败,提示框:设备绑定失败,联系后台人员(非全屏)(确定)点击确定自动清空6位号码
+//            } else {
+//                //发送SP6位数字码，返回-->
+//                //1.1成功-->主页
+//                //1.2失败-->3
+//            }
+//        }
 
 }

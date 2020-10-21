@@ -1,7 +1,6 @@
 package com.huawei.jams.testautostart.utils;
 
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
-import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
 
 /**
@@ -18,11 +17,11 @@ public class NetState {
      **/
     public static boolean isConnectServer() {
         ShellUtils.CommandResult commandResult = ShellUtils.execCmd("ping -c 3 " + "47.114.168.180", false);
-        //LogUtil.d(NetState.class.getName(), Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 结果:" + commandResult);
         if (commandResult.result == 0) {//ping后台失败
             //提示框:后台通信失败，请联系后台人员处理(按键重试)点击重试继续判断
             return true;
         }
+        LogUtil.d(NetState.class.getName(), Thread.currentThread().getName() + ",ping -c 3 47.114.168.180 结果:" + commandResult);
         return false;
     }
 }
