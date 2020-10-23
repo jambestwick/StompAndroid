@@ -82,25 +82,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initData();
         initReceiver();
         restartApp();
-//        patrolTimer.schedule(new TimerTask() {
-//            @Override
-//            public void run() {
-//                deviceInfoPresenter.openBox("123456");
-//                deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
-//            }
-//        }, 0L, 10L);
     }
-
-    //用户在广告界面点击任意键，则退出广告，输入（小程序下发）6位数字码，
-    //输入完成-->
-    //1.发送6位码Stomp-->后台
-    //后台-->结果：
-    //1.1、成功返回，boxId，根据boxid开柜-->查询柜门状态-->开柜结果
-    //1.1.1 成功，同步播放‘开门成功’,和弹出全屏‘动画开柜成功’,发送stomp柜门boxid状态开启，轮巡读取柜门状态
-    //1.1.2 失败，同步播放‘设备故障’,和弹出全屏‘动画设备故障’,
-    //1.2 返回异常或超时，重发送6位码Stomp-->后台 3次，如果有成功，break；，否则，，同步播放‘网络故障’,和弹出全屏‘动画网络故障 界面含有重试按键关闭网络故障界面’,用户点击重试-->清空当前6位码-->1
-    //1.3 密码错误,提示框（非全屏）:'密码错误(确定按钮)' 点击确定关闭窗口 清空当前6位码-->1
-    //轮巡机制查询1.如果boxId关闭，stomp上报状态-->关闭,语音:"感谢你的使用!",关闭"开门成功页面"，清空6位码，弹出播放广告。
 
     @Override
     protected void initViews() {
@@ -158,7 +140,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
-                        StompUtil.getInstance().disconnect();
+                        //StompUtil.getInstance().disconnect();
                         DeviceInfoPresenter.firstNetDisconnected = System.currentTimeMillis();
                     }
                     break;

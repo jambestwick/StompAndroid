@@ -233,7 +233,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     if (NetworkUtils.isConnected() && NetState.isConnectServer()) {
                         if (!StompUtil.getInstance().isConnecting()) {
                             StompUtil.getInstance().createStompClient(PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.ACCOUNT), PreferencesManager.getInstance(BaseApp.getAppContext()).get(Constants.PASSWORD));
-                            LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp start connect WS_URI:" + IdeaApiService.WS_URI);
                         }
                     }
                 }

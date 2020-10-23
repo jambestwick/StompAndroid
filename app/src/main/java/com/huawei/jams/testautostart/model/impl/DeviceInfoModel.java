@@ -202,7 +202,7 @@ public class DeviceInfoModel implements IDeviceInfoModel {
         StompUtil.getInstance().receiveStomp(IdeaApiService.SERVER_HEART_BEAT, new DisposableSubscriber<StompMessage>() {
             @Override
             public void onNext(StompMessage stompMessage) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeServerHeartBeat onNext:" + stompMessage);
+                //LogUtil.d(TAG, Thread.currentThread().getName() + ",subscribeServerHeartBeat onNext:" + stompMessage);
                 ServerHeartBeatVO vo = new GsonBuilder().create().fromJson(stompMessage.getPayload(), ServerHeartBeatVO.class);
                 if (vo == null) {
                     callBack.onCallBack(EnumResponseCode.FAILED.getKey(), EnumResponseCode.FAILED.getValue(), null);
