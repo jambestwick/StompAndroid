@@ -337,6 +337,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId, this);
                     patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
+                deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+                binding.mainCodeOkTv.setClickable(false);
                 break;
             case QUERY_BATCH:
                 if (!isOpen[0]) {//查看柜门已关
@@ -349,6 +351,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                             @Override
                             public void run() {
                                 runOnUiThread(() -> showAdvise());
+                                binding.mainCodeOkTv.setClickable(true);
                             }
                         }, Constants.DELAY_ADVISE_MILL_SECOND);
                     }
