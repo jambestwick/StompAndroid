@@ -38,7 +38,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * ****/
     public void openBatchBox(Activity context, String[] boxIdList, BoxStateListener listListener) {
         if (dialogUtils == null) {
-            LogUtil.d(TAG, Thread.currentThread().getName() +",需要新建:Dialog");
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",需要新建:Dialog");
             dialogUtils = new DialogUtils();
         }
         LogUtil.d(TAG, Thread.currentThread().getName() + ",openBatchBox context:" + context);
@@ -99,7 +99,7 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
             if ("android.intent.action.hal.iocontroller.batchopen.result".equals(intent.getAction())) {
                 String[] batchboxid = intent.getExtras().getStringArray("batchboxid");
                 boolean[] opened = intent.getExtras().getBooleanArray("opened");
-                LogUtil.d(TAG, Thread.currentThread().getName() + ".箱门:" + Arrays.toString(batchboxid) + ",操作广播返回opened:" + Arrays.toString(opened));
+                LogUtil.d(TAG, Thread.currentThread().getName() + ".箱门:" + Arrays.toString(batchboxid) + ",打开操作广播返回opened:" + Arrays.toString(opened));
                 if (boxStateListener != null)
                     boxStateListener.onBoxStateBack(enumActionType, batchboxid, opened);
             }

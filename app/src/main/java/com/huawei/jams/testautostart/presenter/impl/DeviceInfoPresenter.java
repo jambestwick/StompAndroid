@@ -135,10 +135,10 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
      **/
     public static class TimeBoxStateTask extends TimerTask {
         private Activity activity;
-        private String boxId[];
+        private String boxId;
         private KeyCabinetReceiver.BoxStateListener boxStateListener;
 
-        public TimeBoxStateTask(Activity activity, String[] boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeBoxStateTask(Activity activity, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
             this.activity = activity;
             this.boxId = boxId;
             this.boxStateListener = boxStateListener;
@@ -146,7 +146,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         @Override
         public void run() {
-            KeyCabinetReceiver.getInstance().queryBatchBoxState(activity, boxId, boxStateListener);
+            KeyCabinetReceiver.getInstance().queryBoxState(activity, boxId, boxStateListener);
         }
     }
 

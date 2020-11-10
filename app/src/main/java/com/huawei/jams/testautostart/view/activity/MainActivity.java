@@ -28,6 +28,7 @@ import com.huawei.jams.testautostart.presenter.impl.DeviceInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAdvisePresenter;
 import com.huawei.jams.testautostart.presenter.inter.IAppInfoPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceInfoPresenter;
+import com.huawei.jams.testautostart.utils.BoxUtil;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.SoundPoolUtil;
@@ -156,6 +157,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         initTopic();
         timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
         patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//每30s全程巡检网络
+
     }
 
     /**
@@ -167,11 +169,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             String path = lastAdvise.getFilePath();//广告路径
             binding.mainVideoRl.setVisibility(View.VISIBLE);
             binding.mainAdviseVideo.setVideoPath(path);
-            binding.mainAdviseVideo.start();//播放
+            //binding.mainAdviseVideo.start();//播放
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 binding.mainAdviseVideo.start();
             });
         }
+        KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
     }
 
     /**
@@ -331,31 +334,37 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
-                    if (!NetworkUtils.isConnected()) {
-                        startAnim(R.mipmap.bg_hint_net_work_error);
-                    }
-                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId, this);
+                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[0], this);
                     patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
                 deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                 binding.mainCodeOkTv.setClickable(false);
                 break;
-            case QUERY_BATCH:
+            case QUERY:
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
                     timeBoxStateTask.cancel();//关闭查询状态的轮巡
                     playMusic(R.raw.msc_thank_use);
-                    if (NetworkUtils.isConnected()) {
-                        patrolTimer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                runOnUiThread(() -> showAdvise());
-                                binding.mainCodeOkTv.setClickable(true);
-                            }
-                        }, Constants.DELAY_ADVISE_MILL_SECOND);
-                    }
+                    patrolTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(() -> showAdvise());
+                            binding.mainCodeOkTv.setClickable(true);
+                        }
+                    }, Constants.DELAY_ADVISE_MILL_SECOND);
 
+                }
+                break;
+            case QUERY_BATCH:
+                int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
+                if (boxOpenIndex == -1) {
+                    binding.mainAdviseVideo.start();//播放
+                } else {
+                    startAnim(R.mipmap.bg_hint_open_success);
+                    playMusic(R.raw.msc_box_open);
+                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[boxOpenIndex], this);
+                    patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
                 break;
         }

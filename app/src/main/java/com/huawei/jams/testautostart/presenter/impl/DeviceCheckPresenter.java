@@ -78,16 +78,6 @@ public class DeviceCheckPresenter implements IDeviceCheckPresenter {
     }
 
     @Override
-    public boolean boxListAllClose(boolean[] isOpens) {
-        for (int i = 0; i < isOpens.length; i++) {
-            if (isOpens[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public boolean hasAccountPassword(String account, String password) {
         return StrUtil.isNotBlank(account) && StrUtil.isNotBlank(password);
     }

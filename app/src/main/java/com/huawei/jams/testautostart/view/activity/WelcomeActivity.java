@@ -14,6 +14,7 @@ import com.huawei.jams.testautostart.databinding.ActivityWelcomeBinding;
 import com.huawei.jams.testautostart.presenter.impl.DeviceCheckPresenter;
 import com.huawei.jams.testautostart.presenter.inter.IDeviceCheckPresenter;
 import com.huawei.jams.testautostart.utils.AirplaneModeUtils;
+import com.huawei.jams.testautostart.utils.BoxUtil;
 import com.huawei.jams.testautostart.utils.Constants;
 import com.huawei.jams.testautostart.utils.KeyCabinetReceiver;
 import com.huawei.jams.testautostart.utils.NetState;
@@ -234,7 +235,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
             case QUERY_BATCH:
                 switch (Objects.requireNonNull(EnumDeviceCheck.getEnumByKey(step))) {
                     case STEP_4:
-                        if (deviceCheckPresenter.boxListAllClose(isOpen)) {
+                        if (BoxUtil.boxListAllClose(isOpen)) {
                             intervalOpenBox();
                         } else {
                             if (queryBoxStateTimes >= 2) {
@@ -246,7 +247,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
                         }
                         break;
                     case STEP_5:
-                        if (deviceCheckPresenter.boxListAllClose(isOpen)) {
+                        if (BoxUtil.boxListAllClose(isOpen)) {
                             turnStep(EnumDeviceCheck.STEP_6, this.getString(R.string.input_six_code_bind_device), null, null);
                             binding.welKeyboardLl.setVisibility(View.VISIBLE);
                             binding.welSixCodeLl.setVisibility(View.VISIBLE);
