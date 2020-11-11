@@ -146,9 +146,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     }
                     break;
                 case CONNECT:
+
                     DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
-                    showAdvise();
+                     KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     break;
             }
 
@@ -365,6 +366,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     playMusic(R.raw.msc_box_open);
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[boxOpenIndex], this);
                     patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
+                    deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
+                    binding.mainCodeOkTv.setClickable(false);
                 }
                 break;
         }
