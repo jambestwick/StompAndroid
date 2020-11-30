@@ -57,7 +57,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     /***输入6位开箱码**/
     private String inputCode = "";
 
-    private IDeviceInfoPresenter deviceInfoPresenter;
+    public IDeviceInfoPresenter deviceInfoPresenter;
 
     private IAppInfoPresenter appInfoPresenter;
 
@@ -138,6 +138,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             switch (enumConnectState) {
                 case CLOSE:
                     if (null == binding.mainDialogAnimIv.getTag() || (int) binding.mainDialogAnimIv.getTag() != R.mipmap.bg_hint_net_work_error) {//当前的界面没展示网络异常
+                        stopPatrolBoxStateTask();
                         stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
@@ -146,10 +147,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     }
                     break;
                 case CONNECT:
-
                     DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
-                     KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
+                    KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     break;
             }
 
@@ -345,13 +345,15 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 if (!isOpen[0]) {//查看柜门已关
                     //上报
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
-                    timeBoxStateTask.cancel();//关闭查询状态的轮巡
+                    stopPatrolBoxStateTask();
                     playMusic(R.raw.msc_thank_use);
                     patrolTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            runOnUiThread(() -> showAdvise());
-                            binding.mainCodeOkTv.setClickable(true);
+                            runOnUiThread(() -> {
+                                showAdvise();
+                                binding.mainCodeOkTv.setClickable(true);
+                            });
                         }
                     }, Constants.DELAY_ADVISE_MILL_SECOND);
 
@@ -360,7 +362,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             case QUERY_BATCH:
                 int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
                 if (boxOpenIndex == -1) {
-                    binding.mainAdviseVideo.start();//播放
+                    showAdvise();
+                    binding.mainCodeOkTv.setClickable(true);
                 } else {
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
@@ -512,6 +515,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (null != timeAdviseTask) {
             timeAdviseTask.cancel();
             timeAdviseTask = null;
+        }
+    }
+
+    private void stopPatrolBoxStateTask() {
+        if (null != timeBoxStateTask) {
+            timeBoxStateTask.cancel();
+            timeBoxStateTask = null;
         }
     }
 
