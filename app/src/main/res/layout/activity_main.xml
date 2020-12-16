@@ -196,6 +196,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:onClick="@{click}"
+            android:clickable="false"
             android:visibility="gone">
 
             <com.huawei.jams.testautostart.view.widget.CustomerVideoView

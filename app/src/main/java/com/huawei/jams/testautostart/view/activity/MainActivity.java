@@ -77,6 +77,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private BroadcastReceiver mThreeClockReceiver;
     private long sendMsgMillTime = System.currentTimeMillis();
     private boolean isReceiver123 = false;
+    private boolean isFirstQueryBoxState = false;
+
 
     //网络超时8秒
 
@@ -184,6 +186,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             });
         }
         KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
+        isFirstQueryBoxState = true;
     }
 
     /**
@@ -355,7 +358,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     patrolTimer.scheduleAtFixedRate(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);
                 }
                 deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                binding.mainCodeOkTv.setClickable(false);
+                clickAble(false);
                 break;
             case QUERY:
                 if (!isOpen[0]) {//查看柜门已关
@@ -368,7 +371,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                         public void run() {
                             runOnUiThread(() -> {
                                 showAdvise();
-                                binding.mainCodeOkTv.setClickable(true);
+                                clickAble(true);
                             });
                         }
                     }, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
@@ -377,16 +380,18 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 break;
             case QUERY_BATCH:
                 int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
-                if (boxOpenIndex == -1) {
+                if (boxOpenIndex == -1) {//都关闭
                     showAdvise();
-                    binding.mainCodeOkTv.setClickable(true);
+                    clickAble(true);
                 } else {
-                    startAnim(R.mipmap.bg_hint_open_success);
-                    playMusic(R.raw.msc_box_open);
-                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[boxOpenIndex], this);
-                    patrolTimer.scheduleAtFixedRate(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);
+                    if (isFirstQueryBoxState) {
+                        startAnim(R.mipmap.bg_hint_open_success);
+                        playMusic(R.raw.msc_box_open);
+                        isFirstQueryBoxState = false;
+                    }
+                    KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
-                    binding.mainCodeOkTv.setClickable(false);
+                    clickAble(false);
                 }
                 break;
         }
@@ -562,7 +567,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
         @Override
         public void onReceive(Context context, Intent intent) {
-
             if (TextUtils.equals(intent.getAction(), TimeUtil.ACTION_THREE_CLOCK_RESTART)) {
                 /**重启App*/
                 //重新打开app启动页
@@ -616,6 +620,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         deviceInfoPresenter.openBox("123");
         sendMsgMillTime = System.currentTimeMillis();
         patrolTimer.schedule(query123ResultTask, Constants.ZERO_SECOND, TimeUnit.MILLISECONDS);
+    }
+
+    private void clickAble(boolean flag) {
+        binding.mainVideoRl.setClickable(flag);
+        binding.mainCodeDeleteTv.setClickable(flag);
+        binding.mainCodeOkTv.setClickable(flag);
     }
 
 }
