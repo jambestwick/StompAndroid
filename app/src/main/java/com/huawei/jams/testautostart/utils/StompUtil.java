@@ -1,17 +1,20 @@
 package com.huawei.jams.testautostart.utils;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.util.Log;
 
 import com.huawei.jams.testautostart.BaseApp;
 import com.huawei.jams.testautostart.api.IdeaApiService;
 import com.huawei.jams.testautostart.presenter.inter.StompSendBack;
+import com.huawei.jams.testautostart.view.activity.MainActivity;
 import com.trello.rxlifecycle2.android.ActivityEvent;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.ProgressUtils;
 import com.yxytech.parkingcloud.baselibrary.http.common.RetrofitService;
 import com.yxytech.parkingcloud.baselibrary.http.https.SSLHelper;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
+import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
 import com.yxytech.parkingcloud.baselibrary.utils.Base64Util;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;

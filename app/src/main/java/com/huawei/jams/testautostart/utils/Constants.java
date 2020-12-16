@@ -17,7 +17,9 @@ public class Constants {
     public static final String ACCOUNT = "account";
     public static final String PASSWORD = "password";
     public static final String NAME = "name";
+    public static final long ZERO_SECOND =0L;
     public static final long ONE_MILL_SECOND = 1000L;
+    public static final long HALF_ONE_MILL_SECOND = 500L;
     public static final long PATROL_INTERVAL_MILL_SECOND = 3 * ONE_MILL_SECOND;//巡检间隔时间
     public static final long DELAY_ADVISE_MILL_SECOND = 2 * ONE_MILL_SECOND;//延时播放广告
     public static final long ANIMA_DURATION_MILL_SECOND = ONE_MILL_SECOND;//动画播放时间
@@ -28,6 +30,8 @@ public class Constants {
     public static final long START_UP_MILL_SECOND = 5 * ONE_MILL_SECOND;//启动
     public static final long RESTART_UP_MILL_SECOND = 5 * ONE_MILL_SECOND;//判断柜门全关再重启
     public static final long RESTART_AIR_PLANE_MILL_SECOND = 5 * ONE_MILL_SECOND;//重启飞行模式
+    public static final long NOT_CLICK_FIVE_MILL_SECOND = 5 * ONE_MILL_SECOND;//5秒未点击
+
 
     public static final String APP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "app";
     public static final String ADVISE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "advise";

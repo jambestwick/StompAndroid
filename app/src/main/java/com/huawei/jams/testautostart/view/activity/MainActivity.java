@@ -49,6 +49,10 @@ import com.yxytech.parkingcloud.baselibrary.utils.ToastUtil;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
     private static final String TAG = MainActivity.class.getName();
@@ -62,7 +66,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private IAppInfoPresenter appInfoPresenter;
 
     private IAdvisePresenter advisePresenter;
-    private Timer patrolTimer = new Timer();//轮巡队列
+    private ScheduledExecutorService patrolTimer = Executors.newScheduledThreadPool(20);//轮巡队列
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
@@ -71,6 +75,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private long clickOKMillTime = System.currentTimeMillis();
     private boolean isOpen = false;
     private BroadcastReceiver mThreeClockReceiver;
+    private long sendMsgMillTime = System.currentTimeMillis();
+    private boolean isReceiver123 = false;
 
     //网络超时8秒
 
@@ -98,7 +104,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                     if (null == timeAdviseTask) {
                         timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
-                        patrolTimer.schedule(timeAdviseTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
+                        patrolTimer.scheduleAtFixedRate(timeAdviseTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
                     }
                     hideAdvise();
                 case R.id.main_code_delete_tv://删除前一位
@@ -108,7 +114,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     SoundPoolUtil.getInstance().play(this, R.raw.msc_input_click);
                     if (inputCode.length() == 6) {
                         //判断5秒内不允许再次点击
-                        if (System.currentTimeMillis() - clickOKMillTime < 5000) {
+                        if (System.currentTimeMillis() - clickOKMillTime < Constants.NOT_CLICK_FIVE_MILL_SECOND) {
                             LogUtil.d(TAG, Thread.currentThread().getName() + ",点击间隔未超过5秒，不予处理");
                         } else {
                             deviceInfoPresenter.openBox(inputCode);
@@ -124,6 +130,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     break;
             }
             if (null != timeAdviseTask) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",点击时间" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT));
                 timeAdviseTask.setStartTime(System.currentTimeMillis());
             }
 
@@ -149,6 +156,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case CONNECT:
                     DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
+
                     KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     break;
             }
@@ -157,7 +165,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
         timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
-        patrolTimer.schedule(timeConnectTask, 0, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//每30s全程巡检网络
+        patrolTimer.scheduleAtFixedRate(timeConnectTask, Constants.ZERO_SECOND, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);//每30s全程巡检网络
 
     }
 
@@ -227,7 +235,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         //自动替换安装 需要判断正在广告状态无人操作时才更新
         timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
         timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
-        patrolTimer.schedule(timeAdvisePlayTask, 0, Constants.DELAY_ADVISE_MILL_SECOND);
+        patrolTimer.scheduleAtFixedRate(timeAdvisePlayTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
 
     }
 
@@ -276,6 +284,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     @Override
     public void onReceiveOpenBoxSuccess(String boxId) {
+        if (boxId.equals("-1")) {
+            //连接成功
+            isReceiver123 = true;
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",接收到123的消息返回:" + boxId + ",isReceiver123状态:" + isReceiver123);
+            return;
+        }
         DeviceInfoPresenter.EnumBoxConvert enumBoxConvert = DeviceInfoPresenter.EnumBoxConvert.getEnumByKey(boxId);
         if (null != enumBoxConvert) {
             stopPatrolAdvTimeOut();
@@ -315,7 +329,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onServerReceiveHeart() {
         //心跳接收成功
-        DeviceInfoPresenter.serverHeartBeatTime = System.currentTimeMillis();
+        long currentMillTime = System.currentTimeMillis();
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",连接心跳时间:" + TimeUtil.long2String(currentMillTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
+        DeviceInfoPresenter.serverHeartBeatTime = currentMillTime;
 
     }
 
@@ -336,7 +352,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[0], this);
-                    patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
+                    patrolTimer.scheduleAtFixedRate(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);
                 }
                 deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                 binding.mainCodeOkTv.setClickable(false);
@@ -355,7 +371,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                                 binding.mainCodeOkTv.setClickable(true);
                             });
                         }
-                    }, Constants.DELAY_ADVISE_MILL_SECOND);
+                    }, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
 
                 }
                 break;
@@ -368,7 +384,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[boxOpenIndex], this);
-                    patrolTimer.schedule(timeBoxStateTask, 0, Constants.PATROL_INTERVAL_MILL_SECOND);
+                    patrolTimer.scheduleAtFixedRate(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                     binding.mainCodeOkTv.setClickable(false);
                 }
@@ -448,6 +464,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         deviceInfoPresenter.topicOpenBox();
         deviceInfoPresenter.topicUploadBoxState();
         deviceInfoPresenter.topicServerHeartBeat();
+        send123();
     }
 
 
@@ -498,7 +515,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private void releaseResource() {
         if (null != patrolTimer) {
-            patrolTimer.cancel();
+            patrolTimer.shutdownNow();
             patrolTimer = null;
         }
         if (null != stompConnectListener) {
@@ -558,20 +575,47 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     private void restartAppByBoxClosed() {
-        patrolTimer.schedule(new TimerTask() {
+        patrolTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                while (isOpen) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",重启前判断柜门打开/关闭(true打开/false关闭):" + isOpen);
+                if (!isOpen) {
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",重启柜门,当前的柜门状态:" + isOpen);
+                    AppManager.getAppManager().restartApp(MainActivity.this);
+                    AppManager.getAppManager().AppExit();
+                }
+            }
+        }, Constants.ZERO_SECOND, Constants.RESTART_UP_MILL_SECOND, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 发送123等待响应
+     **/
+    public void send123() {
+        TimerTask query123ResultTask = new TimerTask() {
+            @Override
+            public void run() {
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",接收到123的回复:" + isReceiver123);
+                while (!isReceiver123) {
+                    LogUtil.e(TAG, Thread.currentThread().getName() + ",查询,接收到123的回复:" + isReceiver123);
                     try {
-                        Thread.sleep(Constants.RESTART_UP_MILL_SECOND);
+                        Thread.sleep(Constants.HALF_ONE_MILL_SECOND);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+                    if (System.currentTimeMillis() - sendMsgMillTime > Constants.RESTART_UP_MILL_SECOND) {
+                        //直接关闭重启APP
+                        LogUtil.e(TAG, Thread.currentThread().getName() + ",超过" + Constants.RESTART_UP_MILL_SECOND + "ms,强制退出");
+                        AppManager.getAppManager().restartApp(BaseApp.getAppContext());
+                        AppManager.getAppManager().AppExit();
+                    }
                 }
-                AppManager.getAppManager().restartApp(MainActivity.this);
-                AppManager.getAppManager().AppExit();
+                LogUtil.e(TAG, Thread.currentThread().getName() + ",接收到123的回复,退出查询123返回任务");
             }
-        }, 0);
+        };
+        deviceInfoPresenter.openBox("123");
+        sendMsgMillTime = System.currentTimeMillis();
+        patrolTimer.schedule(query123ResultTask, Constants.ZERO_SECOND, TimeUnit.MILLISECONDS);
     }
 
 }

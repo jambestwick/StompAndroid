@@ -24,6 +24,7 @@ import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 import com.yxytech.parkingcloud.baselibrary.utils.NetworkUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.PreferencesManager;
 import com.yxytech.parkingcloud.baselibrary.utils.ShellUtils;
+import com.yxytech.parkingcloud.baselibrary.utils.TimeUtil;
 
 import java.util.TimerTask;
 
@@ -169,6 +170,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         @Override
         public void run() {//Constants.NOT_CLICK_DELAY_SECOND30秒没操作就回到播放广告
             if (System.currentTimeMillis() - startTime > Constants.NOT_CLICK_DELAY_SECOND) {
+                LogUtil.d(TAG, Thread.currentThread().getName() + "," + Constants.NOT_CLICK_DELAY_SECOND + "未操作,回到广告播放，当前时间" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + ",点击时间" + TimeUtil.long2String(startTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
                 timeOperator.timeOut();
             }
         }
@@ -198,6 +200,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
 
         @Override
         public void run() {
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",当前的广告的播放状态:" + playState);
             advicePlayState.isPlaying(filePath, playState);
         }
     }
@@ -213,6 +216,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public static class TimeConnectTask extends TimerTask {
         @Override
         public void run() {
+
             if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_SERVER_HEART_INTERVAL_MILL_SECOND) {//心跳断开
                 //服务心跳中断
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
@@ -237,6 +241,8 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     }
                 }
             }
+
+
 
 
 //            if (!NetworkUtils.isConnected()) {//如果网络断了

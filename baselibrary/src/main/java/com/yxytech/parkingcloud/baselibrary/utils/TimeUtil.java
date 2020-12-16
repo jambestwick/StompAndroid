@@ -229,13 +229,12 @@ public class TimeUtil {
         if (systemTime > selectTime) {
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) + 1);
         }
-        SimpleDateFormat sdf = new SimpleDateFormat(DEFAULT_TIME_FORMAT);
-        String selectStr = sdf.format(new Date(calendar.getTimeInMillis()));
+        String selectStr = date2Str(new Date(calendar.getTimeInMillis()), DEFAULT_TIME_FORMAT);
         LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr 3 clock : " + selectStr);
         long clockTime = SystemClock.elapsedRealtime();
         LogUtil.i(TAG, Thread.currentThread().getName() + ",selectStr 3 clock : " + clockTime + ",set clock" + TimeUtil.long2String(calendar.getTimeInMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + ",current:" + TimeUtil.long2String(systemTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
         /**RTC_SHUTDOWN_WAKEUP 使用标识，系统进入深度休眠还唤醒*/
-        mg.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), p);
+        mg.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, p);
     }
 
 }
