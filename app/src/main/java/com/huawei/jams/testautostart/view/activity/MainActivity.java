@@ -51,7 +51,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoView, IDeviceInfoView, KeyCabinetReceiver.BoxStateListener, DeviceInfoPresenter.TimeOperator, DeviceInfoPresenter.AdvicePlayState {
@@ -67,6 +69,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
 
     private IAdvisePresenter advisePresenter;
     private ScheduledExecutorService patrolTimer = Executors.newScheduledThreadPool(20);//轮巡队列
+    private Timer scheduleTimer = new Timer();
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
@@ -106,7 +109,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                     if (null == timeAdviseTask) {
                         timeAdviseTask = new DeviceInfoPresenter.TimeAdviseCountDownTask(System.currentTimeMillis(), this);
-                        patrolTimer.scheduleAtFixedRate(timeAdviseTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
+                        scheduleTimer.schedule(timeAdviseTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND);
                     }
                     hideAdvise();
                 case R.id.main_code_delete_tv://删除前一位
@@ -120,6 +123,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                             LogUtil.d(TAG, Thread.currentThread().getName() + ",点击间隔未超过5秒，不予处理");
                         } else {
                             deviceInfoPresenter.openBox(inputCode);
+                            //stopPatrolAdvTimeOut();
                         }
                         clickOKMillTime = System.currentTimeMillis();
                     } else {
@@ -132,7 +136,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     break;
             }
             if (null != timeAdviseTask) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",点击时间" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT));
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",点击时间:" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + "点击对象:" + v.toString());
                 timeAdviseTask.setStartTime(System.currentTimeMillis());
             }
 
@@ -158,7 +162,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case CONNECT:
                     DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
-
                     KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     break;
             }
@@ -167,7 +170,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
         timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
-        patrolTimer.scheduleAtFixedRate(timeConnectTask, Constants.ZERO_SECOND, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);//每30s全程巡检网络
+        patrolTimer.scheduleAtFixedRate(timeConnectTask, Constants.ZERO_SECOND, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);//全局不停止每30s全程巡检网络
 
     }
 
@@ -238,7 +241,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         //自动替换安装 需要判断正在广告状态无人操作时才更新
         timeAdvisePlayTask = new DeviceInfoPresenter.TimeAdvisePlayTask(filePath, MainActivity.this);
         timeAdvisePlayTask.setPlayState(binding.mainAdviseVideo.isPlaying());
-        patrolTimer.scheduleAtFixedRate(timeAdvisePlayTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
+        scheduleTimer.schedule(timeAdvisePlayTask, Constants.ZERO_SECOND, Constants.DELAY_ADVISE_MILL_SECOND);
 
     }
 
@@ -355,7 +358,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
                     timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[0], this);
-                    patrolTimer.scheduleAtFixedRate(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);
+                    scheduleTimer.schedule(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
                 deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                 clickAble(false);
@@ -381,9 +384,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             case QUERY_BATCH:
                 int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
                 if (boxOpenIndex == -1) {//都关闭
+                    this.isOpen = false;
                     showAdvise();
                     clickAble(true);
                 } else {
+                    this.isOpen = true;
                     if (isFirstQueryBoxState) {
                         startAnim(R.mipmap.bg_hint_open_success);
                         playMusic(R.raw.msc_box_open);
@@ -523,6 +528,10 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             patrolTimer.shutdownNow();
             patrolTimer = null;
         }
+        if (null != scheduleTimer) {
+            scheduleTimer.cancel();
+            scheduleTimer = null;
+        }
         if (null != stompConnectListener) {
             StompUtil.getInstance().removeConnectListener(stompConnectListener);
         }
@@ -579,17 +588,22 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     }
 
     private void restartAppByBoxClosed() {
-        patrolTimer.scheduleAtFixedRate(new TimerTask() {
+        patrolTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",重启前判断柜门打开/关闭(true打开/false关闭):" + isOpen);
-                if (!isOpen) {
-                    LogUtil.d(TAG, Thread.currentThread().getName() + ",重启柜门,当前的柜门状态:" + isOpen);
-                    AppManager.getAppManager().restartApp(MainActivity.this);
-                    AppManager.getAppManager().AppExit();
+                while (isOpen) {
+                    try {
+                        Thread.sleep(Constants.RESTART_UP_MILL_SECOND);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    LogUtil.d(TAG, Thread.currentThread().getName() + ",重启前判断柜门打开/关闭(true打开/false关闭):" + isOpen);
                 }
+                LogUtil.d(TAG, Thread.currentThread().getName() + ",重启柜门,当前的柜门状态:" + isOpen);
+                AppManager.getAppManager().restartApp(MainActivity.this);
+                AppManager.getAppManager().AppExit();
             }
-        }, Constants.ZERO_SECOND, Constants.RESTART_UP_MILL_SECOND, TimeUnit.MILLISECONDS);
+        }, Constants.ZERO_SECOND, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -626,6 +640,16 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainVideoRl.setClickable(flag);
         binding.mainCodeDeleteTv.setClickable(flag);
         binding.mainCodeOkTv.setClickable(flag);
+        binding.mainCode0Tv.setClickable(flag);
+        binding.mainCode1Tv.setClickable(flag);
+        binding.mainCode2Tv.setClickable(flag);
+        binding.mainCode3Tv.setClickable(flag);
+        binding.mainCode4Tv.setClickable(flag);
+        binding.mainCode5Tv.setClickable(flag);
+        binding.mainCode6Tv.setClickable(flag);
+        binding.mainCode7Tv.setClickable(flag);
+        binding.mainCode8Tv.setClickable(flag);
+        binding.mainCode9Tv.setClickable(flag);
     }
 
 }

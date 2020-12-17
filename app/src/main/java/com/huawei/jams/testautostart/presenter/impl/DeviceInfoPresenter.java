@@ -170,7 +170,7 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
         @Override
         public void run() {//Constants.NOT_CLICK_DELAY_SECOND30秒没操作就回到播放广告
             if (System.currentTimeMillis() - startTime > Constants.NOT_CLICK_DELAY_SECOND) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + "," + Constants.NOT_CLICK_DELAY_SECOND + "未操作,回到广告播放，当前时间" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + ",点击时间" + TimeUtil.long2String(startTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
+                LogUtil.d(TAG, Thread.currentThread().getName() + "," + Constants.NOT_CLICK_DELAY_SECOND + ",未操作,回到广告播放,点击开始时间" + TimeUtil.long2String(startTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
                 timeOperator.timeOut();
             }
         }
@@ -241,8 +241,6 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
                     }
                 }
             }
-
-
 
 
 //            if (!NetworkUtils.isConnected()) {//如果网络断了
