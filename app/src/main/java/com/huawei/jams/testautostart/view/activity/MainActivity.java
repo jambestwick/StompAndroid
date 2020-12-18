@@ -71,6 +71,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private ScheduledExecutorService patrolTimer = Executors.newScheduledThreadPool(20);//轮巡队列
     private Timer scheduleTimer = new Timer();
     private DeviceInfoPresenter.TimeBoxStateTask timeBoxStateTask;//巡检柜门状态任务
+    private DeviceInfoPresenter.TimeArrayBoxStateTask timeArrayBoxStateTask;
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
     private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//连接的task
@@ -152,6 +153,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case CLOSE:
                     if (null == binding.mainDialogAnimIv.getTag() || (int) binding.mainDialogAnimIv.getTag() != R.mipmap.bg_hint_net_work_error) {//当前的界面没展示网络异常
                         stopPatrolBoxStateTask();
+                        stopPatrolArrayBoxStateTask();
                         stopPatrolAdvTimeOut();
                         hideAdvise();
                         startAnim(R.mipmap.bg_hint_net_work_error);
@@ -162,7 +164,11 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 case CONNECT:
                     DeviceInfoPresenter.firstNetDisconnected = null;
                     initTopic();
-                    KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
+                    if (null == timeArrayBoxStateTask) {
+                        timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(this, this);
+                    }
+                    scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
+                    isFirstQueryBoxState = true;
                     break;
             }
 
@@ -188,7 +194,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 binding.mainAdviseVideo.start();
             });
         }
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
+        timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(this, this);
+        scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
         isFirstQueryBoxState = true;
     }
 
@@ -384,17 +391,26 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             case QUERY_BATCH:
                 int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
                 if (boxOpenIndex == -1) {//都关闭
+                    stopPatrolArrayBoxStateTask();
                     this.isOpen = false;
-                    showAdvise();
-                    clickAble(true);
+                    deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.CLOSE.getKey());
+                    patrolTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            runOnUiThread(() -> {
+                                showAdvise();
+                                clickAble(true);
+                            });
+                        }
+                    }, Constants.DELAY_ADVISE_MILL_SECOND, TimeUnit.MILLISECONDS);
                 } else {
                     this.isOpen = true;
+                    hideAdvise();
                     if (isFirstQueryBoxState) {
                         startAnim(R.mipmap.bg_hint_open_success);
                         playMusic(R.raw.msc_box_open);
                         isFirstQueryBoxState = false;
                     }
-                    KeyCabinetReceiver.getInstance().queryBatchBoxState(MainActivity.this, Constants.BOX_ID_ARRAY, this);
                     deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
                     clickAble(false);
                 }
@@ -556,6 +572,13 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         }
     }
 
+    private void stopPatrolArrayBoxStateTask() {
+        if (null != timeArrayBoxStateTask) {
+            timeArrayBoxStateTask.cancel();
+            timeArrayBoxStateTask = null;
+        }
+    }
+
     /**
      * 定时重启广播初始化
      */
@@ -633,7 +656,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         };
         deviceInfoPresenter.openBox("123");
         sendMsgMillTime = System.currentTimeMillis();
-        patrolTimer.schedule(query123ResultTask, Constants.ZERO_SECOND, TimeUnit.MILLISECONDS);
+        patrolTimer.schedule(query123ResultTask, Constants.START_UP_MILL_SECOND, TimeUnit.MILLISECONDS);
     }
 
     private void clickAble(boolean flag) {

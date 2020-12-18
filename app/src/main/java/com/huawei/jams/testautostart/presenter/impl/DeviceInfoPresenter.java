@@ -152,6 +152,24 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     }
 
     /**
+     * 轮巡所有柜门状态task
+     **/
+    public static class TimeArrayBoxStateTask extends TimerTask {
+        private Activity activity;
+        private KeyCabinetReceiver.BoxStateListener boxStateListener;
+
+        public TimeArrayBoxStateTask(Activity activity, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+            this.activity = activity;
+            this.boxStateListener = boxStateListener;
+        }
+
+        @Override
+        public void run() {
+            KeyCabinetReceiver.getInstance().queryBatchBoxState(activity, Constants.BOX_ID_ARRAY, boxStateListener);
+        }
+    }
+
+    /**
      * 轮巡多久没操作的task
      **/
     public static class TimeAdviseCountDownTask extends TimerTask {
