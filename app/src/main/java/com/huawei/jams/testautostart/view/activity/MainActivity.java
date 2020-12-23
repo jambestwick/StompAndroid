@@ -137,7 +137,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     break;
             }
             if (null != timeAdviseTask) {
-                LogUtil.d(TAG, Thread.currentThread().getName() + ",点击时间:" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + "点击对象:" + v.toString());
+                //LogUtil.d(TAG, Thread.currentThread().getName() + ",点击时间:" + TimeUtil.long2String(System.currentTimeMillis(), TimeUtil.DEFAULT_MILL_TIME_FORMAT) + "点击对象:" + v.toString());
                 timeAdviseTask.setStartTime(System.currentTimeMillis());
             }
 
@@ -343,7 +343,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     public void onServerReceiveHeart() {
         //心跳接收成功
         long currentMillTime = System.currentTimeMillis();
-        LogUtil.d(TAG, Thread.currentThread().getName() + ",连接心跳时间:" + TimeUtil.long2String(currentMillTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
+        //LogUtil.d(TAG, Thread.currentThread().getName() + ",连接心跳时间:" + TimeUtil.long2String(currentMillTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
         DeviceInfoPresenter.serverHeartBeatTime = currentMillTime;
 
     }
@@ -620,7 +620,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    LogUtil.d(TAG, Thread.currentThread().getName() + ",重启前判断柜门打开/关闭(true打开/false关闭):" + isOpen);
+                    //LogUtil.d(TAG, Thread.currentThread().getName() + ",重启前判断柜门打开/关闭(true打开/false关闭):" + isOpen);
                 }
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",重启柜门,当前的柜门状态:" + isOpen);
                 AppManager.getAppManager().restartApp(MainActivity.this);

@@ -63,7 +63,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     protected void initViews() {
         deviceCheckPresenter = new DeviceCheckPresenter(WelcomeActivity.this, this);
         binding.setClick(v -> {
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",点击了按钮:" + v);
+            //LogUtil.d(TAG, Thread.currentThread().getName() + ",点击了按钮:" + v);
             switch (v.getId()) {
                 case R.id.wel_confirm_btn://点击按钮
                     initDevice();
