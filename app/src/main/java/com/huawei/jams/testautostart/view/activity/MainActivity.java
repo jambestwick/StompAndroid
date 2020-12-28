@@ -142,6 +142,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             }
 
         });
+        clickAble(false);
         Glide.with(this).load(R.mipmap.gif_open_box).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).into(binding.mainOpenClickIv);//加载gif动画
 
     }
@@ -187,9 +188,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         Advise lastAdvise = SQLite.select().from(Advise.class).orderBy(Advise_Table.create_time, false).limit(1).querySingle();//倒数第一个广告
         if (lastAdvise != null && StrUtil.isNotBlank(lastAdvise.getFilePath())) {
             String path = lastAdvise.getFilePath();//广告路径
-            binding.mainVideoRl.setVisibility(View.VISIBLE);
+            binding.mainVideoRl.setVisibility(View.GONE);
             binding.mainAdviseVideo.setVideoPath(path);
-            //binding.mainAdviseVideo.start();//播放
+            binding.mainAdviseVideo.pause();//默认先暂停
             binding.mainAdviseVideo.setOnCompletionListener(mp -> {//循环播放
                 binding.mainAdviseVideo.start();
             });
