@@ -99,6 +99,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_1" />
 
                         <TextView
@@ -106,6 +107,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_2" />
 
                         <TextView
@@ -113,6 +115,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_3" />
                     </LinearLayout>
 
@@ -123,6 +126,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_4" />
 
                         <TextView
@@ -130,6 +134,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_5" />
 
                         <TextView
@@ -137,6 +142,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_6" />
                     </LinearLayout>
 
@@ -147,6 +153,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_7" />
 
                         <TextView
@@ -154,6 +161,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_8" />
 
                         <TextView
@@ -161,6 +169,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_9" />
                     </LinearLayout>
 
@@ -171,6 +180,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_red"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/delete" />
 
                         <TextView
@@ -178,6 +188,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_normal"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/number_0" />
 
                         <TextView
@@ -185,6 +196,7 @@
                             style="@style/style_circle_number_button"
                             android:background="@drawable/bg_selector_btn_click_green"
                             android:onClick="@{click}"
+                            android:clickable="false"
                             android:text="@string/ok" />
                     </LinearLayout>
                 </LinearLayout>
