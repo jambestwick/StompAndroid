@@ -192,7 +192,7 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        receiver.openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
+        receiver.openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]});
     }
 
     /**

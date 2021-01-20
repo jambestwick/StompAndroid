@@ -49,9 +49,9 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
      * boxId 指盒子的编号主柜 Z开头Z01，Z02......
      *                  副柜 A01，B01... ...
      * ****/
-    public void openBatchBox(Activity context, String[] boxIdList, BoxStateListener listListener) {
+    public void openBatchBox(Activity context, String[] boxIdList) {
         if (dialogUtils == null) {
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",需要新建:Dialog");
+            LogUtil.d(TAG, Thread.currentThread().getName() + ",context:" + context + ",openBatchBox,需要新建:Dialog");
             dialogUtils = new DialogUtils();
         }
         LogUtil.d(TAG, Thread.currentThread().getName() + ",openBatchBox context:" + context);
