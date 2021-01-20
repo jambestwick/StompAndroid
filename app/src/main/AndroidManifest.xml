@@ -64,20 +64,20 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".utils.KeyCabinetReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.hal.iocontroller.querydata" />
-                <action android:name="android.intent.action.hal.iocontroller.batchopen.result" />
-                <action android:name="android.intent.action.hal.iocontroller.queryAllData" />
-                <action android:name="android.intent.action.hal.printer.supportsize.result" />
-                <action android:name="android.intent.action.hal.printer.result.haspaper" />
-                <action android:name="android.intent.action.hal.printer.result.needmore" />
-                <action android:name="android.intent.action.hal.printer.result.status" />
-                <action android:name="android.intent.action.hal.printer.error" />
-                <action android:name="android.intent.action.hal.barcodescanner.scandata" />
-                <action android:name="android.intent.action.hal.barcodescanner.error" />
-            </intent-filter>
-        </receiver>
+        <!--<receiver android:name=".utils.KeyCabinetReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.hal.iocontroller.querydata" />-->
+                <!--<action android:name="android.intent.action.hal.iocontroller.batchopen.result" />-->
+                <!--<action android:name="android.intent.action.hal.iocontroller.queryAllData" />-->
+                <!--<action android:name="android.intent.action.hal.printer.supportsize.result" />-->
+                <!--<action android:name="android.intent.action.hal.printer.result.haspaper" />-->
+                <!--<action android:name="android.intent.action.hal.printer.result.needmore" />-->
+                <!--<action android:name="android.intent.action.hal.printer.result.status" />-->
+                <!--<action android:name="android.intent.action.hal.printer.error" />-->
+                <!--<action android:name="android.intent.action.hal.barcodescanner.scandata" />-->
+                <!--<action android:name="android.intent.action.hal.barcodescanner.error" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
     </application>
 
 </manifest>

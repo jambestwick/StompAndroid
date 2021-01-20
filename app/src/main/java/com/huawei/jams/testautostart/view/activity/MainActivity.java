@@ -74,14 +74,15 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     private DeviceInfoPresenter.TimeArrayBoxStateTask timeArrayBoxStateTask;
     private DeviceInfoPresenter.TimeAdviseCountDownTask timeAdviseTask;//巡检超时未操作
     private DeviceInfoPresenter.TimeAdvisePlayTask timeAdvisePlayTask;//巡检广告播放状态
-    private DeviceInfoPresenter.TimeConnectTask timeConnectTask;//连接的task
     private StompUtil.StompConnectListener stompConnectListener;
     private long clickOKMillTime = System.currentTimeMillis();
     private boolean isOpen = false;
     private BroadcastReceiver mThreeClockReceiver;
     private long sendMsgMillTime = System.currentTimeMillis();
     private boolean isReceiver123 = false;
-    private boolean isFirstQueryBoxState = false;
+    private boolean isFirstQueryBoxState = true;
+
+    private KeyCabinetReceiver receiver;
 
 
     //网络超时8秒
@@ -90,6 +91,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",onCreate");
+        registerReceiver();
         initViews();
         initNetData();
         initData();
@@ -164,20 +167,15 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     break;
                 case CONNECT:
                     DeviceInfoPresenter.firstNetDisconnected = null;
-                    initTopic();
-                    if (null == timeArrayBoxStateTask) {
-                        timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(this, this);
-                    }
-                    scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
                     isFirstQueryBoxState = true;
+                    initTopic();
                     break;
             }
 
         };
         StompUtil.getInstance().setConnectListener(stompConnectListener);
         initTopic();
-        timeConnectTask = new DeviceInfoPresenter.TimeConnectTask();
-        patrolTimer.scheduleAtFixedRate(timeConnectTask, Constants.ZERO_SECOND, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND, TimeUnit.MILLISECONDS);//全局不停止每30s全程巡检网络
+        scheduleTimer.scheduleAtFixedRate(DeviceInfoPresenter.TimeConnectTask.getInstance(), Constants.ZERO_SECOND, Constants.PATROL_WORK_NET_INTERVAL_MILL_SECOND);//全局不停止每30s全程巡检网络
 
     }
 
@@ -195,9 +193,6 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 binding.mainAdviseVideo.start();
             });
         }
-        timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(this, this);
-        scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
-        isFirstQueryBoxState = true;
     }
 
     /**
@@ -232,6 +227,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         releaseResource();
     }
 
@@ -301,13 +297,12 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (boxId.equals("-1")) {
             //连接成功
             isReceiver123 = true;
-            LogUtil.d(TAG, Thread.currentThread().getName() + ",接收到123的消息返回:" + boxId + ",isReceiver123状态:" + isReceiver123);
             return;
         }
         DeviceInfoPresenter.EnumBoxConvert enumBoxConvert = DeviceInfoPresenter.EnumBoxConvert.getEnumByKey(boxId);
         if (null != enumBoxConvert) {
             stopPatrolAdvTimeOut();
-            KeyCabinetReceiver.getInstance().openBatchBox(MainActivity.this, new String[]{enumBoxConvert.getValue()}, this);
+            receiver.openBatchBox(MainActivity.this, new String[]{enumBoxConvert.getValue()}, this);
         } else {
             ToastUtil.showInCenter(this, this.getString(R.string.back_server_box_num_error));
             deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
@@ -343,9 +338,8 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
     @Override
     public void onServerReceiveHeart() {
         //心跳接收成功
-        long currentMillTime = System.currentTimeMillis();
         //LogUtil.d(TAG, Thread.currentThread().getName() + ",连接心跳时间:" + TimeUtil.long2String(currentMillTime, TimeUtil.DEFAULT_MILL_TIME_FORMAT));
-        DeviceInfoPresenter.serverHeartBeatTime = currentMillTime;
+        DeviceInfoPresenter.serverHeartBeatTime = System.currentTimeMillis();
 
     }
 
@@ -365,7 +359,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     deviceInfoPresenter.uploadBoxState(DeviceInfo.EnumBoxState.OPEN.getKey());
                     startAnim(R.mipmap.bg_hint_open_success);
                     playMusic(R.raw.msc_box_open);
-                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[0], this);
+                    timeBoxStateTask = new DeviceInfoPresenter.TimeBoxStateTask(MainActivity.this, boxId[0], receiver);
                     scheduleTimer.schedule(timeBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
                 }
                 deviceInfoPresenter.refreshMainCode2View(binding, inputCode = "");
@@ -391,6 +385,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 break;
             case QUERY_BATCH:
                 int boxOpenIndex = BoxUtil.boxOpenIndex(isOpen);
+                binding.mainAllFrame.setVisibility(View.VISIBLE);
                 if (boxOpenIndex == -1) {//都关闭
                     stopPatrolArrayBoxStateTask();
                     this.isOpen = false;
@@ -556,7 +551,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         if (mThreeClockReceiver != null) {
             unregisterReceiver(mThreeClockReceiver);
         }
-
+        unRegisterReceiver();
     }
 
     private void stopPatrolAdvTimeOut() {
@@ -653,6 +648,9 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                     }
                 }
                 LogUtil.e(TAG, Thread.currentThread().getName() + ",接收到123的回复,退出查询123返回任务");
+                timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(MainActivity.this, receiver);
+                scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
+                isFirstQueryBoxState = true;
             }
         };
         deviceInfoPresenter.openBox("123");
@@ -675,5 +673,30 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
         binding.mainCode8Tv.setClickable(flag);
         binding.mainCode9Tv.setClickable(flag);
     }
+
+
+    private void registerReceiver() {
+        receiver = new KeyCabinetReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.hal.iocontroller.querydata");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.batchopen.result");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.queryAllData");
+        intentFilter.addAction("android.intent.action.hal.printer.supportsize.result");
+        intentFilter.addAction("android.intent.action.hal.printer.result.haspaper");
+        intentFilter.addAction("android.intent.action.hal.printer.result.needmore");
+        intentFilter.addAction("android.intent.action.hal.printer.result.status");
+        intentFilter.addAction("android.intent.action.hal.printer.error");
+        intentFilter.addAction("android.intent.action.hal.barcodescanner.scandata");
+        intentFilter.addAction("android.intent.action.hal.barcodescanner.error");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.batchopen.result");
+        registerReceiver(receiver, intentFilter);
+    }
+
+    private void unRegisterReceiver() {
+        if (null != receiver) {
+            unregisterReceiver(receiver);
+        }
+    }
+
 
 }

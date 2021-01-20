@@ -1,6 +1,7 @@
 package com.huawei.jams.testautostart.view.activity;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -21,6 +22,7 @@ import com.huawei.jams.testautostart.utils.NetState;
 import com.huawei.jams.testautostart.utils.SoundPoolUtil;
 import com.huawei.jams.testautostart.utils.StompUtil;
 import com.huawei.jams.testautostart.view.inter.IDeviceCheckView;
+import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.dialog.SweetAlert.SweetAlertDialog;
 import com.yxytech.parkingcloud.baselibrary.ui.BaseActivity;
 import com.yxytech.parkingcloud.baselibrary.utils.AppManager;
@@ -49,12 +51,15 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     private EnumDeviceBindState deviceBindState = EnumDeviceBindState.NEW;//设备绑定状态（新/旧）
     private Timer turnTimer = new Timer();
 
+    private KeyCabinetReceiver receiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogUtil.d(TAG, Thread.currentThread().getName() + ",当前的版本:" + BuildConfig.VERSION_NAME);
+        LogUtil.d(TAG, Thread.currentThread().getName() + ",onCreate");
         binding = DataBindingUtil.setContentView(this, R.layout.activity_welcome);
+        registerReceiver();
         initViews();
         initDevice();
     }
@@ -173,21 +178,21 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
      * 读取设备柜门是否都关闭
      * */
     private void readBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(WelcomeActivity.this, Constants.BOX_ID_ARRAY, this);
+        receiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY);
     }
 
     /**
      * 判断柜门是否全关闭
      **/
     private void judgeBoxAllClose() {
-        KeyCabinetReceiver.getInstance().queryBatchBoxState(WelcomeActivity.this, Constants.BOX_ID_ARRAY, this);
+        receiver.queryBatchBoxState(this, Constants.BOX_ID_ARRAY);
     }
 
     /**
      * 逐个弹开柜门
      **/
     public void intervalOpenBox() {
-        KeyCabinetReceiver.getInstance().openBatchBox(WelcomeActivity.this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
+        receiver.openBatchBox(this, new String[]{Constants.BOX_ID_ARRAY[openBoxIndex]}, this);
     }
 
     /**
@@ -394,10 +399,12 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unRegisterReceiver();
         if (null != turnTimer) {
             turnTimer.cancel();
             turnTimer = null;
         }
+
     }
 
     @Override
@@ -461,5 +468,28 @@ public class WelcomeActivity extends BaseActivity implements IDeviceCheckView, K
 //                //1.2失败-->3
 //            }
 //        }
+
+    private void registerReceiver() {
+        receiver = new KeyCabinetReceiver(this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.intent.action.hal.iocontroller.querydata");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.batchopen.result");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.queryAllData");
+        intentFilter.addAction("android.intent.action.hal.printer.supportsize.result");
+        intentFilter.addAction("android.intent.action.hal.printer.result.haspaper");
+        intentFilter.addAction("android.intent.action.hal.printer.result.needmore");
+        intentFilter.addAction("android.intent.action.hal.printer.result.status");
+        intentFilter.addAction("android.intent.action.hal.printer.error");
+        intentFilter.addAction("android.intent.action.hal.barcodescanner.scandata");
+        intentFilter.addAction("android.intent.action.hal.barcodescanner.error");
+        intentFilter.addAction("android.intent.action.hal.iocontroller.batchopen.result");
+        registerReceiver(receiver, intentFilter);
+    }
+
+    private void unRegisterReceiver() {
+        if (null != receiver) {
+            unregisterReceiver(receiver);
+        }
+    }
 
 }

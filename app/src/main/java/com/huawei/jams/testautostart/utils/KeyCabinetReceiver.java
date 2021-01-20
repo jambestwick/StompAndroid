@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.huawei.jams.testautostart.view.activity.MainActivity;
 import com.yxytech.parkingcloud.baselibrary.dialog.DialogUtils;
 import com.yxytech.parkingcloud.baselibrary.utils.LogUtil;
 
@@ -14,20 +15,32 @@ import java.util.Arrays;
 
 public class KeyCabinetReceiver extends BroadcastReceiver {
     private static final String TAG = KeyCabinetReceiver.class.getName();
-    private static BoxStateListener boxStateListener;//接口回调必须设置静态的，否则onReceive回调接收到的boxStateListener为空
-    private static DialogUtils dialogUtils;
-    private static EnumActionType enumActionType;
+    private BoxStateListener boxStateListener;//接口回调必须设置静态的，否则onReceive回调接收到的boxStateListener为空
+    private DialogUtils dialogUtils;
+    private EnumActionType enumActionType;
 
-    private static KeyCabinetReceiver instance;
-
-    //单例模式
-    public static KeyCabinetReceiver getInstance() {
-        if (instance == null)
-            synchronized (KeyCabinetReceiver.class) {
-                instance = new KeyCabinetReceiver();
-            }
-        return instance;
+    public KeyCabinetReceiver(BoxStateListener boxStateListener) {
+        this.boxStateListener = boxStateListener;
     }
+
+//    //单例模式
+//    public static KeyCabinetReceiver getInstance() {
+//        if (instance == null)
+//            synchronized (KeyCabinetReceiver.class) {
+//                instance = new KeyCabinetReceiver();
+//            }
+//        return instance;
+//    }
+//
+//    public static KeyCabinetReceiver clearInstance() {
+//        if (instance != null) {
+//            synchronized (KeyCabinetReceiver.class) {
+//                instance = null;
+//                boxStateListener = null;
+//            }
+//        }
+//        return instance;
+//    }
 
 
     /***
@@ -45,13 +58,14 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.batchopen");
         intent.putExtra("batchboxid", boxIdList);
+        //boxStateListener = listListener;
+        enumActionType = EnumActionType.OPEN_BATCH;
         context.sendBroadcast(intent);
         LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + Arrays.toString(boxIdList) + ",打开操作广播发出");
-        boxStateListener = listListener;
-        enumActionType = EnumActionType.OPEN_BATCH;
+
     }
 
-    public void queryBoxState(Activity context, String boxId, BoxStateListener listener) {
+    public void queryBoxState(Activity context, String boxId) {
 //        if (dialogUtils == null) {
 //            dialogUtils = new DialogUtils();
 //        }
@@ -59,25 +73,23 @@ public class KeyCabinetReceiver extends BroadcastReceiver {
         Intent intent = new Intent("android.intent.action.hal.iocontroller.query");
         //String boxId = "A01";
         intent.putExtra("boxid", boxId);
+        // boxStateListener = listener;
+        enumActionType = EnumActionType.QUERY;
         context.sendBroadcast(intent);
         LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + boxId + ",查询操作广播发出");
-        boxStateListener = listener;
-        enumActionType = EnumActionType.QUERY;
-
     }
 
-    public void queryBatchBoxState(Activity context, String[] boxIds, BoxStateListener listener) {
+    public void queryBatchBoxState(Activity context, String[] boxIds) {
 //        if (dialogUtils == null) {
 //            dialogUtils = new DialogUtils();
 //        }
 //        dialogUtils.showProgress(context);
         Intent intent = new Intent("android.intent.action.hal.iocontroller.simplebatchquery");
         intent.putExtra("batchboxid", boxIds);
+        //boxStateListener = listener;
+        enumActionType = EnumActionType.QUERY_BATCH;
         context.sendBroadcast(intent);
         LogUtil.d(TAG, Thread.currentThread().getName() + ",箱门:" + Arrays.toString(boxIds) + ",批量查询操作广播发出");
-        boxStateListener = listener;
-        enumActionType = EnumActionType.QUERY_BATCH;
-
     }
 
 

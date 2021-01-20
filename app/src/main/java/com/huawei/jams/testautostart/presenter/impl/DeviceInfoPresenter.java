@@ -137,17 +137,17 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
     public static class TimeBoxStateTask extends TimerTask {
         private Activity activity;
         private String boxId;
-        private KeyCabinetReceiver.BoxStateListener boxStateListener;
+        private KeyCabinetReceiver receiver;
 
-        public TimeBoxStateTask(Activity activity, String boxId, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeBoxStateTask(Activity activity, String boxId, KeyCabinetReceiver receiver) {
             this.activity = activity;
             this.boxId = boxId;
-            this.boxStateListener = boxStateListener;
+            this.receiver = receiver;
         }
 
         @Override
         public void run() {
-            KeyCabinetReceiver.getInstance().queryBoxState(activity, boxId, boxStateListener);
+            receiver.queryBoxState(activity, boxId);
         }
     }
 
@@ -156,16 +156,16 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
      **/
     public static class TimeArrayBoxStateTask extends TimerTask {
         private Activity activity;
-        private KeyCabinetReceiver.BoxStateListener boxStateListener;
+        private KeyCabinetReceiver receiver;
 
-        public TimeArrayBoxStateTask(Activity activity, KeyCabinetReceiver.BoxStateListener boxStateListener) {
+        public TimeArrayBoxStateTask(Activity activity, KeyCabinetReceiver receiver) {
             this.activity = activity;
-            this.boxStateListener = boxStateListener;
+            this.receiver = receiver;
         }
 
         @Override
         public void run() {
-            KeyCabinetReceiver.getInstance().queryBatchBoxState(activity, Constants.BOX_ID_ARRAY, boxStateListener);
+            receiver.queryBatchBoxState(activity, Constants.BOX_ID_ARRAY);
         }
     }
 
@@ -232,9 +232,21 @@ public class DeviceInfoPresenter implements IDeviceInfoPresenter {
      * 轮巡检查连接状态
      */
     public static class TimeConnectTask extends TimerTask {
+        private static TimeConnectTask instance;
+
+        public static TimeConnectTask getInstance() {
+            if (instance == null) {
+                synchronized (TimeConnectTask.class) {
+                    if (instance == null) {
+                        instance = new TimeConnectTask();
+                    }
+                }
+            }
+            return instance;
+        }
+
         @Override
         public void run() {
-
             if (System.currentTimeMillis() - serverHeartBeatTime > Constants.PATROL_SERVER_HEART_INTERVAL_MILL_SECOND) {//心跳断开
                 //服务心跳中断
                 LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp heart beat disconnect ======================");
