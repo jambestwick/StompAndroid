@@ -155,6 +155,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
             LogUtil.d(TAG, Thread.currentThread().getName() + ",stomp Connect response:" + enumConnectState);
             switch (enumConnectState) {
                 case CLOSE:
+                    clickAble(false);
                     if (null == binding.mainDialogAnimIv.getTag() || (int) binding.mainDialogAnimIv.getTag() != R.mipmap.bg_hint_net_work_error) {//当前的界面没展示网络异常
                         stopPatrolBoxStateTask();
                         stopPatrolArrayBoxStateTask();
@@ -651,6 +652,7 @@ public class MainActivity extends BaseActivity implements IAdviseView, IAppInfoV
                 timeArrayBoxStateTask = new DeviceInfoPresenter.TimeArrayBoxStateTask(MainActivity.this, receiver);
                 scheduleTimer.schedule(timeArrayBoxStateTask, Constants.ZERO_SECOND, Constants.PATROL_INTERVAL_MILL_SECOND);
                 isFirstQueryBoxState = true;
+                isReceiver123 = false;
             }
         };
         deviceInfoPresenter.openBox("123");
