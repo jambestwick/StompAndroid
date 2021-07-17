@@ -107,7 +107,7 @@ public class ExceptionHelper implements Thread.UncaughtExceptionHandler {
             return;
         }
         //创建文件夹
-        String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "crash_log/";
+        String dirPath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "etc" + File.separator + "crash_log/";
         File dir = new File(dirPath);
         if (!dir.exists()) {
             dir.mkdirs();

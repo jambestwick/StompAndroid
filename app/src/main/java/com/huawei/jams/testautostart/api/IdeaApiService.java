@@ -12,25 +12,13 @@ import retrofit2.http.*;
 import java.util.Map;
 
 /**
- * Created by dell on 2017/4/1.
+ * Created by jambestwick on 2017/4/1.
  */
 
 public interface IdeaApiService {
 
-
-    //    String SERVER_HOST = "https://api.metalcar.cn";
-//    String WS_URI = "wss://api.metalcar.cn:443/ws/endpoint";
-//    String SERVER_HOST = "https://dev.metalcar.cn";
-//    String WS_URI = "wss://dev.metalcar.cn/ws/endpoint";
-//    String SERVER_HOST = "https://pre.metalcar.cn";
-//    String WS_URI = "wss://pre.metalcar.cn/ws/endpoint";
-
-
-    String SERVER_HOST = "https://api.microapp.metalcar.cn";
-    String WS_URI = "wss://api.microapp.metalcar.cn/ws/endpoint";
-
-    //String WS_URI = "ws://121.40.165.18:8800";
-    //String WS_URI = "wss://openhw.work.weixin.qq.com:443";
+    String SERVER_HOST = "https://api.microapp.etc.cn";
+    String WS_URI = "wss://api.microapp.etc.cn/ws/endpoint";
 
 
     String APP_QUERY_VERSION = "/user/queue/apk";

@@ -33,8 +33,8 @@ public class Constants {
     public static final long NOT_CLICK_FIVE_MILL_SECOND = 5 * ONE_MILL_SECOND;//5秒未点击
 
 
-    public static final String APP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "app";
-    public static final String ADVISE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "metalcar" + File.separator + "advise";
+    public static final String APP_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "etc" + File.separator + "app";
+    public static final String ADVISE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "etc" + File.separator + "advise";
 
 
 }

@@ -10,10 +10,44 @@
         <property name="enable_load_extension" value="true" />
       </driver-properties>
     </data-source>
-    <data-source source="LOCAL" name="Android SQLite" uuid="876ca432-70c5-4c57-b369-1101c9470cab">
+    <data-source source="LOCAL" name="Android SQLite" uuid="d8651d94-cd7c-41d4-9dae-e2b8f778491c">
       <driver-ref>sqlite.xerial</driver-ref>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\Users\Administrator\.IntelliJIdea2018.3\system\android\databases\SERIAL_NUMBER_2a1839d4ea9e6bdc\com.huawei.jams.testautostart\internal\AppDataBase.db</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/sqlite-jdbc-3.31.1.jar</url>
+        </library>
+      </libraries>
+    </data-source>
+    <data-source source="LOCAL" name="Android SQLite" uuid="f8768544-6cf8-4810-91bd-1fa1008da27f">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\Administrator\.IntelliJIdea2018.3\system\android\databases\SERIAL_NUMBER_2a1839d4ea9e6bdc\com.huawei.jams.testautostart\internal\AppDataBase.db</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/sqlite-jdbc-3.31.1.jar</url>
+        </library>
+      </libraries>
+    </data-source>
+    <data-source source="LOCAL" name="Android SQLite" uuid="0df0bc2d-49d0-4d0b-98ee-e151339c2cc8">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\Users\Administrator\.IntelliJIdea2018.3\system\android\databases\SERIAL_NUMBER_2a1839d4ea9e6bdc\com.huawei.jams.testautostart\internal\AppDataBase.db</jdbc-url>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/license.txt</url>
+        </library>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.31.1/sqlite-jdbc-3.31.1.jar</url>
+        </library>
+      </libraries>
     </data-source>
   </component>
 </project>

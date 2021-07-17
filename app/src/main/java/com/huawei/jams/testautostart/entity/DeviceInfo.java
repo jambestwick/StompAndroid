@@ -7,8 +7,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 @Table(database = AppDataBase.class, name = "tb_device_info")
 public class DeviceInfo extends BaseModel implements Serializable {
@@ -75,6 +74,7 @@ public class DeviceInfo extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
+
         return "DeviceInfo{" +
                 "uuid=" + uuid +
                 ", deviceName='" + deviceName + '\'' +
@@ -135,5 +135,49 @@ public class DeviceInfo extends BaseModel implements Serializable {
 
             return null;
         }
+    }
+
+    static int count = 0;
+
+    public static void main(String[] args) {
+        List<String> lists = new ArrayList<>();
+        lists.add("1123");
+        lists.add("1123");
+        lists.add("1123");
+        lists.add("1123");
+        String[] arryas = {"abc", "2", "10", "0"};
+        for (String sdd : lists
+        ) {
+
+        }
+
+
+        int a = 1;
+        int b = 0;
+        int c = a / b;
+        System.out.println(c);
+
+//        String[] arryas={"abc","2","10","0"};
+//        List<String >list = Arrays.asList(arryas);
+//        Collections.sort(list);
+//        System.out.println(Arrays.toString(arryas));
+//
+//        System.out.print("apple".compareTo("banana"));
+//        double bbb = Math.PI;
+//
+//        LinkedList<Integer> list = new LinkedList<>();
+//        list.add(5);
+//        list.add(1);
+//        list.add(10);
+//        System.out.println(list);
+
+        String message = "Hello";
+
+
+    }
+
+    static void print(String message) {
+        System.out.print(message);
+        message += " ";
     }
 }
