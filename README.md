@@ -1,4 +1,4 @@
-# jamsAndroidLib
+# Android Stomp Client
 
 #### Description
 Android Stomp 协议客户端
